@@ -1,0 +1,3 @@
+rootProject.name='bzmedia'
+include ':app'
+include ':bzmedialib'

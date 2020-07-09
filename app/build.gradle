@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         applicationId "bz.luoye.sample"
         minSdkVersion 18
-        targetSdkVersion 29
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
@@ -33,7 +33,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     implementation 'com.luoye.bzlib:bzcommon:1.1.2'
-    implementation 'com.luoye.bzlib:bzcamera:1.0.9'
+    implementation 'com.luoye.bzlib:bzcamera:1.0.11'
     implementation 'com.luoye.bzlib:bzyuv:1.1.9'
     implementation project(path: ':bzmedialib')
 }

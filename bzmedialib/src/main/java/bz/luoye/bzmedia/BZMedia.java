@@ -18,4 +18,6 @@ public class BZMedia {
     }
 
     private native static int initNative(Context context, boolean isDebug, int sdkInt);
+
+    public native static int test();
 }

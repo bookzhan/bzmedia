@@ -20,8 +20,20 @@ add_library( # Sets the name of the library.
         # Provides a relative path to your source file(s).
         ./jni/android_bzmedia.cpp
         ./jni/ffmpeg_base_info.cpp
+        ./jni/OnActionListener.cpp
+
         ./common/BZLogUtil.cpp
         ./common/bz_time.cpp
+        ./common/JvmManager.cpp
+        ./common/GLUtil.cpp
+
+        ./mediaedit/TextureConvertYUVUtil.cpp
+        ./mediaedit/TextureUtil.cpp
+        ./mediaedit/VideoUtil.cpp
+        ./mediaedit/BackgroundMusicUtil.cpp
+        ./mediaedit/MergeVideoUtil.cpp
+
+        ./recorder/VideoRecorder.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -30,6 +42,7 @@ add_library( # Sets the name of the library.
 # you want to add. CMake verifies that the library exists before
 # completing its build.
 configure_file(${Project_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libbzffmpeg.so ${Project_BINARY_DIR}/libbzffmpeg.so COPYONLY)
+configure_file(${Project_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libbzffmpegcmd.so ${Project_BINARY_DIR}/libbzffmpegcmd.so COPYONLY)
 
 #ffmpeg
 add_library(bzffmpeg-lib
@@ -38,6 +51,14 @@ add_library(bzffmpeg-lib
 set_target_properties(bzffmpeg-lib
         PROPERTIES IMPORTED_LOCATION
         libbzffmpeg.so)
+#ffmpegcmd
+add_library(bzffmpegcmd-lib
+        SHARED
+        IMPORTED)
+set_target_properties(bzffmpegcmd-lib
+        PROPERTIES IMPORTED_LOCATION
+        libbzffmpegcmd.so)
+
 
 find_library(log-lib log)
 find_library(m-lib m)
@@ -49,8 +70,10 @@ find_library(GLES-lib GLESv2)
 
 
 include_directories(
-        ./include/
         ./
+        ./include/
+        ./common
+        ./bean
 )
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -61,4 +84,4 @@ target_link_libraries( # Specifies the target library.
 
         # Links the target library to the log library
         # included in the NDK.
-        bzffmpeg-lib ${log-lib} ${m-lib} ${z-lib} ${android-lib} ${EGL-lib} ${GLES-lib} ${jnigraphics-lib})
+        bzffmpeg-lib bzffmpegcmd-lib ${log-lib} ${m-lib} ${z-lib} ${android-lib} ${EGL-lib} ${GLES-lib} ${jnigraphics-lib})

@@ -1,0 +1,14 @@
+//
+/**
+ * Created by zhandalin on 2018-11-16 14:04.
+ * 说明:
+ */
+//
+
+#ifndef SLIDESHOWSDK_BGFILLCOLORTYPE_H
+#define SLIDESHOWSDK_BGFILLCOLORTYPE_H
+
+enum BgFillType {
+    GAUSS_BLUR, COMMON_COLOR
+};
+#endif //SLIDESHOWSDK_BGFILLCOLORTYPE_H

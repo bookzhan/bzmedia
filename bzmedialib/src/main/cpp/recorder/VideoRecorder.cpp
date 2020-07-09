@@ -3,7 +3,6 @@
  * 说明:视频录制
  */
 #include <common/BZLogUtil.h>
-#include <mediaedit/TextureConvertYUVUtil.h>
 #include <bean/FilteringContext.h>
 #include <common/bzcommon.h>
 #include "VideoRecorder.h"
@@ -33,22 +32,23 @@ VideoRecorder::VideoRecorder() {
 int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
     BZLogUtil::logD(
             "startRecord output_path=%s--srcWidth=%d--srcHeight=%d--targetWidth=%d--targetHeight=%d \n"
-            "rate=%d--nb_samples=%d--sampleRate=%d--videoRotate=%d--extraFilterParam=%s--pixelFormat=%d\n"
+            "rate=%d--nb_samples=%d--sampleRate=%d--videoRotate=%d--pixelFormat=%d\n"
             "allFrameIsKey=%d,synEncode=%d,avPacketFromMediaCodec=%d",
-            videoRecordParams.output_path, videoRecordParams.srcWidth, videoRecordParams.srcHeight,
+            videoRecordParams.output_path, videoRecordParams.videoWidth,
+            videoRecordParams.videoHeight,
             videoRecordParams.targetWidth, videoRecordParams.targetHeight,
-            videoRecordParams.videoRate,
+            videoRecordParams.videoFrameRate,
             videoRecordParams.nbSamples,
             videoRecordParams.sampleRate, videoRecordParams.videoRotate,
-            videoRecordParams.extraFilterParam, videoRecordParams.pixelFormat,
+            videoRecordParams.pixelFormat,
             videoRecordParams.allFrameIsKey, videoRecordParams.synEncode,
             videoRecordParams.avPacketFromMediaCodec);
 
     videoRecordParams.targetWidth = videoRecordParams.targetWidth / 16 * 16;
-    videoRecordParams.srcWidth = videoRecordParams.srcWidth / 16 * 16;
+    videoRecordParams.videoWidth = videoRecordParams.videoWidth / 16 * 16;
 
     videoRecordParams.targetHeight = videoRecordParams.targetHeight / 16 * 16;
-    videoRecordParams.srcHeight = videoRecordParams.srcHeight / 16 * 16;
+    videoRecordParams.videoHeight = videoRecordParams.videoHeight / 16 * 16;
 
     BZLogUtil::logD("VideoRecorder 对齐后targetWidth=%d--targetHeight=%d",
                     videoRecordParams.targetWidth,
@@ -56,15 +56,15 @@ int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
     if (videoRecordParams.targetHeight % 2 != 0)
         videoRecordParams.targetHeight -= 1;
 
-    if (videoRecordParams.srcHeight % 2 != 0)
-        videoRecordParams.srcHeight -= 1;
+    if (videoRecordParams.videoHeight % 2 != 0)
+        videoRecordParams.videoHeight -= 1;
 
-    this->srcWidth = videoRecordParams.srcWidth;
-    this->srcHeight = videoRecordParams.srcHeight;
+    this->srcWidth = videoRecordParams.videoWidth;
+    this->srcHeight = videoRecordParams.videoHeight;
     this->targetWidth = videoRecordParams.targetWidth;
 
     this->targetHeight = videoRecordParams.targetHeight;
-    this->videoRate = videoRecordParams.videoRate;
+    this->videoRate = videoRecordParams.videoFrameRate;
     this->nbSamples = videoRecordParams.nbSamples;
     this->sampleRate = videoRecordParams.sampleRate;
     this->videoRotate = videoRecordParams.videoRotate;
@@ -109,7 +109,7 @@ int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
         }
     }
     if (video_st->avCodecContext) {
-        ret = openVideo(video_st, videoRecordParams.extraFilterParam);
+        ret = openVideo(video_st, nullptr);
         if (ret < 0) {
             BZLogUtil::logE("VideoRecorder open_video fail");
             endRecordAndReleaseResource();

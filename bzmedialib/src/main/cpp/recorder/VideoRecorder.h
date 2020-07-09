@@ -31,6 +31,7 @@ extern "C" {
 #include <string>
 #include "../common/bz_time.h"
 #include "VideoRecordParams.h"
+#include <mediaedit/TextureConvertYUVUtil.h>
 
 #define H264_NALU_TYPE_NON_IDR_PICTURE                                  1
 #define H264_NALU_TYPE_IDR_PICTURE                                      5
@@ -118,7 +119,7 @@ private:
     mutex *videoWriteMutex = NULL;
     string *output_path = NULL;
 
-    FilteringContext *filter_ctx = NULL;
+    struct FilteringContext *filter_ctx = NULL;
     int yuvBufferTotalCount = 0;
     int updateTextureCount = 0;
 

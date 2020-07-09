@@ -11,15 +11,14 @@
 using namespace std;
 typedef struct VideoRecordParams {
     const char *output_path = NULL;
-    int srcWidth = 0;
-    int srcHeight = 0;
+    int videoWidth = 0;
+    int videoHeight = 0;
     int targetWidth = 0;
     int targetHeight = 0;
-    int videoRate = 0;
+    int videoFrameRate = 0;
     int nbSamples = 0;
     int sampleRate = 0;
     int videoRotate = 0;
-    const char *extraFilterParam = NULL;
     int pixelFormat = 0;
     bool hasAudio = true;
     bool needFlipVertical = false;

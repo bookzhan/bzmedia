@@ -3,9 +3,7 @@ package bz.luoye.sample.activity;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 
 import com.bzcommon.utils.BZLogUtil;
@@ -13,7 +11,7 @@ import com.luoye.bzcamera.utils.PermissionUtil;
 
 import java.util.ArrayList;
 
-import bz.luoye.bzmedia.BZMedia;
+import com.luoye.bzmedia.BZMedia;
 import bz.luoye.sample.R;
 
 public class MainActivity extends AppCompatActivity {

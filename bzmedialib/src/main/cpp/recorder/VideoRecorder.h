@@ -32,6 +32,7 @@ extern "C" {
 #include "../common/bz_time.h"
 #include "VideoRecordParams.h"
 #include <mediaedit/TextureConvertYUVUtil.h>
+#include <bean/PixelFormat.h>
 
 #define H264_NALU_TYPE_NON_IDR_PICTURE                                  1
 #define H264_NALU_TYPE_IDR_PICTURE                                      5
@@ -160,7 +161,7 @@ private:
                                uint64_t channel_layout,
                                int sample_rate, int nb_samples);
 
-    int beforehandVideoData(unsigned char *videoData,int64_t videoPts = -1);
+    int beforehandVideoData(unsigned char *videoData, int64_t videoPts = -1);
 
     int beforehandVideoData(AVFrame *videoData);
 

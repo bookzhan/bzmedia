@@ -38,7 +38,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         BZFileUtils.createNewFile(videoRecordParams.getOutputPath());
 
         VideoSize fitVideoSize;
-        if (adjustVideoSize && mVideoRecordParams.getPixelFormat()!= BZMedia.PixelFormat.RGBA) {
+        if (adjustVideoSize && mVideoRecordParams.getPixelFormat() != BZMedia.PixelFormat.RGBA) {
             fitVideoSize = VideoTacticsManager.getFitVideoSize(videoRecordParams.getVideoWidth(), videoRecordParams.getVideoHeight());
         } else {
             fitVideoSize = new VideoSize(videoRecordParams.getVideoWidth(), videoRecordParams.getVideoHeight());
@@ -130,8 +130,10 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             BZMedia.stopRecord(nativeHandle);
             nativeHandle = 0;
             mRecording = false;
-            if (null != mOnVideoRecorderStateListener)
+            if (null != mOnVideoRecorderStateListener) {
                 mOnVideoRecorderStateListener.onVideoRecorderStopped(mVideoRecordParams.getOutputPath(), true);
+                mOnVideoRecorderStateListener = null;
+            }
         }
     }
 
@@ -153,6 +155,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             BZLogUtil.d(TAG, "stopRecord success");
             if (null != mOnVideoRecorderStateListener) {
                 mOnVideoRecorderStateListener.onVideoRecorderStopped(mVideoRecordParams.getOutputPath(), ret >= 0);
+                mOnVideoRecorderStateListener = null;
             }
         } else {
             new Thread(new Runnable() {
@@ -164,6 +167,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
                     BZLogUtil.d(TAG, "stopRecord success");
                     if (null != mOnVideoRecorderStateListener) {
                         mOnVideoRecorderStateListener.onVideoRecorderStopped(mVideoRecordParams.getOutputPath(), ret >= 0);
+                        mOnVideoRecorderStateListener = null;
                     }
                 }
             }, "StopRecordThread").start();
@@ -175,6 +179,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
     public long getRecordTime() {
         return recordTime;
     }
+
 
     public void addVideoData4Bitmap(Bitmap bitmap) {
         if (null == bitmap || bitmap.isRecycled() || bitmap.getWidth() <= 0 || bitmap.getHeight() <= 0) {

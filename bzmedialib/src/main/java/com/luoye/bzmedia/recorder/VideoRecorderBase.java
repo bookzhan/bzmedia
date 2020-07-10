@@ -25,11 +25,22 @@ public abstract class VideoRecorderBase {
             BZLogUtil.e(TAG, "null == videoRecordParams");
             return -1;
         }
+        if (null == mVideoRecordParams.getOutputPath() || mVideoRecordParams.getVideoWidth() <= 0 || mVideoRecordParams.getVideoHeight() <= 0) {
+            BZLogUtil.e(TAG, "null == mVideoRecordParams.getOutputPath() || mVideoRecordParams.getVideoWidth() <= 0 || mVideoRecordParams.getVideoHeight() <= 0");
+            return -1;
+        }
         if (videoRecordParams.getVideoFrameRate() > 0) {
             mFrameRate = videoRecordParams.getVideoFrameRate();
         }
         BZLogUtil.d(TAG, "startRecord videoRecordParams=" + videoRecordParams);
         return 0;
+    }
+
+    public String getVideoPath() {
+        if (null == mVideoRecordParams) {
+            return null;
+        }
+        return mVideoRecordParams.getOutputPath();
     }
 
     public synchronized void updateVideoData(byte[] data, long pts) {
@@ -92,7 +103,7 @@ public abstract class VideoRecorderBase {
         mOnRecorderErrorListener = onRecorderErrorListener;
     }
 
-    public void setmOnVideoRecorderStateListener(OnVideoRecorderStateListener mOnVideoRecorderStateListener) {
+    public void setOnVideoRecorderStateListener(OnVideoRecorderStateListener mOnVideoRecorderStateListener) {
         this.mOnVideoRecorderStateListener = mOnVideoRecorderStateListener;
     }
 

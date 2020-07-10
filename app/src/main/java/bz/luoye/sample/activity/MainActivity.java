@@ -1,17 +1,18 @@
 package bz.luoye.sample.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.bzcommon.utils.BZLogUtil;
 import com.luoye.bzcamera.utils.PermissionUtil;
+import com.luoye.bzmedia.BZMedia;
 
 import java.util.ArrayList;
 
-import com.luoye.bzmedia.BZMedia;
 import bz.luoye.sample.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -62,5 +63,9 @@ public class MainActivity extends AppCompatActivity {
         long startTime = System.currentTimeMillis();
         BZMedia.test();
         BZLogUtil.d(TAG, "test time cost=" + (System.currentTimeMillis() - startTime));
+    }
+
+    public void RecoderTest(View view) {
+        startActivity(new Intent(this, RecorderTestActivity.class));
     }
 }

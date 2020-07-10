@@ -5,22 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
-    android:orientation="vertical"
-    tools:context=".activity.MainActivity">
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="RecoderTest"
-        android:text="RecoderTest"
-        android:textAllCaps="false" />
+    tools:context=".activity.RecorderTestActivity">
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:onClick="test"
-        android:text="test"
+        android:onClick="Recoder4Camera1"
+        android:text="Recoder4Camera1"
         android:textAllCaps="false" />
 
 </LinearLayout>

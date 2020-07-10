@@ -148,7 +148,7 @@ int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
 
     recorderStartTime = getCurrentTime();
     isStopRecorder = false;
-    if (pixelFormat == 2) {
+    if (pixelFormat == PixelFormat::TEXTURE) {
         textureConvertYUVUtil = new TextureConvertYUVUtil();
         textureConvertYUVUtil->init(targetWidth, targetHeight);
         textureConvertYUVUtil->setTextureFlip(false, videoRecordParams.needFlipVertical);
@@ -751,7 +751,7 @@ int64_t VideoRecorder::addVideoData(AVFrame *avFrameData, int64_t videoPts) {
     } else {
         encodeFrame(avFrameData, videoPts);
     }
-    if (pixelFormat != 2)
+    if (pixelFormat != PixelFormat::TEXTURE)
         av_frame_free(&avFrameData);
 
     isAddVideoData = false;
@@ -810,14 +810,17 @@ int VideoRecorder::beforehandVideoData(unsigned char *videoData, int64_t videoPt
         return -1;
     int ret = 0;
     uint8_t *buffer = videoData;
-    if (this->pixelFormat == 1) {
+    if (this->pixelFormat == PixelFormat::YUVI420) {
         frame->data[0] = buffer;
         frame->data[1] = buffer + y_size;
         frame->data[2] = buffer + y_size * 5 / 4;
-    } else {
+    } else if (this->pixelFormat == PixelFormat::YV12) {
         frame->data[0] = buffer;
         frame->data[1] = buffer + y_size * 5 / 4;
         frame->data[2] = buffer + y_size;
+    } else {
+        BZLogUtil::logE("Unsupported pixelFormat");
+        return -1;
     }
 
     //先裁切,后转换数据格式

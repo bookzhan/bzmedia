@@ -52,6 +52,6 @@ public class BZMedia {
     public native static int test();
 
     public static enum PixelFormat {
-        YV12, NV21, TEXTURE, RGBA
+        YUVI420, YV12, TEXTURE, RGBA
     }
 }

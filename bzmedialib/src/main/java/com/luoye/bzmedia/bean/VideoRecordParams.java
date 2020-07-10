@@ -28,11 +28,11 @@ public class VideoRecordParams {
     private int videoHeight;
     private int targetWidth;
     private int targetHeight;
-    private int videoFrameRate;
+    private int videoFrameRate = 30;
     private int nbSamples;
     private int sampleRate;
     private int videoRotate;
-    private int pixelFormat;
+    private int pixelFormat=BZMedia.PixelFormat.YUVI420.ordinal();
     private boolean hasAudio = true;
     private boolean needFlipVertical = false;
     //Are the videos all key frames?

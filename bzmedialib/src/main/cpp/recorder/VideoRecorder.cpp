@@ -9,12 +9,12 @@
 #include "h264_util.h"
 
 
-int VideoRecorder::getVideoInputWidth() {
-    return srcWidth;
+int VideoRecorder::getVideoOutputWidth() {
+    return targetWidth;
 }
 
-int VideoRecorder::getVideoInputHeight() {
-    return srcHeight;
+int VideoRecorder::getVideoOutputHeight() {
+    return targetHeight;
 }
 
 
@@ -76,7 +76,7 @@ int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
     this->synEncode = videoRecordParams.synEncode;
     this->avPacketFromMediaCodec = videoRecordParams.avPacketFromMediaCodec;
 
-    y_size = srcWidth * srcHeight;
+    y_size = targetWidth * targetHeight;
 
     output_path = new string();
     output_path->append(videoRecordParams.output_path);
@@ -470,8 +470,8 @@ int VideoRecorder::openVideo(BZOutputStream *stream, const char *extraFilterPara
         BZLogUtil::logD("VideoRecorder Could not allocate video frame\n");
         return -1;
     }
-    stream->tmp_frame = alloc_picture(avCodecContext->pix_fmt, this->srcWidth,
-                                      this->srcHeight);
+    stream->tmp_frame = alloc_picture(avCodecContext->pix_fmt, this->targetWidth,
+                                      this->targetHeight);
     if (!stream->tmp_frame) {
         BZLogUtil::logD("VideoRecorder Could not allocate temporary picture\n");
         return -1;

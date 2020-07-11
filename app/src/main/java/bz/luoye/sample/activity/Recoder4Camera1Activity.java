@@ -50,6 +50,8 @@ public class Recoder4Camera1Activity extends AppCompatActivity implements Camera
         VideoRecordParams videoRecordParams = new VideoRecordParams();
         videoRecordParams.setInputWidth(displayWidth);
         videoRecordParams.setInputHeight(displayHeight);
+        videoRecordParams.setTargetWidth(displayWidth / 2);
+        videoRecordParams.setTargetHeight(displayHeight / 2);
         videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());
         videoRecorderNative = new VideoRecorderNative();
         videoRecorderNative.setOnVideoRecorderStateListener(new VideoRecorderBase.OnVideoRecorderStateListener() {
@@ -76,13 +78,13 @@ public class Recoder4Camera1Activity extends AppCompatActivity implements Camera
         videoRecorderNative.setOnRecorderErrorListener(new OnRecorderErrorListener() {
             @Override
             public void onVideoError(int what, int extra) {
-                BZLogUtil.e(TAG,"onVideoError what="+what+" extra="+extra);
+                BZLogUtil.e(TAG, "onVideoError what=" + what + " extra=" + extra);
                 stopRecord(null);
             }
 
             @Override
             public void onAudioError(int what, String message) {
-                BZLogUtil.e(TAG,"onAudioError what="+what+" extra="+message);
+                BZLogUtil.e(TAG, "onAudioError what=" + what + " extra=" + message);
                 stopRecord(null);
             }
         });
@@ -94,7 +96,7 @@ public class Recoder4Camera1Activity extends AppCompatActivity implements Camera
         }
     }
 
-    private void enableStartRecordButton(){
+    private void enableStartRecordButton() {
         bz_start_record.post(new Runnable() {
             @Override
             public void run() {
@@ -102,6 +104,7 @@ public class Recoder4Camera1Activity extends AppCompatActivity implements Camera
             }
         });
     }
+
     public void stopRecord(View view) {
         if (null != videoRecorderNative) {
             videoRecorderNative.stopRecord();
@@ -141,7 +144,7 @@ public class Recoder4Camera1Activity extends AppCompatActivity implements Camera
             BZYUVUtil.preHandleNV21(data, yuvBuffer, width, height, cameraId == Camera.CameraInfo.CAMERA_FACING_FRONT, displayOrientation);
         }
         if (null != videoRecorderNative) {
-            videoRecorderNative.updateVideoData(yuvBuffer);
+            videoRecorderNative.updateYUV420Data(yuvBuffer);
         }
     }
 

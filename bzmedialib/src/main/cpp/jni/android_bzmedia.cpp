@@ -222,8 +222,8 @@ Java_com_luoye_bzmedia_BZMedia_updateVideoRecorderTexture(JNIEnv *env, jclass cl
 }
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_com_luoye_bzmedia_BZMedia_addVideoData(JNIEnv *env, jclass clazz, jlong native_handle,
-                                            jbyteArray data_, jlong pts) {
+Java_com_luoye_bzmedia_BZMedia_addYUV420Data(JNIEnv *env, jclass clazz, jlong native_handle,
+                                             jbyteArray data_, jlong pts) {
     if (native_handle == 0) {
         return -1;
     }

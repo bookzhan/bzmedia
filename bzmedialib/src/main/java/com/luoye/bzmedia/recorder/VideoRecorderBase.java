@@ -13,7 +13,6 @@ public abstract class VideoRecorderBase {
     VideoRecordParams mVideoRecordParams;
     volatile boolean mRecording;
     private boolean avPacketFromMediaCodec = false;
-    boolean adjustVideoSize = true;
     OnRecorderErrorListener mOnRecorderErrorListener = null;
     OnVideoRecorderStateListener mOnVideoRecorderStateListener = null;
     OnRecordPCMListener onRecordPCMListener = null;
@@ -43,21 +42,17 @@ public abstract class VideoRecorderBase {
         return mVideoRecordParams.getOutputPath();
     }
 
-    public synchronized void updateVideoData(byte[] data, long pts) {
+    public synchronized void updateYUV420Data(byte[] data, long pts) {
 
     }
 
-    public void updateVideoData(byte[] data) {
-        updateVideoData(data, -1);
+    public void updateYUV420Data(byte[] data) {
+        updateYUV420Data(data, -1);
     }
 
     public abstract void updateTexture(int textureId);
 
     public abstract void stopRecord();
-
-    public void setAdjustVideoSize(boolean adjustVideoSize) {
-        this.adjustVideoSize = adjustVideoSize;
-    }
 
     public int getFrameDuration() {
         return (int) (1000.0f / mFrameRate * mVideoRecordParams.getRecordSpeed());

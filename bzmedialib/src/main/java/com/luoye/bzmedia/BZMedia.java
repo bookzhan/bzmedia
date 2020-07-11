@@ -1,7 +1,6 @@
 package com.luoye.bzmedia;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Build;
 
 import com.bzcommon.utils.BZLogUtil;
@@ -42,7 +41,7 @@ public class BZMedia {
 
     public static native long updateVideoRecorderTexture(long nativeHandle, int textureId);
 
-    public static native long addVideoData(long nativeHandle, byte[] data, long pts);
+    public static native long addYUV420Data(long nativeHandle, byte[] data, long pts);
 
     public static native long addVideoPacketData(long nativeHandle, byte[] videoPacket, long size, long pts);
 
@@ -50,6 +49,6 @@ public class BZMedia {
     public native static int test();
 
     public static enum PixelFormat {
-        YUVI420, YV12, TEXTURE, RGBA
+        YUVI420, YV12, TEXTURE
     }
 }

@@ -69,9 +69,9 @@ public:
 
     int updateTexture(int textureId, int64_t videoPts = -1);
 
-    int getVideoInputWidth();
+    int getVideoOutputWidth();
 
-    int getVideoInputHeight();
+    int getVideoOutputHeight();
 
     //获取录制的总时间,以音频时间戳为准
     int64_t getRecordTime();

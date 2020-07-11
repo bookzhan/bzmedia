@@ -61,14 +61,11 @@ public class VideoTacticsManager {
             targetWith = width;
             BZLogUtil.d(TAG, "targetWidth >width 取width值");
         }
-        VideoSize videoSize = new VideoSize();
-        videoSize.width = targetWith;
-        videoSize.height = targetWith * height / width;
-
-        if (videoSize.height > height) {
+        VideoSize videoSize = new VideoSize(targetWith, targetWith * height / width);
+        if (videoSize.getVideoHeight() > height) {
             BZLogUtil.d(TAG, "targetHeight >height 以height为准取值 即保持原值不变");
-            videoSize.height = height;
-            videoSize.width = width * height / height;
+            videoSize.setVideoHeight(height);
+            videoSize.setVideoWidth(width * height / height);
         }
         return videoSize;
     }
@@ -94,14 +91,11 @@ public class VideoTacticsManager {
             targetWith = 720;
         }
 
-        VideoSize videoSize = new VideoSize();
-        videoSize.width = targetWith;
-        videoSize.height = targetWith * height / width;
-
-        if (videoSize.height > height) {
+        VideoSize videoSize = new VideoSize(targetWith, targetWith * height / width);
+        if (videoSize.getVideoHeight() > height) {
             BZLogUtil.d(TAG, "targetHeight >height 以height为准取值 即保持原值不变");
-            videoSize.height = height;
-            videoSize.width = width * height / height;
+            videoSize.setVideoHeight(height);
+            videoSize.setVideoWidth(width * height / height);
         }
         return videoSize;
     }
@@ -124,7 +118,7 @@ public class VideoTacticsManager {
             videoSize = getMediaCodeVideoSize(width, height);
         }
 
-        BZLogUtil.d(TAG, "final size width=" + videoSize.width + "--height=" + videoSize.height);
+        BZLogUtil.d(TAG, "final size width=" + videoSize.getVideoWidth() + "--height=" + videoSize.getVideoHeight());
         return videoSize;
     }
 }

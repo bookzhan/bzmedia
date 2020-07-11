@@ -36,6 +36,8 @@ public class Recoder4BitmapActivity extends AppCompatActivity {
         videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());
         videoRecordParams.setInputWidth(bitmap.getWidth());
         videoRecordParams.setInputHeight(bitmap.getHeight());
+        videoRecordParams.setTargetWidth(bitmap.getWidth() / 2);
+        videoRecordParams.setTargetHeight(bitmap.getHeight() / 2);
         videoRecordParams.setHasAudio(false);
         videoRecordParams.setVideoFrameRate(15);
 
@@ -73,6 +75,9 @@ public class Recoder4BitmapActivity extends AppCompatActivity {
             String path = String.format(Locale.CHINA, rootPath + "/image%d.jpeg", i + 1);
             Bitmap decodeFile = BitmapFactory.decodeFile(path);
             videoRecorderNative.addVideoData4Bitmap(decodeFile);
+            if (!decodeFile.isRecycled()) {
+                decodeFile.recycle();
+            }
         }
         videoRecorderNative.stopRecord();
     }

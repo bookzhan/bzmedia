@@ -30,7 +30,8 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
     private BaseProgram baseProgram;
     private FrameBufferUtil frameBufferUtil;
     private long lastUpdateTextureTime = 0;
-    private byte[] yuvBuffer;
+    private byte[] yuvBuffer = null;
+    private byte[] yuvCropBuffer = null;
 
     @Override
     public synchronized int startRecord(VideoRecordParams videoRecordParams) {
@@ -40,14 +41,16 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         }
         BZFileUtils.createNewFile(videoRecordParams.getOutputPath());
 
-        VideoSize fitVideoSize;
-        if (adjustVideoSize && mVideoRecordParams.getPixelFormat() != BZMedia.PixelFormat.RGBA) {
+        VideoSize fitVideoSize = new VideoSize(videoRecordParams.getTargetWidth(), videoRecordParams.getTargetHeight());
+        if (fitVideoSize.getVideoWidth() <= 0 || fitVideoSize.getVideoHeight() <= 0) {
             fitVideoSize = VideoTacticsManager.getFitVideoSize(videoRecordParams.getInputWidth(), videoRecordParams.getInputHeight());
-        } else {
-            fitVideoSize = new VideoSize(videoRecordParams.getInputWidth(), videoRecordParams.getInputHeight());
         }
-        videoRecordParams.setTargetWidth(fitVideoSize.width);
-        videoRecordParams.setTargetHeight(fitVideoSize.height);
+        //align to 16
+        fitVideoSize.setVideoWidth(fitVideoSize.getVideoWidth() / 16 * 16);
+        fitVideoSize.setVideoHeight(fitVideoSize.getVideoHeight() / 16 * 16);
+
+        videoRecordParams.setTargetWidth(fitVideoSize.getVideoWidth());
+        videoRecordParams.setTargetHeight(fitVideoSize.getVideoHeight());
         videoRecordParams.setNbSamples(AudioCapture.getNbSamples());
         videoRecordParams.setSampleRate(44100);
         if (videoRecordParams.getBitRate() <= 0) {
@@ -84,9 +87,25 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
     }
 
     @Override
-    public synchronized void updateVideoData(byte[] data, long pts) {
-        super.updateVideoData(data, pts);
-        long ret = BZMedia.addVideoData(nativeHandle, data, pts);
+    public synchronized void updateYUV420Data(byte[] data, long pts) {
+        super.updateYUV420Data(data, pts);
+        if (null == mVideoRecordParams) {
+            return;
+        }
+        byte[] buffer = data;
+        if (mVideoRecordParams.getInputWidth() != mVideoRecordParams.getTargetWidth()
+                || mVideoRecordParams.getInputHeight() != mVideoRecordParams.getTargetHeight()) {
+            if (null == yuvCropBuffer) {
+                yuvCropBuffer = new byte[mVideoRecordParams.getTargetWidth() * mVideoRecordParams.getTargetHeight() * 3 / 2];
+            }
+            int ret = BZYUVUtil.zoomYUV420(data, yuvCropBuffer, mVideoRecordParams.getInputWidth(), mVideoRecordParams.getInputHeight(), mVideoRecordParams.getTargetWidth(), mVideoRecordParams.getTargetHeight());
+            if (ret < 0) {
+                BZLogUtil.e(TAG, "updateYUV420Data zoomYUV420 fail");
+                return;
+            }
+            buffer = yuvCropBuffer;
+        }
+        long ret = BZMedia.addYUV420Data(nativeHandle, buffer, pts);
         if (ret < 0) {
             BZLogUtil.d(TAG, "addVideoData fail");
         } else {
@@ -181,18 +200,22 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             BZLogUtil.e(TAG, "null==bitmap||bitmap.isRecycled()||bitmap.getWidth()<=0||bitmap.getHeight()<=0");
             return;
         }
+        Bitmap scaleBitmap = null;
         if (mVideoRecordParams.getTargetWidth() != bitmap.getWidth() || mVideoRecordParams.getTargetHeight() != bitmap.getHeight()) {
-            bitmap = scaleBitmap(bitmap, mVideoRecordParams.getTargetWidth(), mVideoRecordParams.getTargetHeight());
+            scaleBitmap = scaleBitmap(bitmap, mVideoRecordParams.getTargetWidth(), mVideoRecordParams.getTargetHeight());
         }
         if (null == yuvBuffer) {
             yuvBuffer = new byte[bitmap.getWidth() * bitmap.getHeight() * 3 / 2];
         }
-        int result = BZYUVUtil.bitmapToYUV420(bitmap, yuvBuffer);
+        int result = BZYUVUtil.bitmapToYUV420(null != scaleBitmap ? scaleBitmap : bitmap, yuvBuffer);
         if (result < 0) {
             BZLogUtil.e(TAG, "bitmapToYUV420 fail");
             return;
         }
-        updateVideoData(yuvBuffer);
+        updateYUV420Data(yuvBuffer);
+        if (null != scaleBitmap && !scaleBitmap.isRecycled()) {
+            scaleBitmap.recycle();
+        }
     }
 
 

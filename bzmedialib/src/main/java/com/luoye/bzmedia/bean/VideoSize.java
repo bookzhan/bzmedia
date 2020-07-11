@@ -5,8 +5,8 @@ package com.luoye.bzmedia.bean;
  * 说明:
  */
 public class VideoSize {
-    public int width;
-    public int height;
+    private int width;
+    private int height;
 
     public VideoSize() {
     }

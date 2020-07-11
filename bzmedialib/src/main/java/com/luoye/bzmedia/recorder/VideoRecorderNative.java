@@ -1,10 +1,10 @@
 package com.luoye.bzmedia.recorder;
 
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 
 import com.bzcommon.glutils.BaseProgram;
 import com.bzcommon.glutils.FrameBufferUtil;
+import com.bzcommon.utils.BZBitmapUtil;
 import com.bzcommon.utils.BZFileUtils;
 import com.bzcommon.utils.BZLogUtil;
 import com.luoye.bzmedia.BZMedia;
@@ -226,7 +226,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         }
         Bitmap scaleBitmap = null;
         if (mVideoRecordParams.getTargetWidth() != bitmap.getWidth() || mVideoRecordParams.getTargetHeight() != bitmap.getHeight()) {
-            scaleBitmap = scaleBitmap(bitmap, mVideoRecordParams.getTargetWidth(), mVideoRecordParams.getTargetHeight());
+            scaleBitmap = BZBitmapUtil.scaleBitmap4Fix(bitmap, mVideoRecordParams.getTargetWidth(), mVideoRecordParams.getTargetHeight());
         }
         if (null == yuvBuffer) {
             yuvBuffer = new byte[bitmap.getWidth() * bitmap.getHeight() * 3 / 2];
@@ -240,15 +240,6 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         if (null != scaleBitmap && !scaleBitmap.isRecycled()) {
             scaleBitmap.recycle();
         }
-    }
-
-
-    private static Bitmap scaleBitmap(Bitmap srcBitmap, float targetWidth, float targetHeight) {
-        float scaleX = targetWidth / srcBitmap.getWidth();
-        float scaleY = targetHeight / srcBitmap.getHeight();
-        Matrix matrix = new Matrix();
-        matrix.postScale(scaleX, scaleY);
-        return Bitmap.createBitmap(srcBitmap, 0, 0, srcBitmap.getWidth(), srcBitmap.getHeight(), matrix, true);
     }
 
     public void addVideoPacketData(byte[] videoPacket, long size, long pts) {

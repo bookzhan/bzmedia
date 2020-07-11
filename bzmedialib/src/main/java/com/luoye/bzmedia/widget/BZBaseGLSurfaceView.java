@@ -8,36 +8,23 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 
+import com.bzcommon.glutils.BZOpenGlUtils;
 import com.bzcommon.glutils.BaseProgram;
 import com.bzcommon.utils.BZLogUtil;
 import com.luoye.bzmedia.bean.BZColor;
 import com.luoye.bzmedia.bean.ViewPort;
 
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Locale;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static android.opengl.GLES20.GL_CLAMP_TO_EDGE;
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
-import static android.opengl.GLES20.GL_LINEAR;
 import static android.opengl.GLES20.GL_RGBA;
-import static android.opengl.GLES20.GL_TEXTURE_2D;
-import static android.opengl.GLES20.GL_TEXTURE_MAG_FILTER;
-import static android.opengl.GLES20.GL_TEXTURE_MIN_FILTER;
-import static android.opengl.GLES20.GL_TEXTURE_WRAP_S;
-import static android.opengl.GLES20.GL_TEXTURE_WRAP_T;
 import static android.opengl.GLES20.GL_UNSIGNED_BYTE;
-import static android.opengl.GLES20.glBindTexture;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
-import static android.opengl.GLES20.glDeleteTextures;
-import static android.opengl.GLES20.glGenTextures;
-import static android.opengl.GLES20.glIsTexture;
-import static android.opengl.GLES20.glTexImage2D;
-import static android.opengl.GLES20.glTexParameterf;
 import static android.opengl.GLES20.glViewport;
 
 /**
@@ -129,23 +116,6 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
         requestRender();
     }
 
-    private int genTextureFromImageData(byte[] imageData, int width, int height) {
-        if (null == imageData || width <= 0 || height <= 0)
-            return 0;
-        int[] imageTextureId = new int[1];
-        glGenTextures(1, imageTextureId, 0);
-        glBindTexture(GL_TEXTURE_2D, imageTextureId[0]);
-        glTexParameterf(GL_TEXTURE_2D,
-                GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D,
-                GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D,
-                GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameterf(GL_TEXTURE_2D,
-                GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ByteBuffer.wrap(imageData));
-        return imageTextureId[0];
-    }
 
     @Override
     public void onPause() {
@@ -167,7 +137,7 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
         glClear(GL_COLOR_BUFFER_BIT);
         int textureID;
         synchronized (this) {
-            textureID = genTextureFromImageData(dataBuffer, inputWidth, inputHeight);
+            textureID = BZOpenGlUtils.loadTexture(dataBuffer, inputWidth, inputHeight);
         }
 
         if (null == baseProgram) {
@@ -197,16 +167,9 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
         if (null != onDrawFrameListener) {
             onDrawFrameListener.onDrawFrame(textureID);
         }
-        deleteTexture(textureID);
+        BZOpenGlUtils.deleteTexture(textureID);
     }
 
-    private void deleteTexture(int textureID) {
-        if (textureID >= 0 && glIsTexture(textureID)) {
-            int[] ints = new int[1];
-            ints[0] = textureID;
-            glDeleteTextures(1, ints, 0);
-        }
-    }
 
     public void setClearColor(BZColor bzColor) {
         this.bzClearColor.r = bzColor.r;

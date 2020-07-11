@@ -1,6 +1,7 @@
 package com.luoye.bzmedia.recorder;
 
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 
 import com.bzcommon.glutils.BaseProgram;
 import com.bzcommon.glutils.FrameBufferUtil;
@@ -9,6 +10,7 @@ import com.bzcommon.utils.BZLogUtil;
 import com.luoye.bzmedia.BZMedia;
 import com.luoye.bzmedia.bean.VideoRecordParams;
 import com.luoye.bzmedia.bean.VideoSize;
+import com.luoye.bzyuvlib.BZYUVUtil;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.glClear;
@@ -28,6 +30,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
     private BaseProgram baseProgram;
     private FrameBufferUtil frameBufferUtil;
     private long lastUpdateTextureTime = 0;
+    private byte[] yuvBuffer;
 
     @Override
     public synchronized int startRecord(VideoRecordParams videoRecordParams) {
@@ -39,9 +42,9 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
 
         VideoSize fitVideoSize;
         if (adjustVideoSize && mVideoRecordParams.getPixelFormat() != BZMedia.PixelFormat.RGBA) {
-            fitVideoSize = VideoTacticsManager.getFitVideoSize(videoRecordParams.getVideoWidth(), videoRecordParams.getVideoHeight());
+            fitVideoSize = VideoTacticsManager.getFitVideoSize(videoRecordParams.getInputWidth(), videoRecordParams.getInputHeight());
         } else {
-            fitVideoSize = new VideoSize(videoRecordParams.getVideoWidth(), videoRecordParams.getVideoHeight());
+            fitVideoSize = new VideoSize(videoRecordParams.getInputWidth(), videoRecordParams.getInputHeight());
         }
         videoRecordParams.setTargetWidth(fitVideoSize.width);
         videoRecordParams.setTargetHeight(fitVideoSize.height);
@@ -98,12 +101,12 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
                 baseProgram = new BaseProgram(true);
             }
             if (null == frameBufferUtil) {
-                frameBufferUtil = new FrameBufferUtil(mVideoRecordParams.getVideoWidth(), mVideoRecordParams.getVideoHeight());
+                frameBufferUtil = new FrameBufferUtil(mVideoRecordParams.getInputWidth(), mVideoRecordParams.getInputHeight());
             }
             frameBufferUtil.bindFrameBuffer();
             glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
-            glViewport(0, 0, mVideoRecordParams.getVideoWidth(), mVideoRecordParams.getVideoHeight());
+            glViewport(0, 0, mVideoRecordParams.getInputWidth(), mVideoRecordParams.getInputHeight());
             baseProgram.draw(textureId);
             frameBufferUtil.unbindFrameBuffer();
             textureId = frameBufferUtil.getFrameBufferTextureID();
@@ -170,12 +173,35 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
 
 
     public void addVideoData4Bitmap(Bitmap bitmap) {
+        if (null == mVideoRecordParams) {
+            BZLogUtil.e(TAG, "addVideoData4Bitmap null==mVideoRecordParams");
+            return;
+        }
         if (null == bitmap || bitmap.isRecycled() || bitmap.getWidth() <= 0 || bitmap.getHeight() <= 0) {
             BZLogUtil.e(TAG, "null==bitmap||bitmap.isRecycled()||bitmap.getWidth()<=0||bitmap.getHeight()<=0");
             return;
         }
-        long ret = BZMedia.addVideoData4Bitmap(nativeHandle, bitmap, bitmap.getWidth(), bitmap.getHeight());
-        callBackVideoTime(ret);
+        if (mVideoRecordParams.getTargetWidth() != bitmap.getWidth() || mVideoRecordParams.getTargetHeight() != bitmap.getHeight()) {
+            bitmap = scaleBitmap(bitmap, mVideoRecordParams.getTargetWidth(), mVideoRecordParams.getTargetHeight());
+        }
+        if (null == yuvBuffer) {
+            yuvBuffer = new byte[bitmap.getWidth() * bitmap.getHeight() * 3 / 2];
+        }
+        int result = BZYUVUtil.bitmapToYUV420(bitmap, yuvBuffer);
+        if (result < 0) {
+            BZLogUtil.e(TAG, "bitmapToYUV420 fail");
+            return;
+        }
+        updateVideoData(yuvBuffer);
+    }
+
+
+    private static Bitmap scaleBitmap(Bitmap srcBitmap, float targetWidth, float targetHeight) {
+        float scaleX = targetWidth / srcBitmap.getWidth();
+        float scaleY = targetHeight / srcBitmap.getHeight();
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleX, scaleY);
+        return Bitmap.createBitmap(srcBitmap, 0, 0, srcBitmap.getWidth(), srcBitmap.getHeight(), matrix, true);
     }
 
     public void addVideoPacketData(byte[] videoPacket, long size, long pts) {

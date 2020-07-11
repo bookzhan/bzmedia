@@ -6,23 +6,14 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".activity.RecorderTestActivity">
+    tools:context=".activity.Recoder4BitmapActivity">
+
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:onClick="Recoder4Camera1"
-        android:text="Recoder4Camera1"
+        android:onClick="start"
+        android:text="start"
         android:textAllCaps="false" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:onClick="Recoder4BitmapActivity"
-        android:text="Recoder4BitmapActivity"
-        android:textAllCaps="false" />
-
 
 </LinearLayout>

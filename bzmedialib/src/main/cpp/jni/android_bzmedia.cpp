@@ -68,14 +68,14 @@ Java_com_luoye_bzmedia_BZMedia_startRecord(JNIEnv *env, jclass clazz,
         return -1;
     }
     jint srcWidth = env->GetIntField(videoRecordParamsObj,
-                                     env->GetFieldID(videoRecordParamsClass, "videoWidth", "I"));
-    videoRecordParams.videoWidth = srcWidth;
-    BZLogUtil::logD("videoWidth=%d", srcWidth);
+                                     env->GetFieldID(videoRecordParamsClass, "inputWidth", "I"));
+    videoRecordParams.inputWidth = srcWidth;
+    BZLogUtil::logD("inputWidth=%d", srcWidth);
 
     jint srcHeight = env->GetIntField(videoRecordParamsObj,
-                                      env->GetFieldID(videoRecordParamsClass, "videoHeight", "I"));
-    videoRecordParams.videoHeight = srcHeight;
-    BZLogUtil::logD("videoHeight=%d", srcHeight);
+                                      env->GetFieldID(videoRecordParamsClass, "inputHeight", "I"));
+    videoRecordParams.inputHeight = srcHeight;
+    BZLogUtil::logD("inputHeight=%d", srcHeight);
 
     jint targetWidth = env->GetIntField(videoRecordParamsObj,
                                         env->GetFieldID(videoRecordParamsClass, "targetWidth",
@@ -232,13 +232,6 @@ Java_com_luoye_bzmedia_BZMedia_addVideoData(JNIEnv *env, jclass clazz, jlong nat
     long ret = videoRecorder->addVideoData(buffer, pts);
     env->ReleaseByteArrayElements(data_, reinterpret_cast<jbyte *>(buffer), 0);
     return ret;
-}
-extern "C"
-JNIEXPORT jlong JNICALL
-Java_com_luoye_bzmedia_BZMedia_addVideoData4Bitmap(JNIEnv *env, jclass clazz, jlong native_handle,
-                                                   jobject bitmap, jint width, jint height) {
-    // TODO: implement addVideoData4Bitmap()
-    return 0;
 }
 extern "C"
 JNIEXPORT jlong JNICALL

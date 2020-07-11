@@ -34,8 +34,8 @@ int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
             "startRecord output_path=%s--srcWidth=%d--srcHeight=%d--targetWidth=%d--targetHeight=%d \n"
             "rate=%d--nb_samples=%d--sampleRate=%d--videoRotate=%d--pixelFormat=%d\n"
             "allFrameIsKey=%d,synEncode=%d,avPacketFromMediaCodec=%d",
-            videoRecordParams.output_path, videoRecordParams.videoWidth,
-            videoRecordParams.videoHeight,
+            videoRecordParams.output_path, videoRecordParams.inputWidth,
+            videoRecordParams.inputHeight,
             videoRecordParams.targetWidth, videoRecordParams.targetHeight,
             videoRecordParams.videoFrameRate,
             videoRecordParams.nbSamples,
@@ -45,10 +45,10 @@ int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
             videoRecordParams.avPacketFromMediaCodec);
 
     videoRecordParams.targetWidth = videoRecordParams.targetWidth / 16 * 16;
-    videoRecordParams.videoWidth = videoRecordParams.videoWidth / 16 * 16;
+    videoRecordParams.inputWidth = videoRecordParams.inputWidth / 16 * 16;
 
     videoRecordParams.targetHeight = videoRecordParams.targetHeight / 16 * 16;
-    videoRecordParams.videoHeight = videoRecordParams.videoHeight / 16 * 16;
+    videoRecordParams.inputHeight = videoRecordParams.inputHeight / 16 * 16;
 
     BZLogUtil::logD("VideoRecorder 对齐后targetWidth=%d--targetHeight=%d",
                     videoRecordParams.targetWidth,
@@ -56,11 +56,11 @@ int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
     if (videoRecordParams.targetHeight % 2 != 0)
         videoRecordParams.targetHeight -= 1;
 
-    if (videoRecordParams.videoHeight % 2 != 0)
-        videoRecordParams.videoHeight -= 1;
+    if (videoRecordParams.inputHeight % 2 != 0)
+        videoRecordParams.inputHeight -= 1;
 
-    this->srcWidth = videoRecordParams.videoWidth;
-    this->srcHeight = videoRecordParams.videoHeight;
+    this->srcWidth = videoRecordParams.inputWidth;
+    this->srcHeight = videoRecordParams.inputHeight;
     this->targetWidth = videoRecordParams.targetWidth;
 
     this->targetHeight = videoRecordParams.targetHeight;

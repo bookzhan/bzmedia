@@ -25,7 +25,7 @@ public abstract class VideoRecorderBase {
             BZLogUtil.e(TAG, "null == videoRecordParams");
             return -1;
         }
-        if (null == mVideoRecordParams.getOutputPath() || mVideoRecordParams.getVideoWidth() <= 0 || mVideoRecordParams.getVideoHeight() <= 0) {
+        if (null == mVideoRecordParams.getOutputPath() || mVideoRecordParams.getInputWidth() <= 0 || mVideoRecordParams.getInputHeight() <= 0) {
             BZLogUtil.e(TAG, "null == mVideoRecordParams.getOutputPath() || mVideoRecordParams.getVideoWidth() <= 0 || mVideoRecordParams.getVideoHeight() <= 0");
             return -1;
         }

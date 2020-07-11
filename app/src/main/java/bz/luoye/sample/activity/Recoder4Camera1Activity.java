@@ -48,8 +48,8 @@ public class Recoder4Camera1Activity extends AppCompatActivity implements Camera
         }
         bz_start_record.setEnabled(false);
         VideoRecordParams videoRecordParams = new VideoRecordParams();
-        videoRecordParams.setVideoWidth(displayWidth);
-        videoRecordParams.setVideoHeight(displayHeight);
+        videoRecordParams.setInputWidth(displayWidth);
+        videoRecordParams.setInputHeight(displayHeight);
         videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());
         videoRecorderNative = new VideoRecorderNative();
         videoRecorderNative.setOnVideoRecorderStateListener(new VideoRecorderBase.OnVideoRecorderStateListener() {

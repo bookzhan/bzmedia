@@ -11,8 +11,8 @@
 using namespace std;
 typedef struct VideoRecordParams {
     const char *output_path = NULL;
-    int videoWidth = 0;
-    int videoHeight = 0;
+    int inputWidth = 0;
+    int inputHeight = 0;
     int targetWidth = 0;
     int targetHeight = 0;
     int videoFrameRate = 0;

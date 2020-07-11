@@ -9,8 +9,8 @@ import com.luoye.bzmedia.BZMedia;
 public class VideoRecordParams {
     /**
      * outputPath      视频输出路径
-     * videoWidth      视频原始的宽,注意是否是倒置的
-     * videoHeight     视频原始的高
+     * inputWidth      视频输入的宽,注意是否是倒置的
+     * inputHeight     视频输入的高
      * targetWidth      最终视频输出的宽
      * targetHeight     最终视频输出的高
      * videoFrameRate        视频帧率
@@ -24,8 +24,8 @@ public class VideoRecordParams {
      * recordSpeed      视频录制速度
      */
     private String outputPath;
-    private int videoWidth;
-    private int videoHeight;
+    private int inputWidth;
+    private int inputHeight;
     private int targetWidth;
     private int targetHeight;
     private int videoFrameRate = 30;
@@ -54,20 +54,20 @@ public class VideoRecordParams {
         this.outputPath = outputPath;
     }
 
-    public int getVideoWidth() {
-        return videoWidth;
+    public int getInputWidth() {
+        return inputWidth;
     }
 
-    public void setVideoWidth(int videoWidth) {
-        this.videoWidth = videoWidth;
+    public void setInputWidth(int inputWidth) {
+        this.inputWidth = inputWidth;
     }
 
-    public int getVideoHeight() {
-        return videoHeight;
+    public int getInputHeight() {
+        return inputHeight;
     }
 
-    public void setVideoHeight(int videoHeight) {
-        this.videoHeight = videoHeight;
+    public void setInputHeight(int inputHeight) {
+        this.inputHeight = inputHeight;
     }
 
     public int getTargetWidth() {
@@ -186,8 +186,8 @@ public class VideoRecordParams {
     public String toString() {
         return "VideoRecordParams{" +
                 "outputPath='" + outputPath + '\'' +
-                ", videoWidth=" + videoWidth +
-                ", videoHeight=" + videoHeight +
+                ", inputWidth=" + inputWidth +
+                ", inputHeight=" + inputHeight +
                 ", targetWidth=" + targetWidth +
                 ", targetHeight=" + targetHeight +
                 ", videoFrameRate=" + videoFrameRate +

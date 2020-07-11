@@ -44,8 +44,6 @@ public class BZMedia {
 
     public static native long addVideoData(long nativeHandle, byte[] data, long pts);
 
-    public static native long addVideoData4Bitmap(long nativeHandle, Bitmap bitmap, int width, int height);
-
     public static native long addVideoPacketData(long nativeHandle, byte[] videoPacket, long size, long pts);
 
 

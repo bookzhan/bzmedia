@@ -1,5 +1,17 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
+publish {
+    userOrg = 'bookzhan'
+    groupId = 'com.luoye.bzlib'
+    artifactId = 'bzmedia'
+    publishVersion = '1.0.1'
+    uploadName = 'bzmedia'
+    repoName = 'bzlib'
+    desc = 'bzmedia lib'
+    website = 'https://github.com/bookzhan/bookzhan.github.io'
+    licences = ['Apache-2.0']
+}
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"

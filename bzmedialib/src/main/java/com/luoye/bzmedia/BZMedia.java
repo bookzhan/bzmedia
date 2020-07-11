@@ -6,6 +6,7 @@ import android.os.Build;
 import com.bzcommon.utils.BZLogUtil;
 import com.bzcommon.utils.BZSpUtils;
 import com.luoye.bzmedia.bean.VideoRecordParams;
+import com.luoye.bzmedia.utils.FFmpegCMDUtil;
 
 
 /**
@@ -22,6 +23,7 @@ public class BZMedia {
     public static int init(Context context, boolean isDebug) {
         BZSpUtils.init(context);
         BZLogUtil.setShowLog(isDebug);
+        FFmpegCMDUtil.showLog(isDebug);
         return initNative(context, isDebug, Build.VERSION.SDK_INT);
     }
 

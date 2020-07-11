@@ -120,7 +120,6 @@ private:
     mutex *videoWriteMutex = NULL;
     string *output_path = NULL;
 
-    struct FilteringContext *filter_ctx = NULL;
     int yuvBufferTotalCount = 0;
     int updateTextureCount = 0;
 
@@ -128,7 +127,8 @@ private:
     deque<AVFrame *> avFrameDeque;
     //avFrameList 存取锁
     mutex mutexAVFrameDeque;
-    bool encodeThreadIsRuning = false;
+
+    bool encodeThreadIsRunning = false;
 
     //用来统计用的
     int64_t encodeTotalTime = 0;
@@ -161,17 +161,11 @@ private:
                                uint64_t channel_layout,
                                int sample_rate, int nb_samples);
 
-    int beforehandVideoData(unsigned char *videoData, int64_t videoPts = -1);
-
-    int beforehandVideoData(AVFrame *videoData);
-
     int encodeFrame(AVFrame *avFrame, int64_t videoPts);
 
     int writeVideoPacket(AVPacket *avPacket, int got_picture, int64_t videoPts);
 
     int writeAudioFrame(AVFrame *frame, int64_t audioPts);
-
-    int init_filter(const char *desire_filter);
 
     void encodeThread();
 

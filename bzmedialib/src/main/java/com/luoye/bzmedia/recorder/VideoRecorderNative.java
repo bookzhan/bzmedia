@@ -122,23 +122,6 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             mAudioRecorder.stopCapture();
             mAudioRecorder = null;
         }
-        if (mVideoRecordParams.getPixelFormat() == BZMedia.PixelFormat.TEXTURE) {
-            BZLogUtil.w(TAG, "Please call in GL thread");
-            stopAll();
-            mRecording = false;
-        } else {
-            BZMedia.stopRecord(nativeHandle);
-            nativeHandle = 0;
-            mRecording = false;
-            if (null != mOnVideoRecorderStateListener) {
-                mOnVideoRecorderStateListener.onVideoRecorderStopped(mVideoRecordParams.getOutputPath(), true);
-                mOnVideoRecorderStateListener = null;
-            }
-        }
-    }
-
-    private void stopAll() {
-        //由于开始启动子线程了,设置这个标记很重要,否则会崩溃
         if (null != frameBufferUtil) {
             frameBufferUtil.release();
             frameBufferUtil = null;
@@ -147,6 +130,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             baseProgram.release();
             baseProgram = null;
         }
+        //由于开始启动子线程了,设置这个标记很重要,否则会崩溃
         BZMedia.setStopRecordFlag(nativeHandle);
         if (mVideoRecordParams.isSynEncode()) {
             int ret = BZMedia.stopRecord(nativeHandle);
@@ -172,6 +156,10 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
                 }
             }, "StopRecordThread").start();
         }
+    }
+
+    private void stopAll() {
+
     }
 
 

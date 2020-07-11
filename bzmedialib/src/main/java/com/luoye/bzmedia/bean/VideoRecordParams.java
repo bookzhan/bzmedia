@@ -42,7 +42,7 @@ public class VideoRecordParams {
     private float recordSpeed = 1.0f;
 
     //Is the video synchronously encoded?
-    private boolean synEncode = false;
+    private boolean synEncode = true;
 
     private boolean avPacketFromMediaCodec = false;
 

@@ -152,11 +152,11 @@ int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
         textureConvertYUVUtil = new TextureConvertYUVUtil();
         textureConvertYUVUtil->init(targetWidth, targetHeight);
         textureConvertYUVUtil->setTextureFlip(false, videoRecordParams.needFlipVertical);
-        if (!synEncode) {
-            encodeThreadIsRuning = true;
-            thread threadEncode(&VideoRecorder::encodeThread, this);
-            threadEncode.detach();
-        }
+    }
+    if (!synEncode) {
+        encodeThreadIsRunning = true;
+        thread threadEncode(&VideoRecorder::encodeThread, this);
+        threadEncode.detach();
     }
     BZLogUtil::logD("VideoRecorder start startRecord finish");
     return 0;
@@ -218,31 +218,6 @@ void VideoRecorder::flushBuffer() {
     endRecordAndReleaseResource();
     BZLogUtil::logD("VideoRecorder record --end--");
 
-//    BZLogUtil::logD("VideoRecorder 开始处理声音淡出");
-//    string outputParentDir;
-//    outputParentDir.append(output_path->c_str());
-//    outputParentDir = outputParentDir.substr(0, outputParentDir.find_last_of("/"));
-//    char outTempName[512] = {0};
-//    sprintf(outTempName, "/temp_%lld.mp4", getCurrentTime());
-//    outputParentDir.append(outTempName);
-//
-//    const char *commd = "ffmpeg -y -i %s -af afade=t=out:st=%.1f:d=1 -vcodec copy %s";
-//    char finalCommd[1024] = {0};
-//    float startHandleTime = (float) (recorderTime / 1000 - 0.5);
-//    if (startHandleTime < 0)
-//        startHandleTime = 0;
-//    sprintf(finalCommd, commd, output_path->c_str(), startHandleTime,
-//            outputParentDir.c_str());
-//    BZLogUtil::logD("VideoRecorder finalCommd=%s", finalCommd);
-//    ret = executeFFmpegCommand(16, finalCommd, NULL);
-//    if (ret >= 0) {
-//        remove(output_path->c_str());
-//        rename(outputParentDir.c_str(), output_path->c_str());
-//        BZLogUtil::logD("VideoRecorder 声音淡出处理成功");
-//    } else {
-//        BZLogUtil::logE("VideoRecorder 声音淡出处理失败--没有音频信息");
-//    }
-
     VideoRecorder::recorderTime = 0;
 }
 
@@ -301,13 +276,6 @@ int VideoRecorder::endRecordAndReleaseResource() {
         }
         addAudioDataLock.unlock();
 
-        if (NULL != filter_ctx) {
-            avfilter_free(filter_ctx->buffersrc_ctx);
-            avfilter_free(filter_ctx->buffersink_ctx);
-            avfilter_graph_free(&filter_ctx->filter_graph);
-            delete filter_ctx;
-            filter_ctx = NULL;
-        }
         if (NULL != avFormatContext) {
             /* Close the output file. */
             if (!(avFormatContext->oformat->flags & AVFMT_NOFILE))
@@ -508,31 +476,6 @@ int VideoRecorder::openVideo(BZOutputStream *stream, const char *extraFilterPara
         BZLogUtil::logD("VideoRecorder Could not allocate temporary picture\n");
         return -1;
     }
-
-    string filters_descr;
-    if (this->srcWidth != this->targetWidth || this->srcHeight != this->targetHeight) {
-        char temp[128] = {0};
-        //crop 几乎不耗时
-        snprintf(temp, sizeof(temp), "crop=%d:%d:%d:%d",
-                 targetWidth,
-                 targetHeight, (srcWidth - targetWidth) / 2, (srcHeight - targetHeight) / 2);
-        filters_descr += temp;
-    }
-    if (NULL != extraFilterParam) {
-        if (filters_descr.length() > 0)
-            filters_descr += ",";
-        filters_descr += extraFilterParam;
-    }
-
-    if (filters_descr.length() > 0) {
-        filter_ctx = new FilteringContext();
-        ret = init_filter(filters_descr.c_str());
-        if (ret < 0) {
-            BZLogUtil::logE("VideoRecorder init_filters fail");
-            endRecordAndReleaseResource();
-            return ret;
-        }
-    }
     return ret;
 }
 
@@ -729,87 +672,30 @@ int64_t VideoRecorder::addVideoData(AVFrame *avFrameData, int64_t videoPts) {
     yuvBufferTotalCount++;
 //    BZLogUtil::logE("VideoRecorder addVideoData for AVFrame--yuvBufferTotalCount=%d", yuvBufferTotalCount);
     int ret = 0;
-    if (NULL != filter_ctx) {
-        if (NULL == video_st->filter_frame)
-            video_st->filter_frame = av_frame_alloc();
-//        int64_t time = getCurrentTime();
-        if (av_buffersrc_add_frame_flags(filter_ctx->buffersrc_ctx, avFrameData,
-                                         AV_BUFFERSRC_FLAG_KEEP_REF) < 0) {
-            BZLogUtil::logE("VideoRecorder Error while feeding the filtergraph");
-        }
-        /* pull filtered frames from the filtergraph */
-        while (1) {
-            ret = av_buffersink_get_frame(filter_ctx->buffersink_ctx, video_st->filter_frame);
-            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF || ret < 0) {
-                break;
-            }
-            //这句好像没什么用
-            video_st->filter_frame->pict_type = AV_PICTURE_TYPE_NONE;
-//            BZLogUtil::logV("VideoRecorder filter 耗时=%lld", getCurrentTime() - time);
-            encodeFrame(video_st->filter_frame, videoPts);
-        }
-    } else {
+    if (synEncode) {
         encodeFrame(avFrameData, videoPts);
+    } else {
+        mutexAVFrameDeque.lock();
+        AVFrame *avFrame = av_frame_clone(avFrameData);
+        avFrame->pts = videoPts;
+        avFrameDeque.push_back(avFrame);
+        mutexAVFrameDeque.unlock();
     }
-    if (pixelFormat != PixelFormat::TEXTURE)
-        av_frame_free(&avFrameData);
-
     isAddVideoData = false;
     addVideoDataLock.unlock();
     return recorderTime;
 }
 
 int64_t VideoRecorder::addVideoData(unsigned char *data, int64_t videoPts) {
-    if (isStopRecorder)
+    if (isStopRecorder || nullptr == data)
         return -1;
 
     addVideoDataLock.lock();
     yuvBufferTotalCount++;
 //    BZLogUtil::logV("VideoRecorder addVideoData for data");
     isAddVideoData = true;
-    beforehandVideoData(data, videoPts);
-    isAddVideoData = false;
-    addVideoDataLock.unlock();
-    return recorderTime;
-}
-
-int VideoRecorder::beforehandVideoData(AVFrame *frame) {
-    if (NULL == frame)
-        return -1;
-
-    int ret = 0;
-    //先裁切,后转换数据格式
-    if (NULL != filter_ctx) {
-        if (NULL == video_st->filter_frame)
-            video_st->filter_frame = av_frame_alloc();
-//        int64_t time = getCurrentTime();
-        if (av_buffersrc_add_frame_flags(filter_ctx->buffersrc_ctx, frame,
-                                         AV_BUFFERSRC_FLAG_KEEP_REF) < 0) {
-            BZLogUtil::logE("VideoRecorder Error while feeding the filtergraph");
-        }
-        /* pull filtered frames from the filtergraph */
-        while (1) {
-            ret = av_buffersink_get_frame(filter_ctx->buffersink_ctx, video_st->filter_frame);
-            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF || ret < 0) {
-                break;
-            }
-            //这句好像没什么用
-            video_st->filter_frame->pict_type = AV_PICTURE_TYPE_NONE;
-//            BZLogUtil::logV("VideoRecorder filter 耗时=%lld", getCurrentTime() - time);
-            encodeFrame(video_st->filter_frame, -1);
-        }
-    } else {
-        encodeFrame(frame, -1);
-    }
-    return ret;
-}
-
-int VideoRecorder::beforehandVideoData(unsigned char *videoData, int64_t videoPts) {
     AVFrame *frame = video_st->tmp_frame;
-    if (NULL == videoData || NULL == frame)
-        return -1;
-    int ret = 0;
-    uint8_t *buffer = videoData;
+    uint8_t *buffer = data;
     if (this->pixelFormat == PixelFormat::YUVI420) {
         frame->data[0] = buffer;
         frame->data[1] = buffer + y_size;
@@ -822,31 +708,17 @@ int VideoRecorder::beforehandVideoData(unsigned char *videoData, int64_t videoPt
         BZLogUtil::logE("Unsupported pixelFormat");
         return -1;
     }
-
-    //先裁切,后转换数据格式
-    if (NULL != filter_ctx) {
-        if (NULL == video_st->filter_frame)
-            video_st->filter_frame = av_frame_alloc();
-//        int64_t time = getCurrentTime();
-        if (av_buffersrc_add_frame_flags(filter_ctx->buffersrc_ctx, frame,
-                                         AV_BUFFERSRC_FLAG_KEEP_REF) < 0) {
-            BZLogUtil::logE("VideoRecorder Error while feeding the filtergraph");
-        }
-        /* pull filtered frames from the filtergraph */
-        while (1) {
-            ret = av_buffersink_get_frame(filter_ctx->buffersink_ctx, video_st->filter_frame);
-            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF || ret < 0) {
-                break;
-            }
-            //这句好像没什么用
-            video_st->filter_frame->pict_type = AV_PICTURE_TYPE_NONE;
-//            BZLogUtil::logV("VideoRecorder filter 耗时=%lld", getCurrentTime() - time);
-            encodeFrame(video_st->filter_frame, videoPts);
-        }
-    } else {
+    if (synEncode) {
         encodeFrame(frame, videoPts);
+    } else {
+        mutexAVFrameDeque.lock();
+        AVFrame *avFrame = av_frame_clone(frame);
+        avFrameDeque.push_back(avFrame);
+        mutexAVFrameDeque.unlock();
     }
-    return ret;
+    isAddVideoData = false;
+    addVideoDataLock.unlock();
+    return recorderTime;
 }
 
 int VideoRecorder::encodeFrame(AVFrame *avFrame, int64_t videoPts) {
@@ -982,104 +854,9 @@ int VideoRecorder::writeVideoPacket(AVPacket *avPacket, int got_picture, int64_t
     return ret;
 }
 
-int VideoRecorder::init_filter(const char *filters_descr) {
-    BZLogUtil::logD("VideoRecorder init_filters=%s", filters_descr);
-
-    char args[512];
-    int ret = 0;
-    AVCodecContext *dec_ctx = video_st->avCodecContext;
-
-    const AVFilter *buffersrc = avfilter_get_by_name("buffer");
-    const AVFilter *buffersink = avfilter_get_by_name("buffersink");
-    AVFilterInOut *outputs = avfilter_inout_alloc();
-    AVFilterInOut *inputs = avfilter_inout_alloc();
-    AVRational time_base = video_st->avStream->time_base;
-
-    int pix_fmt = 0;
-    enum AVPixelFormat *pix_fmts = NULL;
-
-    pix_fmt = AV_PIX_FMT_YUV420P;
-    pix_fmts = new enum AVPixelFormat[2]{AV_PIX_FMT_YUV420P, AV_PIX_FMT_NONE};
-
-    filter_ctx->filter_graph = avfilter_graph_alloc();
-    if (!outputs || !inputs || !filter_ctx->filter_graph) {
-        ret = AVERROR(ENOMEM);
-        goto end;
-    }
-
-    /* buffer video source: the decoded frames from the decoder will be inserted here. */
-    snprintf(args, sizeof(args),
-             "video_size=%dx%d:pix_fmt=%d:time_base=%d/%d:pixel_aspect=%d/%d",
-             this->srcWidth, this->srcHeight, pix_fmt,
-             time_base.num, time_base.den,
-             dec_ctx->sample_aspect_ratio.num, dec_ctx->sample_aspect_ratio.den);
-
-    ret = avfilter_graph_create_filter(&filter_ctx->buffersrc_ctx, buffersrc, "in",
-                                       args, NULL, filter_ctx->filter_graph);
-    if (ret < 0) {
-        BZLogUtil::logD("VideoRecorder Cannot create buffer source\n");
-        goto end;
-    }
-
-    /* buffer video sink: to terminate the filter chain. */
-    ret = avfilter_graph_create_filter(&filter_ctx->buffersink_ctx, buffersink, "out",
-                                       NULL, NULL, filter_ctx->filter_graph);
-    if (ret < 0) {
-        BZLogUtil::logD("VideoRecorder Cannot create buffer sink\n");
-        goto end;
-    }
-
-    ret = av_opt_set_int_list(filter_ctx->buffersink_ctx, "pix_fmts", pix_fmts,
-                              AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
-    if (ret < 0) {
-        BZLogUtil::logD("VideoRecorder Cannot set output pixel format\n");
-        goto end;
-    }
-
-    /*
-     * Set the endpoints for the filter graph. The filter_graph will
-     * be linked to the graph described by filters_descr.
-     */
-
-    /*
-     * The buffer source output must be connected to the input pad of
-     * the first filter described by filters_descr; since the first
-     * filter input label is not specified, it is set to "in" by
-     * default.
-     */
-    outputs->name = av_strdup("in");
-    outputs->filter_ctx = filter_ctx->buffersrc_ctx;
-    outputs->pad_idx = 0;
-    outputs->next = NULL;
-
-    /*
-     * The buffer sink input must be connected to the output pad of
-     * the last filter described by filters_descr; since the last
-     * filter output label is not specified, it is set to "out" by
-     * default.
-     */
-    inputs->name = av_strdup("out");
-    inputs->filter_ctx = filter_ctx->buffersink_ctx;
-    inputs->pad_idx = 0;
-    inputs->next = NULL;
-
-    if ((ret = avfilter_graph_parse_ptr(filter_ctx->filter_graph, filters_descr,
-                                        &inputs, &outputs, NULL)) < 0)
-        goto end;
-
-    if ((ret = avfilter_graph_config(filter_ctx->filter_graph, NULL)) < 0)
-        goto end;
-
-    BZLogUtil::logD("VideoRecorder init_filters end");
-    end:
-    avfilter_inout_free(&inputs);
-    avfilter_inout_free(&outputs);
-
-    return ret;
-}
-
-//这个实在gl线程中调用的
+//这个是在gl线程中调用的
 void VideoRecorder::setStopRecordFlag() {
+    BZLogUtil::logD("setStopRecordFlag encodeThreadIsRunning=" + encodeThreadIsRunning);
 //    if (NULL != textureConvertYUVUtil) {
 //        //刷新一帧缓存,最开始的那一帧是返回的NULL
 //        mutexAVFrameList.lock();
@@ -1093,8 +870,8 @@ void VideoRecorder::setStopRecordFlag() {
 //    }
     isStopRecorder = true;
     std::chrono::milliseconds dura(10);
-    while (encodeThreadIsRuning) {
-        BZLogUtil::logD("VideoRecorder setStopRecordFlag encodeThreadIsRuning sleep_for 10");
+    while (encodeThreadIsRunning) {
+        BZLogUtil::logD("VideoRecorder setStopRecordFlag encodeThreadIsRunning sleep_for 10");
         std::this_thread::sleep_for(dura);
         continue;
     }
@@ -1113,10 +890,11 @@ int VideoRecorder::updateTexture(int textureId, int64_t videoPts) {
         AVFrame *result = textureConvertYUVUtil->textureConvertYUV(textureId);
         if (NULL != result) {
             if (synEncode) {
-                addVideoData(result, videoPts);
+                encodeFrame(result, videoPts);
                 av_frame_free(&result);
             } else {
                 mutexAVFrameDeque.lock();
+                result->pts = videoPts;
                 avFrameDeque.push_back(result);
                 mutexAVFrameDeque.unlock();
             }
@@ -1162,11 +940,11 @@ void VideoRecorder::encodeThread() {
         avFrameDeque.pop_front();
         mutexAVFrameDeque.unlock();
         if (nullptr != avFrame) {
-            addVideoData(avFrame);
+            encodeFrame(avFrame, avFrame->pts);
             av_frame_free(&avFrame);
         }
     }
-    encodeThreadIsRuning = false;
+    encodeThreadIsRunning = false;
     BZLogUtil::logD("VideoRecorder encodeThread end");
 }
 

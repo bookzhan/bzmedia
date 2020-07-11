@@ -16,6 +16,15 @@
         android:text="Recoder4Camera1"
         android:textAllCaps="false" />
 
+ <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:onClick="Recoder4Camera2"
+        android:text="Recoder4Camera2"
+        android:textAllCaps="false" />
+
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

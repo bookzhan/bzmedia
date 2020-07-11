@@ -87,8 +87,8 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
     }
 
     @Override
-    public synchronized void updateYUV420Data(byte[] data, long pts) {
-        super.updateYUV420Data(data, pts);
+    public synchronized void addVideoData4YUV420(byte[] data, long pts) {
+        super.addVideoData4YUV420(data, pts);
         if (null == mVideoRecordParams) {
             return;
         }
@@ -212,7 +212,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             BZLogUtil.e(TAG, "bitmapToYUV420 fail");
             return;
         }
-        updateYUV420Data(yuvBuffer);
+        addVideoData4YUV420(yuvBuffer);
         if (null != scaleBitmap && !scaleBitmap.isRecycled()) {
             scaleBitmap.recycle();
         }

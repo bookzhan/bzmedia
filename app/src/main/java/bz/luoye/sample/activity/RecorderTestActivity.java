@@ -20,7 +20,12 @@ public class RecorderTestActivity extends AppCompatActivity {
         startActivity(new Intent(this, Recoder4Camera1Activity.class));
     }
 
+    public void Recoder4Camera2(View view) {
+        startActivity(new Intent(this, Recoder4Camera2Activity.class));
+    }
+
     public void Recoder4BitmapActivity(View view) {
         startActivity(new Intent(this, Recoder4BitmapActivity.class));
     }
+
 }

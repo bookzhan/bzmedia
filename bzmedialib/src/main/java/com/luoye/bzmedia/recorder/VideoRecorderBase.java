@@ -42,12 +42,12 @@ public abstract class VideoRecorderBase {
         return mVideoRecordParams.getOutputPath();
     }
 
-    public synchronized void updateYUV420Data(byte[] data, long pts) {
+    public synchronized void addVideoData4YUV420(byte[] data, long pts) {
 
     }
 
-    public void updateYUV420Data(byte[] data) {
-        updateYUV420Data(data, -1);
+    public void addVideoData4YUV420(byte[] data) {
+        addVideoData4YUV420(data, -1);
     }
 
     public abstract void updateTexture(int textureId);

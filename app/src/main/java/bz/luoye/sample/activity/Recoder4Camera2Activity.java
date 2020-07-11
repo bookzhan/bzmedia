@@ -1,15 +1,16 @@
 package bz.luoye.sample.activity;
 
-import android.graphics.ImageFormat;
-import android.hardware.Camera;
+import android.annotation.TargetApi;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bzcommon.utils.BZLogUtil;
-import com.luoye.bzcamera.BZCameraView;
-import com.luoye.bzcamera.listener.CameraStateListener;
+import com.luoye.bzcamera.BZCamera2View;
 import com.luoye.bzmedia.bean.VideoRecordParams;
 import com.luoye.bzmedia.recorder.OnRecorderErrorListener;
 import com.luoye.bzmedia.recorder.VideoRecorderBase;
@@ -19,26 +20,43 @@ import com.luoye.bzyuvlib.BZYUVUtil;
 import bz.luoye.sample.R;
 import bz.luoye.sample.utils.FilePathUtil;
 
-public class Recoder4Camera1Activity extends AppCompatActivity implements CameraStateListener {
-    private final static String TAG = "bz_Recoder4Camera1";
-
-    private int previewFormat = ImageFormat.YV12;
-    private byte[] yuvBuffer;
+@TargetApi(21)
+public class Recoder4Camera2Activity extends AppCompatActivity {
+    private final static String TAG = "bz_Recoder4Camera2";
     private int displayWidth = 0;
     private int displayHeight = 0;
+    private View bz_start_record;
     private VideoRecorderNative videoRecorderNative;
     private long logIndex = 0;
-    private View bz_start_record;
+    private BZYUVUtil bzyuvUtil = new BZYUVUtil();
+    private BZCamera2View bz_camera2_view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recoder4_camera1);
+        setContentView(R.layout.activity_recoder4_camera2);
         bz_start_record = findViewById(R.id.bz_start_record);
-        BZCameraView bz_camera_view = findViewById(R.id.bz_camera_view);
-        bz_camera_view.setPreviewFormat(previewFormat);
-        bz_camera_view.setNeedCallBackData(true);
-        bz_camera_view.setCameraStateListener(this);
+        bz_camera2_view = findViewById(R.id.bz_camera2_view);
+        bz_camera2_view.setOnStatusChangeListener(new BZCamera2View.OnStatusChangeListener() {
+            @Override
+            public void onPreviewSuccess(CameraDevice mCameraDevice, int width, int height) {
+
+            }
+
+            @Override
+            public void onImageAvailable(Image image, int displayOrientation, float fps) {
+                displayWidth = image.getWidth();
+                displayHeight = image.getHeight();
+                if (displayOrientation == 90 || displayOrientation == 270) {
+                    displayWidth = image.getHeight();
+                    displayHeight = image.getWidth();
+                }
+                byte[] yuvBuffer = bzyuvUtil.preHandleYUV420(image, bz_camera2_view.getCurrentCameraLensFacing() == CameraCharacteristics.LENS_FACING_FRONT, displayOrientation);
+                if (null != videoRecorderNative) {
+                    videoRecorderNative.addVideoData4YUV420(yuvBuffer);
+                }
+            }
+        });
     }
 
     public void startRecord(View view) {
@@ -50,8 +68,6 @@ public class Recoder4Camera1Activity extends AppCompatActivity implements Camera
         VideoRecordParams videoRecordParams = new VideoRecordParams();
         videoRecordParams.setInputWidth(displayWidth);
         videoRecordParams.setInputHeight(displayHeight);
-        videoRecordParams.setTargetWidth(displayWidth / 2);
-        videoRecordParams.setTargetHeight(displayHeight / 2);
         videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());
         videoRecorderNative = new VideoRecorderNative();
         videoRecorderNative.setOnVideoRecorderStateListener(new VideoRecorderBase.OnVideoRecorderStateListener() {
@@ -116,41 +132,4 @@ public class Recoder4Camera1Activity extends AppCompatActivity implements Camera
         super.onPause();
         stopRecord(null);
     }
-
-    @Override
-    public void onPreviewSuccess(Camera camera, int width, int height) {
-        BZLogUtil.d(TAG, "onPreviewSuccess");
-    }
-
-    @Override
-    public void onPreviewFail(String message) {
-        BZLogUtil.e(TAG, "onPreviewFail message=" + message);
-    }
-
-    @Override
-    public void onPreviewDataUpdate(byte[] data, int width, int height, int displayOrientation, int cameraId) {
-        if (null == yuvBuffer) {
-            yuvBuffer = new byte[width * height * 3 / 2];
-        }
-        displayWidth = width;
-        displayHeight = height;
-        if (displayOrientation == 90 || displayOrientation == 270) {
-            displayWidth = height;
-            displayHeight = width;
-        }
-        if (previewFormat == ImageFormat.YV12) {
-            BZYUVUtil.preHandleYV12(data, yuvBuffer, width, height, cameraId == Camera.CameraInfo.CAMERA_FACING_FRONT, displayOrientation);
-        } else if (previewFormat == ImageFormat.NV21) {
-            BZYUVUtil.preHandleNV21(data, yuvBuffer, width, height, cameraId == Camera.CameraInfo.CAMERA_FACING_FRONT, displayOrientation);
-        }
-        if (null != videoRecorderNative) {
-            videoRecorderNative.addVideoData4YUV420(yuvBuffer);
-        }
-    }
-
-    @Override
-    public void onCameraClose() {
-
-    }
-
 }

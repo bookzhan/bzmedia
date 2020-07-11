@@ -53,6 +53,8 @@ public class Recoder4Camera1Activity extends AppCompatActivity implements Camera
         videoRecordParams.setTargetWidth(displayWidth / 2);
         videoRecordParams.setTargetHeight(displayHeight / 2);
         videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());
+        videoRecordParams.setRecordSpeed(2);
+
         videoRecorderNative = new VideoRecorderNative();
         videoRecorderNative.setOnVideoRecorderStateListener(new VideoRecorderBase.OnVideoRecorderStateListener() {
             @Override

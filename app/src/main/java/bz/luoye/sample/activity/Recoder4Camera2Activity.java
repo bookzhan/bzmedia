@@ -1,12 +1,13 @@
 package bz.luoye.sample.activity;
 
-import android.annotation.TargetApi;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bzcommon.utils.BZLogUtil;
@@ -20,7 +21,7 @@ import com.luoye.bzyuvlib.BZYUVUtil;
 import bz.luoye.sample.R;
 import bz.luoye.sample.utils.FilePathUtil;
 
-@TargetApi(21)
+@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class Recoder4Camera2Activity extends AppCompatActivity {
     private final static String TAG = "bz_Recoder4Camera2";
     private int displayWidth = 0;

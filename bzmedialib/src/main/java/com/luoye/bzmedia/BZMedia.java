@@ -45,6 +45,7 @@ public class BZMedia {
 
     public static native long addVideoPacketData(long nativeHandle, byte[] videoPacket, long size, long pts);
 
+    public static native int adjustVideoSpeed(String srcVideoPath, String outputPath, float speed);
 
     public native static int test();
 

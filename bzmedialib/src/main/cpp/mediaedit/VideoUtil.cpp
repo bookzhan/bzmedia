@@ -569,8 +569,6 @@ int VideoUtil::openOutputFile(AVFormatContext *in_fmt_ctx, AVFormatContext **out
         }
         out_stream->index = out_stream_index;
         out_stream_index++;
-        (*out_fmt_ctx)->oformat->codec_tag = 0;
-        out_stream->codec->codec_tag = 0;
         if ((*out_fmt_ctx)->oformat->flags & AVFMT_GLOBALHEADER)
             out_stream->codec->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
     }

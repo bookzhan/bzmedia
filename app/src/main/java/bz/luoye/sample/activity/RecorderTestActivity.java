@@ -6,6 +6,8 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bzcommon.utils.BZLogUtil;
+
 import bz.luoye.sample.R;
 
 public class RecorderTestActivity extends AppCompatActivity {
@@ -21,7 +23,12 @@ public class RecorderTestActivity extends AppCompatActivity {
     }
 
     public void Recoder4Camera2(View view) {
-        startActivity(new Intent(this, Recoder4Camera2Activity.class));
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            startActivity(new Intent(this, Recoder4Camera2Activity.class));
+        } else {
+            BZLogUtil.e("SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP");
+        }
+
     }
 
     public void Recoder4BitmapActivity(View view) {

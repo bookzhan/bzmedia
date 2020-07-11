@@ -12,6 +12,8 @@ import com.luoye.bzmedia.bean.VideoRecordParams;
 import com.luoye.bzmedia.bean.VideoSize;
 import com.luoye.bzyuvlib.BZYUVUtil;
 
+import java.io.File;
+
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
@@ -29,7 +31,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
     private AudioCapture mAudioRecorder = null;
     private BaseProgram baseProgram;
     private FrameBufferUtil frameBufferUtil;
-    private long lastUpdateTextureTime = 0;
+    private long lastUpdateVideoFrame = 0;
     private byte[] yuvBuffer = null;
     private byte[] yuvCropBuffer = null;
 
@@ -105,10 +107,15 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             }
             buffer = yuvCropBuffer;
         }
-        long ret = BZMedia.addYUV420Data(nativeHandle, buffer, pts);
-        if (ret < 0) {
-            BZLogUtil.d(TAG, "addVideoData fail");
-        } else {
+        long timeMillis = System.currentTimeMillis();
+        if (timeMillis - lastUpdateVideoFrame >= getFrameDuration()) {
+            long ret = BZMedia.addYUV420Data(nativeHandle, buffer, pts);
+            if (ret < 0) {
+                BZLogUtil.d(TAG, "addVideoData fail");
+            } else {
+                callBackVideoTime(ret);
+            }
+            lastUpdateVideoFrame = timeMillis;
             callBackVideoTime(ret);
         }
     }
@@ -131,9 +138,9 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             textureId = frameBufferUtil.getFrameBufferTextureID();
         }
         long timeMillis = System.currentTimeMillis();
-        if (timeMillis - lastUpdateTextureTime >= getFrameDuration()) {
+        if (timeMillis - lastUpdateVideoFrame >= getFrameDuration()) {
             long ret = BZMedia.updateVideoRecorderTexture(nativeHandle, textureId);
-            lastUpdateTextureTime = timeMillis;
+            lastUpdateVideoFrame = timeMillis;
             callBackVideoTime(ret);
         }
     }
@@ -159,6 +166,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             nativeHandle = 0;
             mRecording = false;
             BZLogUtil.d(TAG, "stopRecord success");
+            adjustVideoSpeed();
             if (null != mOnVideoRecorderStateListener) {
                 mOnVideoRecorderStateListener.onVideoRecorderStopped(mVideoRecordParams.getOutputPath(), ret >= 0);
                 mOnVideoRecorderStateListener = null;
@@ -171,6 +179,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
                     nativeHandle = 0;
                     mRecording = false;
                     BZLogUtil.d(TAG, "stopRecord success");
+                    adjustVideoSpeed();
                     if (null != mOnVideoRecorderStateListener) {
                         mOnVideoRecorderStateListener.onVideoRecorderStopped(mVideoRecordParams.getOutputPath(), ret >= 0);
                         mOnVideoRecorderStateListener = null;
@@ -180,8 +189,23 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         }
     }
 
-    private void stopAll() {
-
+    private void adjustVideoSpeed() {
+        if (null == mVideoRecordParams) {
+            return;
+        }
+        if (Math.abs(mVideoRecordParams.getRecordSpeed() - 1) > 0.01) {
+            BZLogUtil.d(TAG, "start adjustVideoSpeed");
+            String absolutePath = new File(mVideoRecordParams.getOutputPath()).getParentFile().getAbsolutePath() + "/temp_" + System.currentTimeMillis() + ".mp4";
+            BZFileUtils.createNewFile(absolutePath);
+            int ret = BZMedia.adjustVideoSpeed(mVideoRecordParams.getOutputPath(), absolutePath, mVideoRecordParams.getRecordSpeed());
+            if (ret >= 0) {
+                BZFileUtils.deleteFile(mVideoRecordParams.getOutputPath());
+                boolean rename = new File(absolutePath).renameTo(new File(mVideoRecordParams.getOutputPath()));
+                BZLogUtil.d(TAG, "rename File successful=" + rename);
+            } else {
+                BZLogUtil.e(TAG, "adjustVideoSpeed fail path=" + absolutePath);
+            }
+        }
     }
 
 

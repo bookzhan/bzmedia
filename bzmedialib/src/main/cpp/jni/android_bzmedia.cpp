@@ -3,6 +3,7 @@
 #include <common/BZLogUtil.h>
 #include <recorder/VideoRecordParams.h>
 #include <recorder/VideoRecorder.h>
+#include <mediaedit/AdjustVideoSpeedUtil.h>
 #include "ffmpeg_base_info.h"
 
 typedef long;
@@ -244,5 +245,19 @@ Java_com_luoye_bzmedia_BZMedia_addVideoPacketData(JNIEnv *env, jclass clazz, jlo
     VideoRecorder *videoRecorder = reinterpret_cast<VideoRecorder *>(native_handle);
     long ret = videoRecorder->addVideoPacketData(buffer, size, pts);
     env->ReleaseByteArrayElements(data_, reinterpret_cast<jbyte *>(buffer), 0);
+    return ret;
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_adjustVideoSpeed(JNIEnv *env, jclass type, jstring srcVideoPath_,
+                                                jstring outputPath_, jfloat speed) {
+    const char *srcVideoPath = env->GetStringUTFChars(srcVideoPath_, 0);
+    const char *outputPath = env->GetStringUTFChars(outputPath_, 0);
+
+    AdjustVideoSpeedUtil adjustVideoSpeedUtil;
+    int ret = adjustVideoSpeedUtil.adjustVideoSpeed(srcVideoPath, outputPath, speed);
+
+    env->ReleaseStringUTFChars(srcVideoPath_, srcVideoPath);
+    env->ReleaseStringUTFChars(outputPath_, outputPath);
     return ret;
 }

@@ -54,7 +54,7 @@ public abstract class VideoRecorderBase {
 
     public abstract void stopRecord();
 
-    public int getFrameDuration() {
+    int getFrameDuration() {
         return (int) (1000.0f / mFrameRate * mVideoRecordParams.getRecordSpeed());
     }
 

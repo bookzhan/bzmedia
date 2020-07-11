@@ -32,6 +32,7 @@ add_library( # Sets the name of the library.
         ./mediaedit/VideoUtil.cpp
         ./mediaedit/BackgroundMusicUtil.cpp
         ./mediaedit/MergeVideoUtil.cpp
+        ./mediaedit/AdjustVideoSpeedUtil.cpp
 
         ./recorder/VideoRecorder.cpp
         )

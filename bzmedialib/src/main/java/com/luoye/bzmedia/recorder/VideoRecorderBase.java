@@ -50,7 +50,10 @@ public abstract class VideoRecorderBase {
         addVideoData4YUV420(data, -1);
     }
 
-    public abstract void updateTexture(int textureId);
+    /**
+     * @param textureId Call in GL thread
+     */
+    public abstract void addVideoData4Texture(int textureId);
 
     public abstract void stopRecord();
 

@@ -26,8 +26,6 @@ public:
     //主要是回收OpenGL相关的东西
     int destroyResource();
 
-    void setTextureFlip(bool flipHorizontal, bool flipVertical);
-
     //有些手机对highp支持的不好,需要区分对待
     static bool useHDShader;
 private:

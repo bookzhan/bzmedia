@@ -16,7 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.Recoder4Camera2Activity"></activity>
+        <activity android:name=".activity.Recoder4TextureActivity"></activity>
+        <activity android:name=".activity.Recoder4Camera2Activity" />
         <activity android:name=".activity.Recoder4BitmapActivity" />
         <activity android:name=".activity.RecorderTestActivity" />
         <activity android:name=".activity.Recoder4Camera1Activity" />

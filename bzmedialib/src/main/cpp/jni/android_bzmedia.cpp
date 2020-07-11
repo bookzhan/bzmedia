@@ -40,6 +40,7 @@ Java_com_luoye_bzmedia_BZMedia_initNative(JNIEnv *env, jclass clazz, jobject con
     if (is_debug) {
         av_log_set_callback(log_call_back);
     }
+    TextureConvertYUVUtil::useHDShader = sdk_int >= 19;
     return 0;
 }
 extern "C"

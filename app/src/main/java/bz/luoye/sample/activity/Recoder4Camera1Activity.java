@@ -29,13 +29,14 @@ public class Recoder4Camera1Activity extends AppCompatActivity implements Camera
     private VideoRecorderNative videoRecorderNative;
     private long logIndex = 0;
     private View bz_start_record;
+    private BZCameraView bz_camera_view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recoder4_camera1);
         bz_start_record = findViewById(R.id.bz_start_record);
-        BZCameraView bz_camera_view = findViewById(R.id.bz_camera_view);
+        bz_camera_view = findViewById(R.id.bz_camera_view);
         bz_camera_view.setPreviewFormat(previewFormat);
         bz_camera_view.setNeedCallBackData(true);
         bz_camera_view.setCameraStateListener(this);
@@ -116,7 +117,14 @@ public class Recoder4Camera1Activity extends AppCompatActivity implements Camera
     @Override
     protected void onPause() {
         super.onPause();
+        bz_camera_view.onPause();
         stopRecord(null);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bz_camera_view.onResume();
     }
 
     @Override

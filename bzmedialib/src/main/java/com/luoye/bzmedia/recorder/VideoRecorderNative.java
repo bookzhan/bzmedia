@@ -121,18 +121,18 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
     }
 
     @Override
-    public synchronized void updateTexture(int textureId) {
+    public synchronized void addVideoData4Texture(int textureId) {
         if (mVideoRecordParams.isNeedFlipVertical()) {
             if (null == baseProgram) {
                 baseProgram = new BaseProgram(true);
             }
             if (null == frameBufferUtil) {
-                frameBufferUtil = new FrameBufferUtil(mVideoRecordParams.getInputWidth(), mVideoRecordParams.getInputHeight());
+                frameBufferUtil = new FrameBufferUtil(mVideoRecordParams.getTargetWidth(), mVideoRecordParams.getTargetHeight());
             }
             frameBufferUtil.bindFrameBuffer();
             glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
-            glViewport(0, 0, mVideoRecordParams.getInputWidth(), mVideoRecordParams.getInputHeight());
+            glViewport(0, 0, mVideoRecordParams.getTargetWidth(), mVideoRecordParams.getTargetHeight());
             baseProgram.draw(textureId);
             frameBufferUtil.unbindFrameBuffer();
             textureId = frameBufferUtil.getFrameBufferTextureID();

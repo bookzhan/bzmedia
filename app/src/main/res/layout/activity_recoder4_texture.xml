@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.Recoder4TextureActivity">
+
+    <com.luoye.bzcamera.BZCameraView
+        android:id="@+id/bz_camera_view"
+        android:layout_width="200dp"
+        android:layout_height="300dp" />
+
+    <TextView
+        android:id="@+id/tv_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bz_camera_view"
+        android:layout_marginTop="10dp"
+        android:text="GL Preview" />
+
+    <com.luoye.bzmedia.widget.BZBaseGLSurfaceView
+        android:id="@+id/bz_base_gl_surface_view"
+        android:layout_width="200dp"
+        android:layout_height="300dp"
+        android:layout_below="@+id/tv_info" />
+
+
+    <Button
+        android:id="@+id/bz_start_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="20dp"
+        android:onClick="startRecord"
+        android:text="StartRecord"
+        android:textAllCaps="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="160dp"
+        android:layout_marginBottom="20dp"
+        android:onClick="stopRecord"
+        android:text="StopRecord"
+        android:textAllCaps="false" />
+
+</RelativeLayout>

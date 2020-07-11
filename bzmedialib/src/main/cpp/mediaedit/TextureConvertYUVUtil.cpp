@@ -210,9 +210,6 @@ int TextureConvertYUVUtil::destroyResource() {
     return 0;
 }
 
-void TextureConvertYUVUtil::setTextureFlip(bool flipHorizontal, bool flipVertical) {
-
-}
 
 const char *TextureConvertYUVUtil::defaultVertexSource = "attribute vec4 vPosition;\n"
                                                          "attribute vec2 inputTextureCoordinate;\n"

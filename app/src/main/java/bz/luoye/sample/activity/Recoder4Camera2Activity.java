@@ -131,6 +131,13 @@ public class Recoder4Camera2Activity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        bz_camera2_view.onPause();
         stopRecord(null);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bz_camera2_view.onResume();
     }
 }

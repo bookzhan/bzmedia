@@ -151,7 +151,6 @@ int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
     if (pixelFormat == PixelFormat::TEXTURE) {
         textureConvertYUVUtil = new TextureConvertYUVUtil();
         textureConvertYUVUtil->init(targetWidth, targetHeight);
-        textureConvertYUVUtil->setTextureFlip(false, videoRecordParams.needFlipVertical);
     }
     if (!synEncode) {
         encodeThreadIsRunning = true;

@@ -34,6 +34,10 @@ public class VideoRecordParams {
     private int videoRotate;
     private int pixelFormat=BZMedia.PixelFormat.YUVI420.ordinal();
     private boolean hasAudio = true;
+
+    /**
+     * Only useful for texture
+     */
     private boolean needFlipVertical = false;
     //Are the videos all key frames?
     private boolean allFrameIsKey = false;

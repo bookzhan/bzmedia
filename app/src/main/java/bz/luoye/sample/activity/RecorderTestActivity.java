@@ -31,6 +31,10 @@ public class RecorderTestActivity extends AppCompatActivity {
 
     }
 
+    public void Recoder4TextureActivity(View view) {
+        startActivity(new Intent(this, Recoder4TextureActivity.class));
+    }
+
     public void Recoder4BitmapActivity(View view) {
         startActivity(new Intent(this, Recoder4BitmapActivity.class));
     }

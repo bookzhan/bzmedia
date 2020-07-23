@@ -49,6 +49,32 @@ public class BZMedia {
 
     public static native int adjustVideoSpeed(String srcVideoPath, String outputPath, float speed);
 
+
+    /**
+     * @param srcMusicVolume 0~1
+     * @param bgMusicVolume  0~1
+     * @return >=0 successful, <0 fail
+     */
+    public static native int addBackgroundMusic(String inputPath, String outputPath,
+                                                String musicPath, float srcMusicVolume, float bgMusicVolume, OnActionListener onActionListener);
+
+    /**
+     * If only replacing background music, this function is more efficient than addBackgroundMusic
+     *
+     * @param musicPath The format must be m4a, and the encoding method must be aac
+     * @return >=0 successful, <0 fail
+     */
+    public static native int replaceBackgroundMusic(String videoPath, String musicPath, String outputPath, OnActionListener onActionListener);
+
+
+    public interface OnActionListener {
+        void progress(float progress);
+
+        void fail();
+
+        void success();
+    }
+
     public native static int test();
 
     public static enum PixelFormat {

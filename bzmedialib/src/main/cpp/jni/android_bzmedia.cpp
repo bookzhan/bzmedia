@@ -4,7 +4,9 @@
 #include <recorder/VideoRecordParams.h>
 #include <recorder/VideoRecorder.h>
 #include <mediaedit/AdjustVideoSpeedUtil.h>
+#include <mediaedit/BackgroundMusicUtil.h>
 #include "ffmpeg_base_info.h"
+#include "OnActionListener.h"
 
 typedef long;
 extern "C" {
@@ -187,7 +189,7 @@ Java_com_luoye_bzmedia_BZMedia_addAudioData(JNIEnv *env, jclass clazz, jlong nat
     }
     jbyte *data = env->GetByteArrayElements(data_, NULL);
     VideoRecorder *videoRecorder = reinterpret_cast<VideoRecorder *>(native_handle);
-    long ret= videoRecorder->addAudioData(reinterpret_cast<unsigned char *>(data), length);
+    long ret = videoRecorder->addAudioData(reinterpret_cast<unsigned char *>(data), length);
     env->ReleaseByteArrayElements(data_, data, 0);
     return ret;
 }
@@ -260,5 +262,66 @@ Java_com_luoye_bzmedia_BZMedia_adjustVideoSpeed(JNIEnv *env, jclass type, jstrin
 
     env->ReleaseStringUTFChars(srcVideoPath_, srcVideoPath);
     env->ReleaseStringUTFChars(outputPath_, outputPath);
+    return ret;
+}
+
+extern "C" JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_addBackgroundMusic(
+        JNIEnv *env, jclass type,
+        jstring inputPath_,
+        jstring outputPath_, jstring musicPath_,
+        jfloat srcMusicVolume,
+        jfloat bgMusicVolume, jobject onActionListenerObj) {
+
+    if (NULL == inputPath_ || NULL == outputPath_ || NULL == musicPath_) {
+        BZLogUtil::logE("addBackgroundMusic param is error");
+        return -1;
+    }
+    const char *inputPath = env->GetStringUTFChars(inputPath_, 0);
+    const char *outputPath = env->GetStringUTFChars(outputPath_, 0);
+    const char *musicPath = env->GetStringUTFChars(musicPath_, 0);
+
+    OnActionListener *onActionListener = new OnActionListener(onActionListenerObj);
+
+    BackgroundMusicUtil addBackgroundMusic;
+    int ret = addBackgroundMusic.startAddBackgroundMusic(inputPath, outputPath, musicPath,
+                                                         srcMusicVolume, bgMusicVolume,
+                                                         onActionListener);
+    if (ret < 0) {
+        onActionListener->fail();
+    } else {
+        onActionListener->success();
+    }
+    delete (onActionListener);
+    env->ReleaseStringUTFChars(inputPath_, inputPath);
+    env->ReleaseStringUTFChars(outputPath_, outputPath);
+    env->ReleaseStringUTFChars(musicPath_, musicPath);
+    return ret;
+}
+
+extern "C" JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_replaceBackgroundMusic(
+        JNIEnv *env, jclass type, jstring videoPath_, jstring musicPath_, jstring outputPath_,
+        jobject onActionListenerObj) {
+    const char *videoPath = env->GetStringUTFChars(videoPath_, 0);
+    const char *musicPath = env->GetStringUTFChars(musicPath_, 0);
+    const char *outputPath = env->GetStringUTFChars(outputPath_, 0);
+
+    OnActionListener *onActionListener = new OnActionListener(onActionListenerObj);
+    BackgroundMusicUtil addBackgroundMusic;
+    int ret = addBackgroundMusic.replaceBackgroundMusic(videoPath,
+                                                        musicPath,
+                                                        outputPath,
+                                                        onActionListener);
+
+    if (ret < 0) {
+        onActionListener->fail();
+    } else {
+        onActionListener->success();
+    }
+    delete (onActionListener);
+
+    env->ReleaseStringUTFChars(videoPath_, videoPath);
+    env->ReleaseStringUTFChars(musicPath_, musicPath);
     return ret;
 }

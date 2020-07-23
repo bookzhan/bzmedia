@@ -11,9 +11,11 @@ import com.bzcommon.utils.BZLogUtil;
 import com.luoye.bzcamera.utils.PermissionUtil;
 import com.luoye.bzmedia.BZMedia;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import bz.luoye.sample.R;
+import bz.luoye.sample.utils.FilePathUtil;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,12 +25,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        requestPermission();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        requestPermission();
+        File fileDir = new File(FilePathUtil.getWorkDir());
+        if (!fileDir.exists()) {
+            fileDir.mkdirs();
+        }
     }
 
 
@@ -67,5 +73,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void RecoderTest(View view) {
         startActivity(new Intent(this, RecorderTestActivity.class));
+    }
+
+    public void OtherTest(View view) {
+        startActivity(new Intent(this, OtherTestActivity.class));
     }
 }

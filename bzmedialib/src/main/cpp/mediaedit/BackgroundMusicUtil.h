@@ -10,6 +10,7 @@
 #include <string>
 #include <stdio.h>
 #include <list>
+#include <jni/OnActionListener.h>
 
 extern "C" {
 #include <include/libavformat/avformat.h>
@@ -52,7 +53,8 @@ public:
     delayMusic(const char *mediaPath, const char *outPath, int64_t startTime,
                int64_t seekStartTime = 0, int64_t seekEndTime = 0);
 
-    int mixMusic(list<const char *> *musicList, const char *outPath,OnActionListener *onActionListener);
+    int mixMusic(list<const char *> *musicList, const char *outPath,
+                 OnActionListener *onActionListener);
 
     //对音频做淡出处理
     int fadeMusic(const char *musicPath, const char *outputPath);

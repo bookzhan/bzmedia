@@ -54,5 +54,5 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.luoye.bzlib:bzcommon:1.1.4'
-    implementation 'com.luoye.bzlib:bzyuv:1.1.12'
+    implementation 'com.luoye.bzlib:bzyuv:1.1.13'
 }

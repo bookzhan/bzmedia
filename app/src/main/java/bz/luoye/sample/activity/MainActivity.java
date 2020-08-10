@@ -71,11 +71,15 @@ public class MainActivity extends AppCompatActivity {
         BZLogUtil.d(TAG, "test time cost=" + (System.currentTimeMillis() - startTime));
     }
 
-    public void RecoderTest(View view) {
+    public void RecorderTest(View view) {
         startActivity(new Intent(this, RecorderTestActivity.class));
     }
 
     public void OtherTest(View view) {
         startActivity(new Intent(this, OtherTestActivity.class));
+    }
+
+    public void AudioPlayerActivity(View view) {
+        startActivity(new Intent(this, AudioPlayerActivity.class));
     }
 }

@@ -21,6 +21,7 @@ add_library( # Sets the name of the library.
         ./jni/android_bzmedia.cpp
         ./jni/ffmpeg_base_info.cpp
         ./jni/OnActionListener.cpp
+        ./jni/ffmpeg_audio_player.cpp
 
         ./common/BZLogUtil.cpp
         ./common/bz_time.cpp
@@ -34,6 +35,8 @@ add_library( # Sets the name of the library.
         ./mediaedit/MergeVideoUtil.cpp
         ./mediaedit/AdjustVideoSpeedUtil.cpp
 
+        ./player/PCMPlayerNative.cpp
+        ./player/AudioPlayer.cpp
         ./recorder/VideoRecorder.cpp
         )
 

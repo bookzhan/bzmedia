@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.Recoder4Camera1Activity">
+    tools:context=".activity.Recorder4Camera1Activity">
 
     <com.luoye.bzcamera.BZCameraView
         android:id="@+id/bz_camera_view"

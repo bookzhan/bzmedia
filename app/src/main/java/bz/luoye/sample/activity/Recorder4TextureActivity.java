@@ -37,7 +37,7 @@ import static android.opengl.GLES20.glClearColor;
 import static android.opengl.GLES20.glEnable;
 import static android.opengl.GLES20.glViewport;
 
-public class Recoder4TextureActivity extends AppCompatActivity implements CameraStateListener {
+public class Recorder4TextureActivity extends AppCompatActivity implements CameraStateListener {
     private final static String TAG = "bz_Recoder4Texture";
 
     private int previewFormat = ImageFormat.YV12;

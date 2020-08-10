@@ -19,7 +19,7 @@ import com.luoye.bzyuvlib.BZYUVUtil;
 import bz.luoye.sample.R;
 import bz.luoye.sample.utils.FilePathUtil;
 
-public class Recoder4Camera1Activity extends AppCompatActivity implements CameraStateListener {
+public class Recorder4Camera1Activity extends AppCompatActivity implements CameraStateListener {
     private final static String TAG = "bz_Recoder4Camera1";
 
     private int previewFormat = ImageFormat.YV12;

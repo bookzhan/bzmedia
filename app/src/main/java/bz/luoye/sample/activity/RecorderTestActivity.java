@@ -19,12 +19,12 @@ public class RecorderTestActivity extends AppCompatActivity {
     }
 
     public void Recoder4Camera1(View view) {
-        startActivity(new Intent(this, Recoder4Camera1Activity.class));
+        startActivity(new Intent(this, Recorder4Camera1Activity.class));
     }
 
     public void Recoder4Camera2(View view) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            startActivity(new Intent(this, Recoder4Camera2Activity.class));
+            startActivity(new Intent(this, Recorder4Camera2Activity.class));
         } else {
             BZLogUtil.e("SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP");
         }
@@ -32,11 +32,11 @@ public class RecorderTestActivity extends AppCompatActivity {
     }
 
     public void Recoder4TextureActivity(View view) {
-        startActivity(new Intent(this, Recoder4TextureActivity.class));
+        startActivity(new Intent(this, Recorder4TextureActivity.class));
     }
 
     public void Recoder4BitmapActivity(View view) {
-        startActivity(new Intent(this, Recoder4BitmapActivity.class));
+        startActivity(new Intent(this, Recorder4BitmapActivity.class));
     }
 
 }

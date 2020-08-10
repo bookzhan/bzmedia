@@ -11,8 +11,15 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="RecoderTest"
-        android:text="RecoderTest"
+        android:onClick="RecorderTest"
+        android:text="RecorderTest"
+        android:textAllCaps="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="AudioPlayerActivity"
+        android:text="AudioPlayerActivity"
         android:textAllCaps="false" />
 
 

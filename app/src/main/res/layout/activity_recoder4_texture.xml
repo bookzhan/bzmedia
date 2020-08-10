@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activity.Recoder4TextureActivity">
+    tools:context=".activity.Recorder4TextureActivity">
 
     <com.luoye.bzcamera.BZCameraView
         android:id="@+id/bz_camera_view"

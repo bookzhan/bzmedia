@@ -17,7 +17,7 @@ import java.util.Locale;
 import bz.luoye.sample.R;
 import bz.luoye.sample.utils.FilePathUtil;
 
-public class Recoder4BitmapActivity extends AppCompatActivity {
+public class Recorder4BitmapActivity extends AppCompatActivity {
     private static final String TAG = "bz_Recoder4Bitmap";
 
     private long logIndex = 0;

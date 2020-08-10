@@ -5,6 +5,7 @@
 #include <recorder/VideoRecorder.h>
 #include <mediaedit/AdjustVideoSpeedUtil.h>
 #include <mediaedit/BackgroundMusicUtil.h>
+#include <player/PCMPlayerNative.h>
 #include "ffmpeg_base_info.h"
 #include "OnActionListener.h"
 
@@ -43,6 +44,9 @@ Java_com_luoye_bzmedia_BZMedia_initNative(JNIEnv *env, jclass clazz, jobject con
         av_log_set_callback(log_call_back);
     }
     TextureConvertYUVUtil::useHDShader = sdk_int >= 19;
+    jclass pcmPlayerClass = env->FindClass("com/luoye/bzmedia/player/PCMPlayer");
+    PCMPlayerNative::pcmPlayerClass = (jclass) env->NewGlobalRef(pcmPlayerClass);
+    env->DeleteLocalRef(pcmPlayerClass);
     return 0;
 }
 extern "C"

@@ -22,7 +22,7 @@ import bz.luoye.sample.R;
 import bz.luoye.sample.utils.FilePathUtil;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class Recoder4Camera2Activity extends AppCompatActivity {
+public class Recorder4Camera2Activity extends AppCompatActivity {
     private final static String TAG = "bz_Recoder4Camera2";
     private int displayWidth = 0;
     private int displayHeight = 0;

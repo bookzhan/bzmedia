@@ -7,6 +7,10 @@
 
 #### 版本更新记录：
 
+##### V1.0.5 ：
+
+1. 修复录制无声视频, 时间戳的bug
+
 ##### V1.0.4 ：
 
 1. 支持添加背景音乐
@@ -41,9 +45,9 @@
 2. 然后添加依赖
 
    ```
-   implementation 'com.luoye.bzlib:bzmedia:1.0.4' 
+   implementation 'com.luoye.bzlib:bzmedia:1.0.5' 
    implementation 'com.luoye.bzlib:bzcommon:1.1.4'
-   implementation 'com.luoye.bzlib:bzyuv:1.1.13'
+   implementation 'com.luoye.bzlib:bzyuv:1.1.15'
    ```
 
 3. 具体使用在工程里面都有Demo

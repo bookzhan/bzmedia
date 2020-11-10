@@ -98,6 +98,7 @@ private:
     int64_t videoFrameCount = 0;
     int64_t samples_count = 0;
     int64_t videoCacheFramePts = 0;
+    int64_t logIndex = 0;
 
 
     int targetWidth = 0, targetHeight = 0,

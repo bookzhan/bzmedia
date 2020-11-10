@@ -34,6 +34,8 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
     private long lastUpdateVideoFrame = 0;
     private byte[] yuvBuffer = null;
     private byte[] yuvCropBuffer = null;
+    private long startRecordTime = -1;
+
 
     @Override
     public synchronized int startRecord(VideoRecordParams videoRecordParams) {
@@ -93,6 +95,12 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         super.addVideoData4YUV420(data, pts);
         if (null == mVideoRecordParams) {
             return;
+        }
+        if (pts < 0 && startRecordTime < 0) {
+            startRecordTime = System.currentTimeMillis();
+        }
+        if (!mVideoRecordParams.isHasAudio()) {
+            pts = (System.currentTimeMillis() - startRecordTime) * 1000;
         }
         byte[] buffer = data;
         if (mVideoRecordParams.getInputWidth() != mVideoRecordParams.getTargetWidth()
@@ -164,6 +172,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         if (mVideoRecordParams.isSynEncode()) {
             int ret = BZMedia.stopRecord(nativeHandle);
             nativeHandle = 0;
+            startRecordTime = -1;
             mRecording = false;
             BZLogUtil.d(TAG, "stopRecord success");
             adjustVideoSpeed();
@@ -178,6 +187,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
                     int ret = BZMedia.stopRecord(nativeHandle);
                     nativeHandle = 0;
                     mRecording = false;
+                    startRecordTime = -1;
                     BZLogUtil.d(TAG, "stopRecord success");
                     adjustVideoSpeed();
                     if (null != mOnVideoRecorderStateListener) {

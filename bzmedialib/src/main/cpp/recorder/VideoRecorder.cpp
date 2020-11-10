@@ -177,7 +177,7 @@ void VideoRecorder::flushBuffer() {
         }
         int64_t time = getCurrentTime() - startTime;
         encodeTotalTime += time;
-        BZLogUtil::logV("VideoRecorder flush_video avcodec_encode_video2 耗时=%lld", time);
+        BZLogUtil::logV("VideoRecorder flush_video avcodec_encode_video2 time cost=%lld", time);
         //防止最后保存的时候帧率大于30帧,只是适合外部传入PTS的情况,一般录制不会超过30帧
         video_st->avPacket->pts = 1;
         video_st->avPacket->dts = 1;
@@ -748,12 +748,15 @@ int VideoRecorder::encodeFrame(AVFrame *avFrame, int64_t videoPts) {
     }
     int64_t time = getCurrentTime() - startTime;
     encodeTotalTime += time;
-    BZLogUtil::logV("VideoRecorder avcodec_encode_video2 耗时=%lld", time);
+    if (logIndex % 30 == 0) {
+        BZLogUtil::logV("VideoRecorder avcodec_encode_video2 time cost=%lld", time);
+    }
     if (videoPts >= 0 && !videoPtsBuffer->empty()) {
         videoPts = videoPtsBuffer->front();
         videoPtsBuffer->pop_front();
     }
     writeVideoPacket(video_st->avPacket, got_picture, videoPts);
+    logIndex++;
     return ret;
 }
 

@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bzcommon.utils.BZLogUtil;
 import com.luoye.bzcamera.BZCameraView;
-import com.luoye.bzcamera.listener.CameraStateListener;
+import com.luoye.bzcamera.listener.OnCameraStateListener;
 import com.luoye.bzmedia.bean.VideoRecordParams;
 import com.luoye.bzmedia.recorder.OnRecorderErrorListener;
 import com.luoye.bzmedia.recorder.VideoRecorderBase;
@@ -19,7 +19,7 @@ import com.luoye.bzyuvlib.BZYUVUtil;
 import bz.luoye.sample.R;
 import bz.luoye.sample.utils.FilePathUtil;
 
-public class Recorder4Camera1Activity extends AppCompatActivity implements CameraStateListener {
+public class Recorder4Camera1Activity extends AppCompatActivity implements OnCameraStateListener {
     private final static String TAG = "bz_Recoder4Camera1";
 
     private int previewFormat = ImageFormat.YV12;
@@ -39,7 +39,7 @@ public class Recorder4Camera1Activity extends AppCompatActivity implements Camer
         bz_camera_view = findViewById(R.id.bz_camera_view);
         bz_camera_view.setPreviewFormat(previewFormat);
         bz_camera_view.setNeedCallBackData(true);
-        bz_camera_view.setCameraStateListener(this);
+        bz_camera_view.setOnCameraStateListener(this);
     }
 
     public void startRecord(View view) {

@@ -49,7 +49,7 @@ public class Recorder4BitmapActivity extends AppCompatActivity {
 
             @Override
             public void onVideoRecording(long recordTime) {
-                if (logIndex % 30 == 0) {
+                if (logIndex % 60 == 0) {
                     BZLogUtil.d(TAG, "onVideoRecording recordTime=" + recordTime + " VideoPath=" + videoRecorderNative.getVideoPath());
                 }
                 logIndex++;

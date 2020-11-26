@@ -5,7 +5,7 @@ publish {
     userOrg = 'bookzhan'
     groupId = 'com.luoye.bzlib'
     artifactId = 'bzmedia'
-    publishVersion = '1.0.5'
+    publishVersion = '1.0.6'
     uploadName = 'bzmedia'
     repoName = 'bzlib'
     desc = 'bzmedia lib'
@@ -53,6 +53,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.luoye.bzlib:bzcommon:1.1.4'
-    implementation 'com.luoye.bzlib:bzyuv:1.1.15'
+    implementation 'com.luoye.bzlib:bzcommon:1.1.5'
+    implementation 'com.luoye.bzlib:bzyuv:1.1.16'
 }

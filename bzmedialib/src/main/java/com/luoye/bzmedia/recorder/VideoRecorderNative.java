@@ -31,7 +31,6 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
     private AudioCapture mAudioRecorder = null;
     private BaseProgram baseProgram;
     private FrameBufferUtil frameBufferUtil;
-    private long lastUpdateVideoFrame = 0;
     private byte[] yuvBuffer = null;
     private byte[] yuvCropBuffer = null;
     private long startRecordTime = -1;
@@ -127,7 +126,6 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         } else {
             callBackVideoTime(ret);
         }
-        callBackVideoTime(ret);
     }
 
     @Override
@@ -147,10 +145,10 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             frameBufferUtil.unbindFrameBuffer();
             textureId = frameBufferUtil.getFrameBufferTextureID();
         }
-        long timeMillis = System.currentTimeMillis();
-        if (timeMillis - lastUpdateVideoFrame >= getFrameDuration()) {
-            long ret = BZMedia.updateVideoRecorderTexture(nativeHandle, textureId);
-            lastUpdateVideoFrame = timeMillis;
+        long ret = BZMedia.updateVideoRecorderTexture(nativeHandle, textureId);
+        if (ret < 0) {
+            BZLogUtil.d(TAG, "addVideoData fail");
+        } else {
             callBackVideoTime(ret);
         }
     }

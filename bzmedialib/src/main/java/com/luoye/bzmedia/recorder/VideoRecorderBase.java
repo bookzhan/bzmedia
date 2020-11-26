@@ -57,9 +57,6 @@ public abstract class VideoRecorderBase {
 
     public abstract void stopRecord();
 
-    int getFrameDuration() {
-        return (int) (1000.0f / mFrameRate * mVideoRecordParams.getRecordSpeed());
-    }
 
     public long getBitRate(int width, int height) {
         int bitrateP = Math.max(width, height);

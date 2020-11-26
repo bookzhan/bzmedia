@@ -31,8 +31,8 @@ public class Recorder4Camera1Activity extends AppCompatActivity implements OnCam
     private long logIndex = 0;
     private View bz_start_record;
     private BZCameraView bz_camera_view;
-    private long startTime=0;
-    private long frameIndex=0;
+    private long startTime = 0;
+    private long frameIndex = 0;
     private TextView tv_info;
 
     @Override
@@ -68,7 +68,7 @@ public class Recorder4Camera1Activity extends AppCompatActivity implements OnCam
 
             @Override
             public void onVideoRecording(long recordTime) {
-                if (logIndex % 30 == 0) {
+                if (logIndex % 60 == 0) {
                     BZLogUtil.d(TAG, "onVideoRecording recordTime=" + recordTime + " VideoPath=" + videoRecorderNative.getVideoPath());
                 }
                 logIndex++;
@@ -133,6 +133,8 @@ public class Recorder4Camera1Activity extends AppCompatActivity implements OnCam
     @Override
     public void onPreviewSuccess(Camera camera, int width, int height) {
         BZLogUtil.d(TAG, "onPreviewSuccess");
+        startTime = 0;
+        frameIndex = 0;
     }
 
     @Override

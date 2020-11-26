@@ -113,8 +113,6 @@ public class Recorder4TextureActivity extends AppCompatActivity implements OnCam
         VideoRecordParams videoRecordParams = new VideoRecordParams();
         videoRecordParams.setInputWidth(displayWidth);
         videoRecordParams.setInputHeight(displayHeight);
-        videoRecordParams.setTargetWidth(displayWidth / 2);
-        videoRecordParams.setTargetHeight(displayHeight / 2);
         videoRecordParams.setPixelFormat(BZMedia.PixelFormat.TEXTURE);
         videoRecordParams.setNeedFlipVertical(true);
         videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());

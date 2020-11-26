@@ -36,8 +36,6 @@ public class Recorder4BitmapActivity extends AppCompatActivity {
         videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());
         videoRecordParams.setInputWidth(bitmap.getWidth());
         videoRecordParams.setInputHeight(bitmap.getHeight());
-        videoRecordParams.setTargetWidth(bitmap.getWidth() / 2);
-        videoRecordParams.setTargetHeight(bitmap.getHeight() / 2);
         videoRecordParams.setHasAudio(false);
         videoRecordParams.setVideoFrameRate(15);
 

@@ -51,10 +51,7 @@ public class Recorder4Camera1Activity extends AppCompatActivity implements OnCam
         VideoRecordParams videoRecordParams = new VideoRecordParams();
         videoRecordParams.setInputWidth(displayWidth);
         videoRecordParams.setInputHeight(displayHeight);
-        videoRecordParams.setTargetWidth(displayWidth / 2);
-        videoRecordParams.setTargetHeight(displayHeight / 2);
         videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());
-        videoRecordParams.setHasAudio(false);
 
         videoRecorderNative = new VideoRecorderNative();
         videoRecorderNative.setOnVideoRecorderStateListener(new VideoRecorderBase.OnVideoRecorderStateListener() {

@@ -31,4 +31,12 @@
         android:text="StopRecord"
         android:textAllCaps="false" />
 
+    <TextView
+        android:id="@+id/tv_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:textColor="#F00"
+        android:textSize="16sp" />
+
 </RelativeLayout>

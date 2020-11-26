@@ -38,6 +38,7 @@ public class Recorder4Camera2Activity extends AppCompatActivity {
         setContentView(R.layout.activity_recoder4_camera2);
         bz_start_record = findViewById(R.id.bz_start_record);
         bz_camera2_view = findViewById(R.id.bz_camera2_view);
+        bz_camera2_view.setPreviewTargetSize(480, 640);
         bz_camera2_view.setOnStatusChangeListener(new BZCamera2View.OnStatusChangeListener() {
             @Override
             public void onPreviewSuccess(CameraDevice mCameraDevice, int width, int height) {

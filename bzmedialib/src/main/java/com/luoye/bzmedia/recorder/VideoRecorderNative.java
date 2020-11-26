@@ -35,6 +35,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
     private byte[] yuvBuffer = null;
     private byte[] yuvCropBuffer = null;
     private long startRecordTime = -1;
+    private long frameIndex = 0;
 
 
     @Override
@@ -87,6 +88,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             mAudioRecorder.startCapture();
         }
         mRecording = true;
+        frameIndex = 0;
         return 0;
     }
 
@@ -96,6 +98,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         if (null == mVideoRecordParams) {
             return;
         }
+        frameIndex++;
         if (pts < 0 && startRecordTime < 0) {
             startRecordTime = System.currentTimeMillis();
         }
@@ -113,19 +116,18 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
                 BZLogUtil.e(TAG, "updateYUV420Data zoomYUV420 fail");
                 return;
             }
+            if (frameIndex % 30 == 0) {
+                BZLogUtil.d(TAG, "addVideoData4YUV420--zoomYUV420--");
+            }
             buffer = yuvCropBuffer;
         }
-        long timeMillis = System.currentTimeMillis();
-        if (timeMillis - lastUpdateVideoFrame >= getFrameDuration()) {
-            long ret = BZMedia.addYUV420Data(nativeHandle, buffer, pts);
-            if (ret < 0) {
-                BZLogUtil.d(TAG, "addVideoData fail");
-            } else {
-                callBackVideoTime(ret);
-            }
-            lastUpdateVideoFrame = timeMillis;
+        long ret = BZMedia.addYUV420Data(nativeHandle, buffer, pts);
+        if (ret < 0) {
+            BZLogUtil.d(TAG, "addVideoData fail");
+        } else {
             callBackVideoTime(ret);
         }
+        callBackVideoTime(ret);
     }
 
     @Override

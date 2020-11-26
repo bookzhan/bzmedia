@@ -4,6 +4,7 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,7 +23,7 @@ import bz.luoye.sample.utils.FilePathUtil;
 public class Recorder4Camera1Activity extends AppCompatActivity implements OnCameraStateListener {
     private final static String TAG = "bz_Recoder4Camera1";
 
-    private int previewFormat = ImageFormat.YV12;
+    private int previewFormat = ImageFormat.NV21;
     private byte[] yuvBuffer;
     private int displayWidth = 0;
     private int displayHeight = 0;
@@ -30,6 +31,9 @@ public class Recorder4Camera1Activity extends AppCompatActivity implements OnCam
     private long logIndex = 0;
     private View bz_start_record;
     private BZCameraView bz_camera_view;
+    private long startTime=0;
+    private long frameIndex=0;
+    private TextView tv_info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +41,11 @@ public class Recorder4Camera1Activity extends AppCompatActivity implements OnCam
         setContentView(R.layout.activity_recoder4_camera1);
         bz_start_record = findViewById(R.id.bz_start_record);
         bz_camera_view = findViewById(R.id.bz_camera_view);
+        bz_camera_view.setPreviewTargetSize(480, 640);
         bz_camera_view.setPreviewFormat(previewFormat);
-        bz_camera_view.setNeedCallBackData(true);
         bz_camera_view.setOnCameraStateListener(this);
+
+        tv_info = findViewById(R.id.tv_info);
     }
 
     public void startRecord(View view) {
@@ -153,6 +159,24 @@ public class Recorder4Camera1Activity extends AppCompatActivity implements OnCam
         if (null != videoRecorderNative) {
             videoRecorderNative.addVideoData4YUV420(yuvBuffer);
         }
+
+        //show fps
+        if (startTime <= 0) {
+            startTime = System.currentTimeMillis();
+        }
+        frameIndex++;
+        long time = System.currentTimeMillis() - startTime;
+        if (time < 30) {
+            time = 30;
+        }
+        float fps = frameIndex / (time / 1000.f);
+        final String info = "width=" + displayWidth + " height=" + displayHeight + " fps=" + fps;
+        tv_info.post(new Runnable() {
+            @Override
+            public void run() {
+                tv_info.setText(info);
+            }
+        });
     }
 
     @Override

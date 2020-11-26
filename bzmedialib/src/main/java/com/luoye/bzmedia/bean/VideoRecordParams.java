@@ -32,7 +32,7 @@ public class VideoRecordParams {
     private int nbSamples;
     private int sampleRate;
     private int videoRotate;
-    private int pixelFormat=BZMedia.PixelFormat.YUVI420.ordinal();
+    private int pixelFormat = BZMedia.PixelFormat.YUVI420.ordinal();
     private boolean hasAudio = true;
 
     /**
@@ -79,7 +79,8 @@ public class VideoRecordParams {
     }
 
     public void setTargetWidth(int targetWidth) {
-        this.targetWidth = targetWidth;
+        //align to 16
+        this.targetWidth = targetWidth / 16 * 16;
     }
 
     public int getTargetHeight() {
@@ -87,7 +88,8 @@ public class VideoRecordParams {
     }
 
     public void setTargetHeight(int targetHeight) {
-        this.targetHeight = targetHeight;
+        //align to 16
+        this.targetHeight = targetHeight / 16 * 16;
     }
 
     public int getVideoFrameRate() {

@@ -101,7 +101,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         if (pts < 0 && startRecordTime < 0) {
             startRecordTime = System.currentTimeMillis();
         }
-        if (!mVideoRecordParams.isHasAudio()) {
+        if (pts < 0 && !mVideoRecordParams.isHasAudio()) {
             pts = (System.currentTimeMillis() - startRecordTime) * 1000;
         }
         byte[] buffer = data;

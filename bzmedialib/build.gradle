@@ -5,7 +5,7 @@ publish {
     userOrg = 'bookzhan'
     groupId = 'com.luoye.bzlib'
     artifactId = 'bzmedia'
-    publishVersion = '1.0.6'
+    publishVersion = '1.0.7'
     uploadName = 'bzmedia'
     repoName = 'bzlib'
     desc = 'bzmedia lib'

@@ -45,7 +45,7 @@
 2. 然后添加依赖
 
    ```
-   implementation 'com.luoye.bzlib:bzmedia:1.0.7' 
+   implementation 'com.luoye.bzlib:bzmedia:1.0.8' 
    implementation 'com.luoye.bzlib:bzcommon:1.1.5'
    implementation 'com.luoye.bzlib:bzyuv:1.1.16'
    ```

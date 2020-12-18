@@ -712,6 +712,7 @@ int64_t VideoRecorder::addVideoData(unsigned char *data, int64_t videoPts) {
     } else {
         mutexAVFrameDeque.lock();
         AVFrame *avFrame = av_frame_clone(frame);
+        avFrame->pts = videoPts;
         avFrameDeque.push_back(avFrame);
         mutexAVFrameDeque.unlock();
     }

@@ -22,6 +22,7 @@ add_library( # Sets the name of the library.
         ./jni/ffmpeg_base_info.cpp
         ./jni/OnActionListener.cpp
         ./jni/ffmpeg_audio_player.cpp
+        ./jni/video_edit_sdk.cpp
 
         ./common/BZLogUtil.cpp
         ./common/bz_time.cpp
@@ -34,6 +35,7 @@ add_library( # Sets the name of the library.
         ./mediaedit/MergeVideoUtil.cpp
         ./mediaedit/AdjustVideoSpeedUtil.cpp
         ./mediaedit/ClipVideoFrameToImage.cpp
+        ./mediaedit/VideoTransCode.cpp
 
         ./glutils/FrameBufferUtils.cpp;
         ./glutils/GLImageTextureUtil.cpp;

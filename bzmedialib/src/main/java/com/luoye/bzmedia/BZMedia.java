@@ -7,6 +7,7 @@ import android.os.Build;
 import com.bzcommon.utils.BZLogUtil;
 import com.bzcommon.utils.BZSpUtils;
 import com.luoye.bzmedia.bean.VideoRecordParams;
+import com.luoye.bzmedia.bean.VideoTransCodeParams;
 import com.luoye.bzmedia.utils.FFmpegCMDUtil;
 
 
@@ -96,6 +97,12 @@ public class BZMedia {
      */
     public native static long getMediaDuration(String mediaPath);
 
+    public static native long initVideoTransCode();
+
+    public static native int startVideoTransCode(long nativeHandle, VideoTransCodeParams videoTransCodeParams, OnVideoTransCodeListener onVideoTransCodeListener);
+
+    public static native int stopVideoTransCode(long nativeHandle);
+
     public interface OnActionListener {
         void progress(float progress);
 
@@ -110,6 +117,16 @@ public class BZMedia {
 
     public interface OnGetBitmapFromVideoListener {
         void onGetBitmapFromVideo(int index, Bitmap bitmap);
+    }
+
+    public interface OnVideoTransCodeListener {
+        int onTextureCallBack(int textureId, int width, int height, long pts, long videoTime);
+
+        byte[] onPcmCallBack(byte[] pcmData);
+
+        void videoTransCodeProgress(float progress);
+
+        void videoTransCodeFinish();
     }
 
     public native static int test();

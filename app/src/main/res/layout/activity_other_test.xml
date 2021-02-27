@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.OtherTestActivity">
+    tools:context=".activity.APITestActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,6 +15,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:onClick="addBackgroundMusic"
             android:text="addBackgroundMusic"
             android:textAllCaps="false" />
@@ -49,6 +50,14 @@
             android:layout_marginTop="5dp"
             android:onClick="clipVideo"
             android:text="clipVideo"
+            android:textAllCaps="false" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:onClick="getMediaDuration"
+            android:text="getMediaDuration"
             android:textAllCaps="false" />
 
     </LinearLayout>

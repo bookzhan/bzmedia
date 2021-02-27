@@ -12,8 +12,8 @@ import com.luoye.bzmedia.BZMedia;
 import bz.luoye.sample.R;
 import bz.luoye.sample.utils.FilePathUtil;
 
-public class OtherTestActivity extends AppCompatActivity {
-    private static final String TAG = "bz_OtherTestActivity";
+public class APITestActivity extends AppCompatActivity {
+    private static final String TAG = "bz_APITestActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,4 +88,10 @@ public class OtherTestActivity extends AppCompatActivity {
         BZMedia.clipVideo(inputPath, FilePathUtil.getAVideoPath(), 1000, 4500);
     }
 
+    public void getMediaDuration(View view) {
+//        String path = FilePathUtil.getWorkDir() + "/许多葵,蔡翊昇 - 千樽雪.mp3";
+        String path = FilePathUtil.getWorkDir() + "/testvideo.mp4";
+        long mediaDuration = BZMedia.getMediaDuration(path);
+        BZLogUtil.d(TAG, "mediaDuration=" + mediaDuration);
+    }
 }

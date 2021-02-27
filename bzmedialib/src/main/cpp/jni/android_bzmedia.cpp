@@ -499,3 +499,14 @@ Java_com_luoye_bzmedia_BZMedia_clipVideo(JNIEnv *env, jclass clazz, jstring vide
     env->ReleaseStringUTFChars(outPath_, outPath);
     return ret;
 }
+extern "C"
+JNIEXPORT jlong JNICALL
+Java_com_luoye_bzmedia_BZMedia_getMediaDuration(JNIEnv *env, jclass clazz, jstring media_path) {
+    const char *mediaPath = env->GetStringUTFChars(media_path, 0);
+
+    jlong temp = VideoUtil::getMediaDuration(mediaPath);;
+
+    env->ReleaseStringUTFChars(media_path, mediaPath);
+
+    return temp;
+}

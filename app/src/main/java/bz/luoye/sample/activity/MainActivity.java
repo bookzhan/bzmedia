@@ -75,11 +75,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(this, RecorderTestActivity.class));
     }
 
-    public void OtherTest(View view) {
-        startActivity(new Intent(this, OtherTestActivity.class));
+    public void APITest(View view) {
+        startActivity(new Intent(this, APITestActivity.class));
     }
 
-    public void AudioPlayerActivity(View view) {
-        startActivity(new Intent(this, AudioPlayerActivity.class));
-    }
+
 }

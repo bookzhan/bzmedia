@@ -90,6 +90,12 @@ public class BZMedia {
      */
     public static native int clipVideo(String videoPath, String outPath, long startTime, long endTime);
 
+    /**
+     * @param mediaPath video or audio path
+     * @return MediaDuration ms
+     */
+    public native static long getMediaDuration(String mediaPath);
+
     public interface OnActionListener {
         void progress(float progress);
 

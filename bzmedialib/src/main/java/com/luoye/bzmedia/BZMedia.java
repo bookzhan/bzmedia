@@ -78,6 +78,18 @@ public class BZMedia {
     public static native int getBitmapFromVideo(String videoPath, int imageCount, int scale2Width, OnGetBitmapFromVideoListener onGetBitmapFromVideoListener);
 
 
+    /**
+     * @param startTime ms
+     * @param endTime   ms
+     */
+    public static native int clipAudio(String audioPath, String outPath, long startTime, long endTime);
+
+    /**
+     * @param startTime ms
+     * @param endTime   ms
+     */
+    public static native int clipVideo(String videoPath, String outPath, long startTime, long endTime);
+
     public interface OnActionListener {
         void progress(float progress);
 

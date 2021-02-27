@@ -40,7 +40,7 @@ public class OtherTestActivity extends AppCompatActivity {
 
             @Override
             public void success() {
-                BZLogUtil.d(TAG, "addBackgroundMusic success outputPath="+outputPath);
+                BZLogUtil.d(TAG, "addBackgroundMusic success outputPath=" + outputPath);
             }
         });
         if (ret < 0) {
@@ -65,7 +65,7 @@ public class OtherTestActivity extends AppCompatActivity {
 
             @Override
             public void success() {
-                BZLogUtil.d(TAG, "replaceBackgroundMusic success outputPath="+outputPath);
+                BZLogUtil.d(TAG, "replaceBackgroundMusic success outputPath=" + outputPath);
             }
         });
         if (ret < 0) {
@@ -74,6 +74,18 @@ public class OtherTestActivity extends AppCompatActivity {
     }
 
     public void GetImageFromVideoActivity(View view) {
-        startActivity(new Intent(this,GetImageFromVideoActivity.class));
+        startActivity(new Intent(this, GetImageFromVideoActivity.class));
     }
+
+
+    public void clipAudio(View view) {
+        String path = FilePathUtil.getWorkDir() + "/许多葵,蔡翊昇 - 千樽雪.mp3";
+        BZMedia.clipAudio(path, FilePathUtil.getWorkDir() + "/out.mp3", 3000, 10000);
+    }
+
+    public void clipVideo(View view) {
+        String inputPath = FilePathUtil.getWorkDir() + "/testvideo.mp4";
+        BZMedia.clipVideo(inputPath, FilePathUtil.getAVideoPath(), 1000, 4500);
+    }
+
 }

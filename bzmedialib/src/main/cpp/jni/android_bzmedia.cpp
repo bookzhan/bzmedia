@@ -10,6 +10,7 @@
 #include <common/JMethodInfo.h>
 #include <mediaedit/ClipVideoFrameToImage.h>
 #include <common/JvmManager.h>
+#include <mediaedit/VideoUtil.h>
 #include "ffmpeg_base_info.h"
 #include "OnActionListener.h"
 
@@ -470,5 +471,31 @@ Java_com_luoye_bzmedia_BZMedia_getBitmapFromVideo(JNIEnv *env, jclass clazz, jst
     env->DeleteLocalRef(classListener);
     env->DeleteGlobalRef(jMethodInfo->obj);
     delete jMethodInfo;
+    return ret;
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_clipAudio(JNIEnv *env, jclass clazz, jstring audioPath_,
+                                         jstring out_path, jlong start_time, jlong end_time) {
+    const char *audioPath = env->GetStringUTFChars(audioPath_, 0);
+    const char *outPath = env->GetStringUTFChars(out_path, 0);
+
+    int ret = VideoUtil::clipAudio(audioPath, outPath, start_time, end_time);
+
+    env->ReleaseStringUTFChars(audioPath_, audioPath);
+    env->ReleaseStringUTFChars(out_path, outPath);
+    return ret;
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_clipVideo(JNIEnv *env, jclass clazz, jstring videoPath_,
+                                         jstring outPath_, jlong start_time, jlong end_time) {
+    const char *videoPath = env->GetStringUTFChars(videoPath_, 0);
+    const char *outPath = env->GetStringUTFChars(outPath_, 0);
+
+    int ret = VideoUtil::clipVideo(videoPath, outPath, start_time, end_time);
+
+    env->ReleaseStringUTFChars(videoPath_, videoPath);
+    env->ReleaseStringUTFChars(outPath_, outPath);
     return ret;
 }

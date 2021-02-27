@@ -289,7 +289,7 @@ int VideoUtil::printVideoTimeStamp(const char *videoPath) {
 
 //    FILE *yuvFile = fopen("/sdcard/Filter/out.yuv", "wb");
     int got_picture_ptr = 0;
-    size_t ySize = (size_t)(videoInStream->codecpar->width * videoInStream->codecpar->height);
+    size_t ySize = (size_t) (videoInStream->codecpar->width * videoInStream->codecpar->height);
     AVPacket *decode_pkt = av_packet_alloc();
     int videoKeyFrameCount = 0;
     int videoFrameCount = 0;
@@ -818,7 +818,7 @@ int VideoUtil::clipVideo(const char *videoPath, const char *outPath, int64_t sta
     AVStream *audioStream = nullptr;
     for (int i = 0; i < in_fmt_ctx->nb_streams; ++i) {
         AVStream *avStream = in_fmt_ctx->streams[i];
-        if (avStream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+        if (avStream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && avStream->nb_frames > 30) {
             int64_t startPts =
                     static_cast<int64_t>(1.0f * startTime * avStream->time_base.den /
                                          (1000 * avStream->time_base.num));
@@ -876,6 +876,10 @@ int VideoUtil::clipVideo(const char *videoPath, const char *outPath, int64_t sta
         }
         if (in_fmt_ctx->streams[avPacket->stream_index]->codecpar->codec_type ==
             AVMEDIA_TYPE_VIDEO) {
+            if (nullptr == videoStream) {
+                av_packet_unref(avPacket);
+                continue;
+            }
             if (videoStartPts == START_FLAG) {
                 videoStartPts = avPacket->pts;
                 videoStartDts = avPacket->dts;

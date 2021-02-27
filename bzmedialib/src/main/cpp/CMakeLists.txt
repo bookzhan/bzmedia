@@ -27,13 +27,36 @@ add_library( # Sets the name of the library.
         ./common/bz_time.cpp
         ./common/JvmManager.cpp
         ./common/GLUtil.cpp
+        ./common/PngReader.cpp
 
-        ./mediaedit/TextureConvertYUVUtil.cpp
-        ./mediaedit/TextureUtil.cpp
         ./mediaedit/VideoUtil.cpp
         ./mediaedit/BackgroundMusicUtil.cpp
         ./mediaedit/MergeVideoUtil.cpp
         ./mediaedit/AdjustVideoSpeedUtil.cpp
+        ./mediaedit/ClipVideoFrameToImage.cpp
+
+        ./glutils/FrameBufferUtils.cpp;
+        ./glutils/GLImageTextureUtil.cpp;
+        ./glutils/GLMatrixUtils.cpp;
+        ./glutils/MatrixVaryTools.cpp;
+        ./glutils/CropTextureUtil.cpp;
+        ./glutils/BZRenderEngine.cpp;
+        ./glutils/VideoTextureManger.cpp;
+        ./glutils/EGLContextUtil.cpp;
+        ./glutils/TextureConvertYUVUtil.cpp;
+        ./glutils/TextureUtil.cpp;
+
+        ./glprogram/BaseProgram.cpp;
+        ./glprogram/BaseMatrixProgram.cpp;
+        ./glprogram/BaseParticleProgram.cpp;
+        ./glprogram/CircleProgram.cpp;
+        ./glprogram/ImageExternalProgram.cpp;
+        ./glprogram/BaseYUVDrawProgram.cpp;
+        ./glprogram/YUV420DrawProgram.cpp;
+        ./glprogram/YUVNVDrawProgram.cpp;
+        ./glprogram/AVFrameDrawProgram.cpp;
+        ./glprogram/TextureYUVProgram.cpp;
+        ./glprogram/GaussBlurProgram.cpp;
 
         ./player/PCMPlayerNative.cpp
         ./player/AudioPlayer.cpp
@@ -78,6 +101,16 @@ include_directories(
         ./include/
         ./common
         ./bean
+        ./cmdutilt
+        ./include
+        ./include/libavcodec
+        ./include/libavdevice
+        ./include/libavfilter
+        ./include/libavformat
+        ./include/libavutil
+        ./include/libpostproc
+        ./include/libswresample
+        ./include/libswscale
 )
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this

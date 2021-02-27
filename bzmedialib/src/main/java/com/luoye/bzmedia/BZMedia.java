@@ -1,6 +1,7 @@
 package com.luoye.bzmedia;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Build;
 
 import com.bzcommon.utils.BZLogUtil;
@@ -66,6 +67,16 @@ public class BZMedia {
      */
     public static native int replaceBackgroundMusic(String videoPath, String musicPath, String outputPath, OnActionListener onActionListener);
 
+    /**
+     * @param outImageParentPath 存放图片的父目录
+     * @param imageCount         需要截图的数量,会自动平均截取的
+     * @param scale2Width        把宽缩放到对应的值
+     * @return >=0 success
+     */
+    public static native int getImageFromVideo(String videoPath, String outImageParentPath, int imageCount, int scale2Width, OnGetImageFromVideoListener onGetImageFromVideoListener);
+
+    public static native int getBitmapFromVideo(String videoPath, int imageCount, int scale2Width, OnGetBitmapFromVideoListener onGetBitmapFromVideoListener);
+
 
     public interface OnActionListener {
         void progress(float progress);
@@ -73,6 +84,14 @@ public class BZMedia {
         void fail();
 
         void success();
+    }
+
+    public interface OnGetImageFromVideoListener {
+        void onGetImageFromVideo(int index, String imagePath);
+    }
+
+    public interface OnGetBitmapFromVideoListener {
+        void onGetBitmapFromVideo(int index, Bitmap bitmap);
     }
 
     public native static int test();

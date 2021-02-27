@@ -16,7 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.AudioPlayerActivity"></activity>
+        <activity android:name=".activity.GetImageFromVideoActivity"/>
+        <activity android:name=".activity.AudioPlayerActivity" />
         <activity android:name=".activity.OtherTestActivity" />
         <activity android:name=".activity.Recorder4TextureActivity" />
         <activity android:name=".activity.Recorder4Camera2Activity" />

@@ -1,5 +1,6 @@
 package bz.luoye.sample.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -72,4 +73,7 @@ public class OtherTestActivity extends AppCompatActivity {
         }
     }
 
+    public void GetImageFromVideoActivity(View view) {
+        startActivity(new Intent(this,GetImageFromVideoActivity.class));
+    }
 }

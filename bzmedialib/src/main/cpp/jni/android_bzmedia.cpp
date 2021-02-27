@@ -1,20 +1,24 @@
 #include <jni.h>
 #include <string>
+#include <android/bitmap.h>
 #include <common/BZLogUtil.h>
 #include <recorder/VideoRecordParams.h>
 #include <recorder/VideoRecorder.h>
 #include <mediaedit/AdjustVideoSpeedUtil.h>
 #include <mediaedit/BackgroundMusicUtil.h>
 #include <player/PCMPlayerNative.h>
+#include <common/JMethodInfo.h>
+#include <mediaedit/ClipVideoFrameToImage.h>
+#include <common/JvmManager.h>
 #include "ffmpeg_base_info.h"
 #include "OnActionListener.h"
 
-typedef long;
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 }
 const char *TAG = "bz_";
+jclass bzMediaClass = NULL;
 
 void log_call_back(void *ptr, int level, const char *fmt, va_list vl) {
     //Custom log
@@ -33,6 +37,80 @@ void log_call_back(void *ptr, int level, const char *fmt, va_list vl) {
     }
 }
 
+void getImageFromVideoCallBack(int64_t callBackHandle, int index, const char *imagePath) {
+    if (callBackHandle == 0) {
+        BZLogUtil::logW("callBackHandle==0");
+        return;
+    }
+    JNIEnv *jniEnv = NULL;
+    bool needDetach = JvmManager::getJNIEnv(&jniEnv);
+    if (NULL == bzMediaClass || NULL == jniEnv) {
+        jniEnv = NULL;
+        if (needDetach)
+            JvmManager::getJavaVM()->DetachCurrentThread();
+        return;
+    }
+    JMethodInfo *jMethodInfo = reinterpret_cast<JMethodInfo *>(callBackHandle);
+    jstring path = jniEnv->NewStringUTF(imagePath);
+    jniEnv->CallVoidMethod(jMethodInfo->obj, jMethodInfo->methodID, index,
+                           path);
+    jniEnv->DeleteLocalRef(path);
+    jniEnv = NULL;
+    if (needDetach)
+        JvmManager::getJavaVM()->DetachCurrentThread();
+}
+
+void
+getBitmapFromVideoCallBack(int64_t callBackHandle, int index, void *data, int width, int height) {
+    if (callBackHandle == 0) {
+        BZLogUtil::logW("getBitmapFromVideoCallBack callBackHandle==0");
+        return;
+    }
+    JNIEnv *jniEnv = NULL;
+    bool needDetach = JvmManager::getJNIEnv(&jniEnv);
+    int ret;
+    void *targetPixels;
+    jclass bitmapCls = jniEnv->FindClass("android/graphics/Bitmap");
+
+    jobject newBitmap;
+    jmethodID createBitmapFunctionMethodID = jniEnv->GetStaticMethodID(bitmapCls, "createBitmap",
+                                                                       "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
+    jstring configName = jniEnv->NewStringUTF("ARGB_8888");
+    jclass bitmapConfigClass = jniEnv->FindClass("android/graphics/Bitmap$Config");
+
+    jmethodID valueOfBitmapConfigFunctionMethodID = jniEnv->GetStaticMethodID(bitmapConfigClass,
+                                                                              "valueOf",
+                                                                              "(Ljava/lang/String;)Landroid/graphics/Bitmap$Config;");
+    jobject bitmapConfigObj = jniEnv->CallStaticObjectMethod(bitmapConfigClass,
+                                                             valueOfBitmapConfigFunctionMethodID,
+                                                             configName);
+
+    newBitmap = jniEnv->CallStaticObjectMethod(bitmapCls, createBitmapFunctionMethodID, width,
+                                               height, bitmapConfigObj);
+
+    if ((ret = AndroidBitmap_lockPixels(jniEnv, newBitmap, &targetPixels)) < 0) {
+        BZLogUtil::logE(
+                "getBitmapFromVideoCallBack AndroidBitmap_lockPixels() targetPixels failed ! error=%d",
+                ret);
+    }
+    if (ret >= 0) {
+        memcpy(targetPixels, data, (size_t) (width * height * 4));
+        JMethodInfo *jMethodInfo = reinterpret_cast<JMethodInfo *>(callBackHandle);
+        jniEnv->CallVoidMethod(jMethodInfo->obj, jMethodInfo->methodID, index, newBitmap);
+    }
+    //必须要释放
+    AndroidBitmap_unlockPixels(jniEnv, newBitmap);
+
+
+    jniEnv->DeleteLocalRef(configName);
+    jniEnv->DeleteLocalRef(bitmapConfigObj);
+    jniEnv->DeleteLocalRef(bitmapConfigClass);
+    jniEnv->DeleteLocalRef(newBitmap);
+
+    jniEnv = NULL;
+    if (needDetach)JvmManager::getJavaVM()->DetachCurrentThread();
+
+}
 
 extern "C"
 JNIEXPORT jint JNICALL
@@ -42,6 +120,9 @@ Java_com_luoye_bzmedia_BZMedia_initNative(JNIEnv *env, jclass clazz, jobject con
     __android_log_write(ANDROID_LOG_DEBUG, BZLOG_TAG, "welcome bzmedia ^_^");
     if (is_debug) {
         av_log_set_callback(log_call_back);
+    }
+    if (NULL == bzMediaClass) {
+        bzMediaClass = (jclass) env->NewGlobalRef(clazz);
     }
     TextureConvertYUVUtil::useHDShader = sdk_int >= 19;
     jclass pcmPlayerClass = env->FindClass("com/luoye/bzmedia/player/PCMPlayer");
@@ -327,5 +408,67 @@ Java_com_luoye_bzmedia_BZMedia_replaceBackgroundMusic(
 
     env->ReleaseStringUTFChars(videoPath_, videoPath);
     env->ReleaseStringUTFChars(musicPath_, musicPath);
+    return ret;
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_getImageFromVideo(JNIEnv *env, jclass clazz, jstring videoPath_,
+                                                 jstring outImageParentPath_, jint imageCount,
+                                                 jint scale2Width,
+                                                 jobject onGetImageFromVideoListener) {
+    if (NULL == videoPath_ || NULL == outImageParentPath_ || imageCount <= 0) {
+        BZLogUtil::logE("getImageFromVideo param is error");
+        return -1;
+    }
+    const char *videoPath = env->GetStringUTFChars(videoPath_, 0);
+    const char *outImageParentPath = env->GetStringUTFChars(outImageParentPath_, 0);
+
+    JMethodInfo *jMethodInfo = new JMethodInfo();
+    jMethodInfo->obj = env->NewGlobalRef(onGetImageFromVideoListener);
+    jclass classListener = env->GetObjectClass(onGetImageFromVideoListener);
+    jMethodInfo->methodID = env->GetMethodID(classListener, "onGetImageFromVideo",
+                                             "(ILjava/lang/String;)V");
+
+    ClipVideoFrameToImage clipVideoFrameToImage;
+    int ret = clipVideoFrameToImage.clipVideoFrameToImage(videoPath, outImageParentPath, imageCount,
+                                                          scale2Width,
+                                                          reinterpret_cast<int64_t>(jMethodInfo),
+                                                          getImageFromVideoCallBack);
+    env->ReleaseStringUTFChars(videoPath_, videoPath);
+    env->ReleaseStringUTFChars(outImageParentPath_, outImageParentPath);
+
+    env->DeleteGlobalRef(jMethodInfo->obj);
+    env->DeleteLocalRef(classListener);
+    delete (jMethodInfo);
+    return ret;
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_getBitmapFromVideo(JNIEnv *env, jclass clazz, jstring videoPath_,
+                                                  jint image_count, jint scale2_width,
+                                                  jobject onGetBitmapFromVideoListener) {
+    if (NULL == videoPath_) {
+        BZLogUtil::logE("getBitmapFromVideo NULL==videoPath_");
+        return -1;
+    }
+    const char *videoPath = env->GetStringUTFChars(videoPath_, 0);
+
+    JMethodInfo *jMethodInfo = new JMethodInfo();
+    jMethodInfo->obj = env->NewGlobalRef(onGetBitmapFromVideoListener);
+    jclass classListener = env->GetObjectClass(onGetBitmapFromVideoListener);
+    jMethodInfo->methodID = env->GetMethodID(classListener,
+                                             "onGetBitmapFromVideo",
+                                             "(ILandroid/graphics/Bitmap;)V");
+
+    ClipVideoFrameToImage clipVideoFrameToImage;
+    int ret = clipVideoFrameToImage.clipVideoFrameToImage(videoPath,
+                                                          image_count,
+                                                          scale2_width,
+                                                          reinterpret_cast<int64_t>(jMethodInfo),
+                                                          getBitmapFromVideoCallBack);
+    env->ReleaseStringUTFChars(videoPath_, videoPath);
+    env->DeleteLocalRef(classListener);
+    env->DeleteGlobalRef(jMethodInfo->obj);
+    delete jMethodInfo;
     return ret;
 }

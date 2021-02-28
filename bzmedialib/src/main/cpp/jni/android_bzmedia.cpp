@@ -112,7 +112,17 @@ getBitmapFromVideoCallBack(int64_t callBackHandle, int index, void *data, int wi
     if (needDetach)JvmManager::getJavaVM()->DetachCurrentThread();
 
 }
+void sendMediaInfo(long handle, int what, int extra) {
+//    BZLogUtil::logD("sendMediaInfo--what=%d--extra=%d", what, extra);
+    JNIEnv *jniEnv = NULL;
+    bool needDetach = JvmManager::getJNIEnv(&jniEnv);
 
+    JMethodInfo *jMethodInfo = reinterpret_cast<JMethodInfo *>(handle);
+    jniEnv->CallVoidMethod(jMethodInfo->obj, jMethodInfo->methodID, what, extra);
+    jniEnv = NULL;
+    if (needDetach)
+        JvmManager::getJavaVM()->DetachCurrentThread();
+}
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_luoye_bzmedia_BZMedia_initNative(JNIEnv *env, jclass clazz, jobject context,
@@ -508,5 +518,23 @@ Java_com_luoye_bzmedia_BZMedia_getMediaDuration(JNIEnv *env, jclass clazz, jstri
 
     env->ReleaseStringUTFChars(media_path, mediaPath);
 
+    return temp;
+}
+
+extern "C" JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_getVideoInfo(JNIEnv *env, jclass type,
+                                            jstring videoPath_, jobject sendMediaInfoListener) {
+    const char *videoPath = env->GetStringUTFChars(videoPath_, 0);
+
+    JMethodInfo *jMethodInfo = new JMethodInfo();
+    jMethodInfo->obj = sendMediaInfoListener;
+    jMethodInfo->methodID = env->GetMethodID(env->GetObjectClass(sendMediaInfoListener),
+                                             "sendMediaInfo",
+                                             "(II)V");
+    int temp = VideoUtil::getVideoInfo(videoPath, reinterpret_cast<long>(jMethodInfo),
+                                       sendMediaInfo);
+
+    delete jMethodInfo;
+    env->ReleaseStringUTFChars(videoPath_, videoPath);
     return temp;
 }

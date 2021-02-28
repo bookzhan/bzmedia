@@ -23,6 +23,7 @@ add_library( # Sets the name of the library.
         ./jni/OnActionListener.cpp
         ./jni/ffmpeg_audio_player.cpp
         ./jni/video_edit_sdk.cpp
+        ./jni/android_external_texture_program.cpp
 
         ./common/BZLogUtil.cpp
         ./common/bz_time.cpp

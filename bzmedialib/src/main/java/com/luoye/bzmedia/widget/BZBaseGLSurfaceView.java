@@ -116,6 +116,18 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
         requestRender();
     }
 
+    public void setInputSize(int inputWidth, int inputHeight) {
+        if (this.inputWidth != inputWidth || this.inputHeight != inputHeight) {
+            this.inputWidth = inputWidth;
+            this.inputHeight = inputHeight;
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    calcViewport();
+                }
+            });
+        }
+    }
 
     @Override
     public void onPause() {

@@ -16,6 +16,11 @@ import com.luoye.bzmedia.utils.FFmpegCMDUtil;
  * description:
  */
 public class BZMedia {
+    public static final int MEDIA_INFO_WHAT_VIDEO_DURATION = 1;
+    public static final int MEDIA_INFO_WHAT_VIDEO_ROTATE = 2;
+    public static final int MEDIA_INFO_WHAT_VIDEO_WIDTH = 3;
+    public static final int MEDIA_INFO_WHAT_VIDEO_HEIGHT = 4;
+
     static {
         System.loadLibrary("bzffmpeg");
         System.loadLibrary("bzffmpegcmd");
@@ -103,6 +108,8 @@ public class BZMedia {
 
     public static native int stopVideoTransCode(long nativeHandle);
 
+    public native static int getVideoInfo(String videoPath, OnSendMediaInfoListener sendMediaInfoListener);
+
     public interface OnActionListener {
         void progress(float progress);
 
@@ -128,6 +135,11 @@ public class BZMedia {
 
         void videoTransCodeFinish();
     }
+
+    public interface OnSendMediaInfoListener {
+        void sendMediaInfo(int what, int extra);
+    }
+
 
     public native static int test();
 

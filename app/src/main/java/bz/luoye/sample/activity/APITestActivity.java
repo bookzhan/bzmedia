@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import bz.luoye.sample.R;
 import bz.luoye.sample.utils.FilePathUtil;
+import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 import static android.opengl.GLES20.GL_BLEND;
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
@@ -231,5 +232,9 @@ public class APITestActivity extends AppCompatActivity {
         });
         thread.setPriority(Thread.MAX_PRIORITY);
         thread.start();
+    }
+
+    public void VideoPlayerTest(View view) {
+        startActivity(new Intent(this, VideoPlayerActivity.class));
     }
 }

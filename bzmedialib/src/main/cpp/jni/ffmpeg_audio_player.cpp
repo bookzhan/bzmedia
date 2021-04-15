@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2020-08-10 17:33.
+ * Created by bookzhan on 2020-08-10 17:33.
  *description:
  */
 //
@@ -114,15 +114,6 @@ Java_com_luoye_bzmedia_player_AudioNativePlayer_start(JNIEnv *env, jobject thiz,
     }
     auto *audioPlayer = reinterpret_cast<AudioPlayer *>(handle);
     return audioPlayer->start();
-}
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_luoye_bzmedia_player_AudioNativePlayer_stop(JNIEnv *env, jobject thiz, jlong handle) {
-    if (handle == 0) {
-        return -1;
-    }
-    auto *audioPlayer = reinterpret_cast<AudioPlayer *>(handle);
-    return audioPlayer->stop();
 }
 extern "C"
 JNIEXPORT jint JNICALL

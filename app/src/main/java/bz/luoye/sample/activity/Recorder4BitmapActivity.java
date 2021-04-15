@@ -21,7 +21,7 @@ public class Recorder4BitmapActivity extends AppCompatActivity {
     private static final String TAG = "bz_Recoder4Bitmap";
 
     private long logIndex = 0;
-    private String rootPath = FilePathUtil.getWorkDir() + "/outpic";
+    private String rootPath = FilePathUtil.getReadWorkDir() + "/outpic";
     private VideoRecorderNative videoRecorderNative;
 
     @Override
@@ -33,13 +33,13 @@ public class Recorder4BitmapActivity extends AppCompatActivity {
     public void start(View view) {
         Bitmap bitmap = BitmapFactory.decodeFile(rootPath + "/image1.jpeg");
         VideoRecordParams videoRecordParams = new VideoRecordParams();
-        videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());
+        videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath(this));
         videoRecordParams.setInputWidth(bitmap.getWidth());
         videoRecordParams.setInputHeight(bitmap.getHeight());
-        videoRecordParams.setHasAudio(false);
+        videoRecordParams.setNeedAudio(false);
         videoRecordParams.setVideoFrameRate(15);
 
-        videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());
+        videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath(this));
         videoRecorderNative = new VideoRecorderNative();
         videoRecorderNative.setOnVideoRecorderStateListener(new VideoRecorderBase.OnVideoRecorderStateListener() {
             @Override

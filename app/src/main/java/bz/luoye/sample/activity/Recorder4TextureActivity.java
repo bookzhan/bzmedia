@@ -1,5 +1,15 @@
 package bz.luoye.sample.activity;
 
+import static android.opengl.GLES20.GL_BLEND;
+import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
+import static android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA;
+import static android.opengl.GLES20.GL_SRC_ALPHA;
+import static android.opengl.GLES20.glBlendFunc;
+import static android.opengl.GLES20.glClear;
+import static android.opengl.GLES20.glClearColor;
+import static android.opengl.GLES20.glEnable;
+import static android.opengl.GLES20.glViewport;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -26,16 +36,6 @@ import com.luoye.bzyuvlib.BZYUVUtil;
 
 import bz.luoye.sample.R;
 import bz.luoye.sample.utils.FilePathUtil;
-
-import static android.opengl.GLES20.GL_BLEND;
-import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
-import static android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA;
-import static android.opengl.GLES20.GL_SRC_ALPHA;
-import static android.opengl.GLES20.glBlendFunc;
-import static android.opengl.GLES20.glClear;
-import static android.opengl.GLES20.glClearColor;
-import static android.opengl.GLES20.glEnable;
-import static android.opengl.GLES20.glViewport;
 
 public class Recorder4TextureActivity extends AppCompatActivity implements OnCameraStateListener {
     private final static String TAG = "bz_Recoder4Texture";
@@ -68,7 +68,7 @@ public class Recorder4TextureActivity extends AppCompatActivity implements OnCam
 
         bzBaseGlSurfaceView.setOnDrawFrameListener(new BZBaseGLSurfaceView.OnDrawFrameListener() {
             @Override
-            public void onDrawFrame(int textureId) {
+            public void onDrawFrame(int textureId, long time) {
                 if (null != videoRecorderNative) {
                     //Add a watermark
                     if (watermarkTextureId < 0) {
@@ -115,7 +115,7 @@ public class Recorder4TextureActivity extends AppCompatActivity implements OnCam
         videoRecordParams.setInputHeight(displayHeight);
         videoRecordParams.setPixelFormat(BZMedia.PixelFormat.TEXTURE);
         videoRecordParams.setNeedFlipVertical(true);
-        videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());
+        videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath(this));
 
         videoRecorderNative = new VideoRecorderNative();
         videoRecorderNative.setOnVideoRecorderStateListener(new VideoRecorderBase.OnVideoRecorderStateListener() {

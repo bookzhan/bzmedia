@@ -1,5 +1,11 @@
 package com.luoye.bzmedia.recorder;
 
+import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
+import static android.opengl.GLES20.glClear;
+import static android.opengl.GLES20.glClearColor;
+import static android.opengl.GLES20.glViewport;
+import static com.luoye.bzmedia.recorder.OnRecorderErrorListener.ERROR_UNKNOWN;
+
 import android.graphics.Bitmap;
 
 import com.bzcommon.glutils.BaseProgram;
@@ -10,18 +16,13 @@ import com.bzcommon.utils.BZLogUtil;
 import com.luoye.bzmedia.BZMedia;
 import com.luoye.bzmedia.bean.VideoRecordParams;
 import com.luoye.bzmedia.bean.VideoSize;
+import com.luoye.bzmedia.utils.VideoUtil;
 import com.luoye.bzyuvlib.BZYUVUtil;
 
 import java.io.File;
 
-import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
-import static android.opengl.GLES20.glClear;
-import static android.opengl.GLES20.glClearColor;
-import static android.opengl.GLES20.glViewport;
-import static com.luoye.bzmedia.recorder.OnRecorderErrorListener.ERROR_UNKNOWN;
-
 /**
- * Created by zhandalin on 2020-07-09 15:41.
+ * Created by bookzhan on 2020-07-09 15:41.
  * description:
  */
 public class VideoRecorderNative extends VideoRecorderBase implements AudioCapture.OnAudioFrameCapturedListener {
@@ -49,16 +50,16 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         if (fitVideoSize.getVideoWidth() <= 0 || fitVideoSize.getVideoHeight() <= 0) {
             fitVideoSize = VideoTacticsManager.getFitVideoSize(videoRecordParams.getInputWidth(), videoRecordParams.getInputHeight());
         }
-        //align to 16
-        fitVideoSize.setVideoWidth(fitVideoSize.getVideoWidth() / 16 * 16);
-        fitVideoSize.setVideoHeight(fitVideoSize.getVideoHeight() / 16 * 16);
+        //align
+        fitVideoSize.setVideoWidth(fitVideoSize.getVideoWidth() / ALIGN_BYTE * ALIGN_BYTE);
+        fitVideoSize.setVideoHeight(fitVideoSize.getVideoHeight() / ALIGN_BYTE * ALIGN_BYTE);
 
         videoRecordParams.setTargetWidth(fitVideoSize.getVideoWidth());
         videoRecordParams.setTargetHeight(fitVideoSize.getVideoHeight());
         videoRecordParams.setNbSamples(AudioCapture.getNbSamples());
         videoRecordParams.setSampleRate(44100);
         if (videoRecordParams.getBitRate() <= 0) {
-            long bitRate = getBitRate(videoRecordParams.getTargetWidth(), videoRecordParams.getTargetHeight());
+            long bitRate = VideoUtil.getDefaultBitRate(videoRecordParams.getTargetWidth(), videoRecordParams.getTargetHeight());
             if (videoRecordParams.isAllFrameIsKey()) {
                 bitRate = bitRate / 2 * 3;
             }
@@ -79,7 +80,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             if (null != mOnVideoRecorderStateListener)
                 mOnVideoRecorderStateListener.onVideoRecorderStarted(true);
         }
-        if (videoRecordParams.isHasAudio()) {
+        if (videoRecordParams.isNeedAudio()) {
             if (null != mAudioRecorder)
                 mAudioRecorder.stopCapture();
             mAudioRecorder = new AudioCapture();
@@ -91,9 +92,11 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         return 0;
     }
 
+    /**
+     * @param pts ms*1000
+     */
     @Override
     public synchronized void addVideoData4YUV420(byte[] data, long pts) {
-        super.addVideoData4YUV420(data, pts);
         if (null == mVideoRecordParams) {
             return;
         }
@@ -101,7 +104,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         if (pts < 0 && startRecordTime < 0) {
             startRecordTime = System.currentTimeMillis();
         }
-        if (pts < 0 && !mVideoRecordParams.isHasAudio()) {
+        if (pts < 0 && !mVideoRecordParams.isNeedAudio()) {
             pts = (System.currentTimeMillis() - startRecordTime) * 1000;
         }
         byte[] buffer = data;
@@ -129,7 +132,13 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
     }
 
     @Override
-    public synchronized void addVideoData4Texture(int textureId) {
+    public synchronized void addVideoData4Texture(int textureId, long pts) {
+        if (pts < 0 && startRecordTime < 0) {
+            startRecordTime = System.currentTimeMillis();
+        }
+        if (pts < 0 && !mVideoRecordParams.isNeedAudio()) {
+            pts = (System.currentTimeMillis() - startRecordTime) * 1000;
+        }
         if (mVideoRecordParams.isNeedFlipVertical()) {
             if (null == baseProgram) {
                 baseProgram = new BaseProgram(true);
@@ -145,7 +154,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             frameBufferUtil.unbindFrameBuffer();
             textureId = frameBufferUtil.getFrameBufferTextureID();
         }
-        long ret = BZMedia.updateVideoRecorderTexture(nativeHandle, textureId);
+        long ret = BZMedia.updateVideoRecorderTexture(nativeHandle, textureId, pts);
         if (ret < 0) {
             BZLogUtil.d(TAG, "addVideoData fail");
         } else {
@@ -252,13 +261,16 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
         }
     }
 
+    /**
+     * @param pts ms*1000
+     */
     public void addVideoPacketData(byte[] videoPacket, long size, long pts) {
         long ret = BZMedia.addVideoPacketData(nativeHandle, videoPacket, size, pts);
         callBackVideoTime(ret);
     }
 
     private void callBackVideoTime(long videoTime) {
-        if (!mVideoRecordParams.isHasAudio()) {
+        if (!mVideoRecordParams.isNeedAudio()) {
             recordTime = videoTime;
             if (null != mOnVideoRecorderStateListener) {
                 mOnVideoRecorderStateListener.onVideoRecording(recordTime);

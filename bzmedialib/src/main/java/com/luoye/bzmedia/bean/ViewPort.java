@@ -1,8 +1,8 @@
 package com.luoye.bzmedia.bean;
 
 /**
- * Created by zhandalin on 2017-10-09 17:28.
- * 说明:
+ * Created by bookzhan on 2017-10-09 17:28.
+ * Description:
  */
 public class ViewPort {
     public int x, y;

@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2017-10-12 16:00.
+ * Created by bookzhan on 2017-10-12 16:00.
  * 说明:粒子系统的基类
  */
 //

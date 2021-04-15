@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2020-05-25 17:00.
+ * Created by bookzhan on 2020-05-25 17:00.
  *description:
  */
 //
@@ -30,7 +30,7 @@ void printFFmpegBaseInfo() {
     getFFmpegSupportAVFilter(buffer);
     BZLogUtil::logD(buffer);
 
-    testH264AAC();
+    testLib();
 }
 
 int getFFmpegConfigure(char *info) {
@@ -109,7 +109,7 @@ int getFFmpegSupportAVFilter(char *info) {
     return ret;
 }
 
-int testH264AAC() {
+int testLib() {
     AVCodec *avCodec = avcodec_find_decoder(AV_CODEC_ID_H264);
     if (NULL == avCodec) {
         BZLogUtil::logD("avcodec_find_decoder AV_CODEC_ID_H264 未发现");
@@ -130,6 +130,14 @@ int testH264AAC() {
     } else {
         BZLogUtil::logD("avcodec_find_encoder AV_CODEC_ID_H264 正常");
     }
+
+    AVCodec *avCodecEncoderMp3 = avcodec_find_encoder(AV_CODEC_ID_MP3);
+    if (NULL == avCodecEncoderMp3) {
+        BZLogUtil::logD("avcodec_find_encoder AV_CODEC_ID_MP3 未发现");
+    } else {
+        BZLogUtil::logD("avcodec_find_encoder AV_CODEC_ID_MP3 正常");
+    }
+
     AVCodec *avCodecAACEncoder = avcodec_find_encoder(AV_CODEC_ID_AAC);
     if (NULL == avCodecAACEncoder) {
         BZLogUtil::logD("avcodec_find_encoder AV_CODEC_ID_AAC 未发现");

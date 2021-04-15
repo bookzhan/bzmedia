@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2019-01-22 14:24.
+ * Created by bookzhan on 2019-01-22 14:24.
  * 说明:全部API都需要在GL环境中调用
  */
 //
@@ -42,7 +42,6 @@ private:
     BaseProgram *baseProgram = nullptr;
     TextureYUVProgram *textureYUVProgram = nullptr;
 
-    BaseProgram *baseProgramInner = nullptr;
     bool flipHorizontal = false;
     bool flipVertical = false;
     int rotation = 0;

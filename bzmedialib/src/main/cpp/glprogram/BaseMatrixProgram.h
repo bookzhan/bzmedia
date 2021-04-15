@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2017-10-12 14:37.
+ * Created by bookzhan on 2017-10-12 14:37.
  * 说明:
  */
 //
@@ -24,7 +24,10 @@ protected:
 
 private:
     GLint vMatrixLocation = -1;
-    float *matrix = nullptr;
+    float *matrix = new float[]{1, 0, 0, 0,
+                                0, 1, 0, 0,
+                                0, 0, 1, 0,
+                                0, 0, 0, 1};
 
 };
 

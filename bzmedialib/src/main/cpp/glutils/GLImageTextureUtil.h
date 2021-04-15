@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2017-10-12 14:48.
+ * Created by bookzhan on 2017-10-12 14:48.
  * 说明:通过文件名获取对应的纹理id
  */
 //

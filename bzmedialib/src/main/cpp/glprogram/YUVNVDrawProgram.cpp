@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-11-01 14:26.
+ * Created by bookzhan on 2018-11-01 14:26.
  * 说明:
  */
 //
@@ -26,16 +26,16 @@ YUVNVDrawProgram::YUVNVDrawProgram() {
                       "uniform sampler2D tex_y;\n"
                       "uniform sampler2D tex_uv;\n"
                       "const mat3 yuv2rgb = mat3(\n"
-                      "            1.164,1.164,1.164,\n"
-                      "            0.0,-0.392,2.017,\n"
-                      "            1.596,-0.813,0.0\n"
+                      "            1.164,0.000,1.596,\n"
+                      "            1.164,-0.391,-0.813,\n"
+                      "            1.164,2.018,0.000\n"
                       "            );\n"
                       "void main() {\n"
                       "    vec3 yuv;\n"
                       "    yuv.x = texture2D(tex_y, textureCoordinate).r - (16.0 / 255.0);\n"
                       "    yuv.y = texture2D(tex_uv, textureCoordinate).r - 0.5;\n"
                       "    yuv.z = texture2D(tex_uv, textureCoordinate).a - 0.5;\n"
-                      "    vec3 videoColor = yuv2rgb * yuv;\n"
+                      "    vec3 videoColor =yuv*yuv2rgb;\n"
                       "    gl_FragColor =vec4(videoColor.rgb, 1.0);\n"
                       "}";
 }
@@ -114,16 +114,16 @@ void YUVNVDrawProgram::updateCoordinateBuffer() {
         glGenBuffers(1, &coordinateBuffer);
     //存放顶点位置数据
     glBindBuffer(GL_ARRAY_BUFFER, coordinateBuffer);
-    const float*buffer= TextureUtil::getRotationTexture(rotate, needFlipHorizontal, needFlipVertical);
+    const float *buffer = TextureUtil::getRotationTexture(rotate, needFlipHorizontal,
+                                                          needFlipVertical);
     glBufferData(GL_ARRAY_BUFFER, sizeof(TEXTURE_VERTICES),
                  buffer,
                  GL_STATIC_DRAW);
-    free((void*)buffer);
+    free((void *) buffer);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 int YUVNVDrawProgram::releaseResource() {
-    BaseYUVDrawProgram::releaseResource();
     GLUtil::checkGlError("AVFrameProgram::releaseResource start");
     if (mProgram > 0 && glIsProgram(mProgram)) {
         glDeleteProgram(mProgram);
@@ -151,22 +151,16 @@ int YUVNVDrawProgram::releaseResource() {
 }
 
 int YUVNVDrawProgram::draw(AVFrame *inputAVFrame) {
-    if (nullptr == inputAVFrame || nullptr == inputAVFrame->linesize
-        || nullptr == inputAVFrame->data[0]
+    if (nullptr == inputAVFrame || nullptr == inputAVFrame->data[0]
         || nullptr == inputAVFrame->data[1]) {
         BZLogUtil::logE("YUVNVDrawProgram::draw AVFrame data Error");
         return -1;
     }
-    AVFrame *finalAVFrame = getAlignAVFrame(inputAVFrame);
-    if (nullptr == finalAVFrame) {
-        return 0;
-    }
-
+    AVFrame *finalAVFrame = inputAVFrame;
     if (mProgram <= 0) {
         initProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     }
     glUseProgram(mProgram);
-
     glEnableVertexAttribArray((GLuint) vPositionLocation);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
     glVertexAttribPointer((GLuint) vPositionLocation, COORDS_PER_VERTEX, GL_FLOAT, GL_FALSE,

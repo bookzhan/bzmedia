@@ -1,6 +1,6 @@
 
 /**
- * Created by zhandalin on 2017-08-09 16:56.
+ * Created by bookzhan on 2017-08-09 16:56.
  * 说明:
  */
 #ifndef BZFFMPEG_BZGL_H_H

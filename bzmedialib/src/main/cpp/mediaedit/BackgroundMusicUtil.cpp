@@ -1,6 +1,6 @@
 
 /**
- * Created by zhandalin on 2017-06-14 15:57.
+ * Created by bookzhan on 2017-06-14 15:57.
  * 说明:
  */
 
@@ -198,7 +198,7 @@ int BackgroundMusicUtil::alignmentMusic2Time(const char *musicPath,
             return ret;
         }
         if (needFade) {
-            ret = fadeMusic(tempAlignmentFile, outputPath);
+            ret = fadeMusic(tempAlignmentFile, outputPath, false, 0, true, 1000);
             if (ret < 0) {//失败用原先的文件
                 rename(tempAlignmentFile, outputPath);
             } else {
@@ -217,7 +217,7 @@ int BackgroundMusicUtil::alignmentMusic2Time(const char *musicPath,
         temp_needFadeName.append(".m4a");
 
         if (needFade) {
-            ret = fadeMusic(musicPath, temp_needFadeName.c_str());
+            ret = fadeMusic(musicPath, temp_needFadeName.c_str(), false, 0, true, 1000);
             if (ret >= 0) {//成功替换原先的文件
                 audioSrcPath = temp_needFadeName.c_str();
                 willDeleteFileList.push_back(new string(audioSrcPath));
@@ -300,29 +300,48 @@ int BackgroundMusicUtil::alignmentMusic2Time(const char *musicPath,
     return 0;
 }
 
-int BackgroundMusicUtil::fadeMusic(const char *musicPath, const char *outputPath) {
+int BackgroundMusicUtil::fadeMusic(const char *musicPath, const char *outputPath, bool needFadeIn,
+                                   long fadeInDuration, bool needFadeOut, long fadeOutDuration) {
     if (nullptr == musicPath || nullptr == outputPath) {
         return -1;
     }
-    //单位毫秒
-    int fadeTime = 1000;
+    if (!needFadeIn && !needFadeOut) {
+        BZLogUtil::logE("!needFadeIn && !needFadeOut");
+        return -1;
+    }
+    if (!needFadeIn) {
+        fadeInDuration = 0;
+    }
+    if (!needFadeOut) {
+        fadeOutDuration = 0;
+    }
     //处理文件名字
     string tempExtraMusicPath;
     tempExtraMusicPath.append(musicPath);
     string suffixMusic = tempExtraMusicPath.substr(tempExtraMusicPath.find_last_of("."),
                                                    tempExtraMusicPath.length());
     if (suffixMusic.compare(".m4a") != 0 && suffixMusic.compare(".M4A") != 0) {
-        BZLogUtil::logD("fadeMusic 原始文件 不是m4a文件不能加速处理");
+        BZLogUtil::logW(
+                "The original fadeMusic file is not an m4a file and cannot be processed faster");
         int64_t musicDuration = VideoUtil::getMediaDuration(musicPath);
-        int64_t startTime = musicDuration - fadeTime;
-        if (startTime < 0) {
-            startTime = 0;
-            fadeTime = 1000;
+        if (fadeInDuration + fadeOutDuration > musicDuration) {
+            if (needFadeIn && needFadeOut) {
+                fadeInDuration = fadeOutDuration = musicDuration / 2;
+            } else if (needFadeIn) {
+                fadeInDuration = musicDuration;
+            } else if (needFadeOut) {
+                fadeOutDuration = musicDuration;
+            }
         }
-        //做淡出
+        int64_t fadeOutStartTime = musicDuration - fadeOutDuration;
+        if (fadeOutStartTime < 0) {
+            fadeOutStartTime = fadeOutDuration = musicDuration / 2;
+        }
         char cmdBuffer[1024] = {0};
-        sprintf(cmdBuffer, "ffmpeg -y -i \"%s\" -af afade=t=out:st=%.3f:d=%.3f -vn \"%s\"",
-                musicPath, startTime * 1.0f / 1000, fadeTime * 1.0f / 1000,
+        sprintf(cmdBuffer,
+                "ffmpeg -y -i \"%s\" -af afade=t=in:d=%.3f,afade=t=out:st=%.3f:d=%.3f -vn \"%s\"",
+                musicPath, fadeInDuration * 1.0f / 1000, fadeOutStartTime * 1.0f / 1000,
+                fadeOutDuration * 1.0f / 1000,
                 outputPath);
         BZLogUtil::logD("cmdBuffer=%s", cmdBuffer);
 
@@ -334,7 +353,8 @@ int BackgroundMusicUtil::fadeMusic(const char *musicPath, const char *outputPath
         return 0;
     }
 
-    BZLogUtil::logD("fadeMusic %s outputPath=%s", musicPath, outputPath);
+    BZLogUtil::logD("fadeMusic %s outputPath=%s needFadeIn=%d needFadeOut=%d", musicPath,
+                    outputPath, needFadeIn, needFadeOut);
 
     AVFormatContext *inputAVFormatContext = NULL;
     int ret = 0;
@@ -357,6 +377,15 @@ int BackgroundMusicUtil::fadeMusic(const char *musicPath, const char *outputPath
     }
     long musicDuration = (long) (inputAudioAVStream->duration *
                                  av_q2d(inputAudioAVStream->time_base) * 1000);
+    if (fadeInDuration + fadeOutDuration > musicDuration) {
+        if (needFadeIn && needFadeOut) {
+            fadeInDuration = fadeOutDuration = musicDuration / 2;
+        } else if (needFadeIn) {
+            fadeInDuration = musicDuration;
+        } else if (needFadeOut) {
+            fadeOutDuration = musicDuration;
+        }
+    }
     AVCodec *avCodec = avcodec_find_decoder(inputAudioAVStream->codecpar->codec_id);
     if (NULL == avCodec) {
         BZLogUtil::logE("can't find_decoder");
@@ -378,7 +407,6 @@ int BackgroundMusicUtil::fadeMusic(const char *musicPath, const char *outputPath
     inputAudioAVCodecContext->time_base.den = inputAudioAVStream->time_base.den;
     inputAudioAVCodecContext->time_base.num = inputAudioAVStream->time_base.num;
 
-    //处理编码器
     AVCodec *avCodecEncoder = avcodec_find_encoder(inputAudioAVStream->codecpar->codec_id);
     if (NULL == avCodecEncoder) {
         BZLogUtil::logE("can't find_encoder");
@@ -399,18 +427,17 @@ int BackgroundMusicUtil::fadeMusic(const char *musicPath, const char *outputPath
         BZLogUtil::logE("Failed to open encoder for stream");
         return ret;
     }
-    //开始处理的时间
-    int64_t startTime = musicDuration - fadeTime;
-    if (startTime < 0) {
-        startTime = 0;
-        fadeTime = 1000;
+    int64_t fadeOutStartTime = musicDuration - fadeOutDuration;
+    if (fadeOutStartTime < 0) {
+        fadeOutStartTime = fadeOutDuration = musicDuration / 2;
     }
+    char filterStr[512] = {0};
+    sprintf(filterStr, "afade=t=in:d=%.3f,afade=t=out:st=%.3f:d=%.3f", fadeInDuration * 1.0f / 1000,
+            fadeOutStartTime * 1.0f / 1000,
+            fadeOutDuration * 1.0f / 1000);
 
-    char filters[512] = {0};
-    sprintf(filters, "afade=t=out:st=%.3f:d=%.3f", startTime * 1.0f / 1000, fadeTime * 1.0f / 1000);
-    //处理淡出滤镜
-    initAudioFilters(filters, inputAudioAVCodecContext);
-
+    FilteringContext filteringContext;
+    initAudioFilters(&filteringContext, filterStr, inputAudioAVCodecContext);
     //处理输出视频
     AVFormatContext *outputAVFormatContext = NULL;
     ret = VideoUtil::openOutputFile(inputAVFormatContext, &outputAVFormatContext,
@@ -433,6 +460,7 @@ int BackgroundMusicUtil::fadeMusic(const char *musicPath, const char *outputPath
                                                         outputAudioAVCodecContext->frame_size);;
 
     int got_frame_ptr = 0;
+    bool isFirstFrame = true;
     while (true) {
         av_init_packet(&avPacket);
         ret = av_read_frame(inputAVFormatContext, &avPacket);
@@ -446,54 +474,68 @@ int BackgroundMusicUtil::fadeMusic(const char *musicPath, const char *outputPath
                 inputAudioAVCodecContext->time_base.den;
 
 //        BZLogUtil::logE("av_read_frame");
-        if (progressTime > startTime) {
+        if (progressTime < fadeInDuration || progressTime > fadeOutStartTime) {
             //解码
             ret = avcodec_decode_audio4(inputAudioAVCodecContext, avFrameSrc, &got_frame_ptr,
                                         avPacketTemp);
             if (ret < 0 || got_frame_ptr == 0) {
                 BZLogUtil::logD("avcodec_decode_audio4 ret < 0 || got_frame_ptr == 0");
+                if (progressTime > fadeOutStartTime) {
+                    av_interleaved_write_frame(outputAVFormatContext, avPacketTemp);
+                }
                 continue;
             }
-            //过滤
-            if (av_buffersrc_add_frame_flags(buffersrc_ctx, avFrameSrc, 0) < 0) {
+            if (av_buffersrc_add_frame_flags(filteringContext.buffersrc_ctx, avFrameSrc, 0) < 0) {
                 BZLogUtil::logE("Error while feeding the audio filtergraph\n");
+                if (progressTime > fadeOutStartTime) {
+                    av_interleaved_write_frame(outputAVFormatContext, avPacketTemp);
+                }
                 continue;
             }
             /* pull filtered audio from the filtergraph */
             while (1) {
-                ret = av_buffersink_get_frame(buffersink_ctx, avFrameFilter);
+                ret = av_buffersink_get_frame(filteringContext.buffersink_ctx, avFrameFilter);
                 if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF || ret < 0) {
                     break;
                 }
-            }
-            avPacketFilter.pts = avPacket.pts;
-            avPacketFilter.dts = avPacket.dts;
-
-            av_init_packet(&avPacketFilter);
-
-            ret = avcodec_encode_audio2(outputAudioAVCodecContext, &avPacketFilter,
-                                        avFrameFilter,
-                                        &got_frame_ptr);
-            if (ret < 0 || got_frame_ptr == 0) {
-                BZLogUtil::logD("avcodec_encode_audio2 ret < 0 || got_frame_ptr == 0");
-                continue;
-            }
-            avPacketFilter.pts = avPacket.pts;
-            avPacketFilter.dts = avPacket.dts;
-            avPacketFilter.duration = avPacket.duration;
+                avPacketFilter.pts = avPacket.pts;
+                avPacketFilter.dts = avPacket.dts;
+                av_init_packet(&avPacketFilter);
+                ret = avcodec_encode_audio2(outputAudioAVCodecContext, &avPacketFilter,
+                                            avFrameFilter,
+                                            &got_frame_ptr);
+                if (ret < 0 || got_frame_ptr == 0) {
+                    BZLogUtil::logD("avcodec_encode_audio2 ret < 0 || got_frame_ptr == 0");
+                    if (progressTime > fadeOutStartTime) {
+                        av_interleaved_write_frame(outputAVFormatContext, avPacketTemp);
+                    }
+                    continue;
+                }
+                avPacketFilter.pts = avPacket.pts;
+                avPacketFilter.dts = avPacket.dts;
+                avPacketFilter.duration = avPacket.duration;
 
 //            BZLogUtil::logD("avPacketFilter pts=%lld ddts=%lld size=%d duration=%lld",
 //                 avPacketFilter.pts, avPacketFilter.dts, avPacketFilter.size,
 //                 avPacketFilter.duration);
 
-            av_interleaved_write_frame(outputAVFormatContext, &avPacketFilter);
-            av_packet_unref(&avPacketFilter);
+                if (isFirstFrame && progressTime > fadeOutStartTime) {
+                    av_interleaved_write_frame(outputAVFormatContext, avPacketTemp);
+                    isFirstFrame = false;
+                } else {
+                    av_interleaved_write_frame(outputAVFormatContext, &avPacketFilter);
+                    av_packet_unref(&avPacketFilter);
+                }
+            }
         } else {
 //            BZLogUtil::logD("avPacketFilter before pts=%lld ddts=%lld size=%d duration=%lld",
 //                 avPacketTemp->pts, avPacketTemp->dts, avPacketTemp->size, avPacketTemp->duration);
             av_interleaved_write_frame(outputAVFormatContext, avPacketTemp);
+            isFirstFrame = true;
         }
     }
+    avfilter_graph_free(&filteringContext.filter_graph);
+
     ret = av_write_trailer(outputAVFormatContext);
     if (ret != 0) {
         BZLogUtil::logE("av_write_trailer fail");
@@ -512,8 +554,9 @@ int BackgroundMusicUtil::fadeMusic(const char *musicPath, const char *outputPath
 }
 
 int
-BackgroundMusicUtil::initAudioFilters(const char *filters_descr, AVCodecContext *avCodecContext) {
-    BZLogUtil::logD("initAudioFilters filters_descr= %s", filters_descr);
+BackgroundMusicUtil::initAudioFilters(FilteringContext *filteringContext, const char *filters_descr,
+                                      AVCodecContext *avCodecContext) {
+    BZLogUtil::logD("initAudioFilters filters_descr=%s", filters_descr);
     char args[512];
     int ret = 0;
     const AVFilter *abuffersrc = avfilter_get_by_name("abuffer");
@@ -529,8 +572,8 @@ BackgroundMusicUtil::initAudioFilters(const char *filters_descr, AVCodecContext 
     const AVFilterLink *outlink;
     AVRational time_base = avCodecContext->time_base;
 
-    filter_graph = avfilter_graph_alloc();
-    if (!outputs || !inputs || !filter_graph) {
+    filteringContext->filter_graph = avfilter_graph_alloc();
+    if (!outputs || !inputs || !filteringContext->filter_graph) {
         ret = AVERROR(ENOMEM);
         goto end;
     }
@@ -543,36 +586,38 @@ BackgroundMusicUtil::initAudioFilters(const char *filters_descr, AVCodecContext 
              "time_base=%d/%d:sample_rate=%d:sample_fmt=%s:channel_layout=%lld",
              time_base.num, time_base.den, avCodecContext->sample_rate,
              av_get_sample_fmt_name(avCodecContext->sample_fmt), avCodecContext->channel_layout);
-    ret = avfilter_graph_create_filter(&buffersrc_ctx, abuffersrc, "in",
-                                       args, NULL, filter_graph);
+    ret = avfilter_graph_create_filter(&filteringContext->buffersrc_ctx, abuffersrc, "in",
+                                       args, NULL, filteringContext->filter_graph);
     if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR, "Cannot create audio buffer source\n");
         goto end;
     }
 
     /* buffer audio sink: to terminate the filter chain. */
-    ret = avfilter_graph_create_filter(&buffersink_ctx, abuffersink, "out",
-                                       NULL, NULL, filter_graph);
+    ret = avfilter_graph_create_filter(&filteringContext->buffersink_ctx, abuffersink, "out",
+                                       NULL, NULL, filteringContext->filter_graph);
     if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR, "Cannot create audio buffer sink\n");
         goto end;
     }
 
-    ret = av_opt_set_int_list(buffersink_ctx, "sample_fmts", out_sample_fmts, -1,
+    ret = av_opt_set_int_list(filteringContext->buffersink_ctx, "sample_fmts", out_sample_fmts, -1,
                               AV_OPT_SEARCH_CHILDREN);
     if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR, "Cannot set output sample format\n");
         goto end;
     }
 
-    ret = av_opt_set_int_list(buffersink_ctx, "channel_layouts", out_channel_layouts, -1,
+    ret = av_opt_set_int_list(filteringContext->buffersink_ctx, "channel_layouts",
+                              out_channel_layouts, -1,
                               AV_OPT_SEARCH_CHILDREN);
     if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR, "Cannot set output channel layout\n");
         goto end;
     }
 
-    ret = av_opt_set_int_list(buffersink_ctx, "sample_rates", out_sample_rates, -1,
+    ret = av_opt_set_int_list(filteringContext->buffersink_ctx, "sample_rates", out_sample_rates,
+                              -1,
                               AV_OPT_SEARCH_CHILDREN);
     if (ret < 0) {
         av_log(NULL, AV_LOG_ERROR, "Cannot set output sample rate\n");
@@ -591,7 +636,7 @@ BackgroundMusicUtil::initAudioFilters(const char *filters_descr, AVCodecContext 
      * default.
      */
     outputs->name = av_strdup("in");
-    outputs->filter_ctx = buffersrc_ctx;
+    outputs->filter_ctx = filteringContext->buffersrc_ctx;
     outputs->pad_idx = 0;
     outputs->next = NULL;
 
@@ -602,20 +647,20 @@ BackgroundMusicUtil::initAudioFilters(const char *filters_descr, AVCodecContext 
      * default.
      */
     inputs->name = av_strdup("out");
-    inputs->filter_ctx = buffersink_ctx;
+    inputs->filter_ctx = filteringContext->buffersink_ctx;
     inputs->pad_idx = 0;
     inputs->next = NULL;
 
-    if ((ret = avfilter_graph_parse_ptr(filter_graph, filters_descr,
+    if ((ret = avfilter_graph_parse_ptr(filteringContext->filter_graph, filters_descr,
                                         &inputs, &outputs, NULL)) < 0)
         goto end;
 
-    if ((ret = avfilter_graph_config(filter_graph, NULL)) < 0)
+    if ((ret = avfilter_graph_config(filteringContext->filter_graph, NULL)) < 0)
         goto end;
 
     /* Print summary of the sink buffer
      * Note: args buffer is reused to store channel layout string */
-    outlink = buffersink_ctx->inputs[0];
+    outlink = filteringContext->buffersink_ctx->inputs[0];
     av_get_channel_layout_string(args, sizeof(args), -1, outlink->channel_layout);
     av_log(NULL, AV_LOG_INFO, "Output: srate:%dHz fmt:%s chlayout:%s\n",
            outlink->sample_rate,
@@ -636,25 +681,13 @@ int BackgroundMusicUtil::replaceBackgroundMusicOnly(const char *videoPath, const
         BZLogUtil::logE("nullptr==videoPath|| nullptr==musicPath|| nullptr==outputPath");
         return -1;
     }
-    int ret = 0;
-    string tempExtraMusicPath;
-    tempExtraMusicPath.append(musicPath);
-    string suffixMusic = tempExtraMusicPath.substr(tempExtraMusicPath.find_last_of("."),
-                                                   tempExtraMusicPath.length());
-    //检测是不是m4a,或者mp4文件
-    if (suffixMusic.compare(".m4a") != 0
-        && suffixMusic.compare(".mp4") != 0
-        && suffixMusic.compare(".MP4") != 0) {
-        BZLogUtil::logE("Music file %s 必须是m4a,或者mp4文件, 如果必须要用请调用 addBackgroundMusic", musicPath);
-        return -1;
-    }
     //检测视频与音频
     if (!VideoUtil::hasVideo(videoPath)) {
         BZLogUtil::logE("videoPath=%s 不是视频文件文件", videoPath);
         return -1;
     }
-    if (!VideoUtil::hasAudio(musicPath)) {
-        BZLogUtil::logE("musicPath=%s 不是音频文件", musicPath);
+    if (!VideoUtil::isAACAudio(musicPath)) {
+        BZLogUtil::logE("musicPath=%s 不包含AAC音频文件", musicPath);
         return -1;
     }
 
@@ -667,7 +700,7 @@ int BackgroundMusicUtil::replaceBackgroundMusicOnly(const char *videoPath, const
     if (nullptr != onActionListener) {
         handle = reinterpret_cast<int64_t>(onActionListener);
     }
-    ret = executeFFmpegCommand(handle, mergeCmd, OnActionListener::progressCallBack);
+    int ret = executeFFmpegCommand(handle, mergeCmd, OnActionListener::progressCallBack);
     if (ret < 0) {
         BZLogUtil::logE("executeFFmpegCommand fail %s", mergeCmd);
         return ret;
@@ -676,9 +709,14 @@ int BackgroundMusicUtil::replaceBackgroundMusicOnly(const char *videoPath, const
 }
 
 int BackgroundMusicUtil::delayMusic(const char *musicPath, const char *outPath, int64_t startTime,
+                                    OnActionListener *onActionListener,
                                     int64_t seekStartTime, int64_t seekEndTime) {
     if (nullptr == musicPath || nullptr == outPath || startTime < 0) {
         return -1;
+    }
+    int64_t handle = 0;
+    if (nullptr != onActionListener) {
+        handle = reinterpret_cast<int64_t>(onActionListener);
     }
     int ret = 0;
     if (seekEndTime - seekStartTime > 0) {
@@ -689,14 +727,14 @@ int BackgroundMusicUtil::delayMusic(const char *musicPath, const char *outPath, 
                 1.0f * (seekEndTime - seekStartTime) / 1000,
                 musicPath, startTime,
                 startTime, startTime, startTime, outPath);
-        ret = executeFFmpegCommand(0, cmd, NULL);
+        ret = executeFFmpegCommand(handle, cmd, OnActionListener::progressCallBack);
     } else {
         char cmd[1024] = {0};
         //最大支持处理4通道
         sprintf(cmd, "ffmpeg -y -i \"%s\" -af adelay=%lld|%lld|%lld|%lld -vn %s",
                 musicPath, startTime,
                 startTime, startTime, startTime, outPath);
-        ret = executeFFmpegCommand(0, cmd, NULL);
+        ret = executeFFmpegCommand(handle, cmd, OnActionListener::progressCallBack);
     }
     return ret;
 }
@@ -704,28 +742,36 @@ int BackgroundMusicUtil::delayMusic(const char *musicPath, const char *outPath, 
 int BackgroundMusicUtil::mixMusic(list<const char *> *musicList, const char *outPath,
                                   OnActionListener *onActionListener) {
     if (nullptr == musicList || musicList->size() <= 1 || nullptr == outPath) {
+        BZLogUtil::logE(
+                "mixMusic nullptr == musicList || musicList->size() <= 1 || nullptr == outPath");
         return -1;
     }
     string cmd;
     cmd.append("ffmpeg -y ");
     list<const char *>::iterator list_iterator = musicList->begin();
     int count = 0;
+    int64_t maxDuration = 0;
     while (list_iterator != musicList->end()) {
         cmd.append("-i \"");
         cmd.append(*list_iterator);
+        int64_t temp = VideoUtil::getMediaDuration(*list_iterator);
+        if (temp > maxDuration) {
+            maxDuration = temp;
+        }
         cmd.append("\" ");
         list_iterator++;
         count++;
     }
     char buffer[512] = {0};
-    sprintf(buffer, "-filter_complex amix=inputs=%d -vn \"%s\"", count, outPath);
+    sprintf(buffer, "-filter_complex amix=inputs=%d -vn -b:a 128000 \"%s\"", count, outPath);
     cmd.append(buffer);
 
     int64_t handle = 0;
     if (nullptr != onActionListener) {
         handle = reinterpret_cast<int64_t>(onActionListener);
     }
-    return executeFFmpegCommand(handle, cmd.c_str(), OnActionListener::progressCallBack);;
+    return executeFFmpegCommand4TotalTime(handle, cmd.c_str(), OnActionListener::progressCallBack,
+                                          maxDuration);
 }
 
 int BackgroundMusicUtil::mixMusic(const char *inputMusicPath_1, const char *inputMusicPath_2,
@@ -738,5 +784,4 @@ int BackgroundMusicUtil::mixMusic(const char *inputMusicPath_1, const char *inpu
     BZLogUtil::logD("mixMusic cmd=%s", cmd);
     return executeFFmpegCommand(0, cmd, NULL);
 }
-
 

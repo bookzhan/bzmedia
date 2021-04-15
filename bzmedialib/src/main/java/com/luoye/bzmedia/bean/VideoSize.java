@@ -1,8 +1,8 @@
 package com.luoye.bzmedia.bean;
 
 /**
- * Created by zhandalin on 2017-08-22 14:11.
- * 说明:
+ * Created by bookzhan on 2017-08-22 14:11.
+ * Description:
  */
 public class VideoSize {
     private int width;

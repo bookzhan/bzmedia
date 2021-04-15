@@ -9,8 +9,8 @@ import com.bzcommon.utils.BZLogUtil;
 import java.nio.ByteBuffer;
 
 /**
- * Created by zhandalin on 2017-03-29 14:04.
- * 说明:声音录制
+ * Created by bookzhan on 2017-03-29 14:04.
+ * Description: Voice recording
  */
 public class AudioCapture {
 
@@ -35,10 +35,10 @@ public class AudioCapture {
         void onAudioFrameCaptured(byte[] audioData, int length);
 
         /**
-         * 音频错误
+         * Audio error
          *
-         * @param what    错误类型
-         * @param message 错误详细信息
+         * @param what    Type of error
+         * @param message Error details
          */
         void onAudioError(int what, String message);
     }
@@ -191,7 +191,7 @@ public class AudioCapture {
             } catch (final Exception e) {
                 BZLogUtil.e(TAG, "AudioThread#run", e);
             }
-            BZLogUtil.e(TAG, "AudioThread:finished 录制时间=" + (System.currentTimeMillis() - startTime));
+            BZLogUtil.e(TAG, "AudioThread:finished Recording time=" + (System.currentTimeMillis() - startTime));
         }
     }
 

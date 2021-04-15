@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-11-01 13:54.
+ * Created by bookzhan on 2018-11-01 13:54.
  * 说明:
  */
 //
@@ -15,7 +15,7 @@ extern "C" {
 #include <libavutil/frame.h>
 };
 
-//支持yuv420p
+//支持yuv420p与YUV420package数据
 class YUV420DrawProgram : public BaseYUVDrawProgram {
 public:
     YUV420DrawProgram();
@@ -27,6 +27,8 @@ public:
     void setFlip(bool flipHorizontal, bool flipVertical);
 
     int draw(AVFrame *avFrame);
+    
+    int draw(const void *pixels,int width,int height);
 
     int releaseResource();
 

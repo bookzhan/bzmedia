@@ -1,9 +1,10 @@
 package com.luoye.bzmedia.player;
 
 /**
- * Created by zhandalin on 2020-08-10 17:25.
+ * Created by bookzhan on 2020-08-10 17:25.
  * description:
  */
+@Deprecated
 public class AudioNativePlayer {
     public native synchronized long init(String audioPath, OnProgressChangedListener onProgressChangedListener);
 
@@ -18,8 +19,6 @@ public class AudioNativePlayer {
     public native synchronized int pause(long handle);
 
     public native synchronized int start(long handle);
-
-    public native synchronized int stop(long handle);
 
     public native synchronized int release(long handle);
 

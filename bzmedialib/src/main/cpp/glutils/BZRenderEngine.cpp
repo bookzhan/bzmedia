@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2019-01-22 14:24.
+ * Created by bookzhan on 2019-01-22 14:24.
  * 说明:
  */
 //
@@ -11,8 +11,6 @@
 
 BZRenderEngine::BZRenderEngine() {
     videoTextureManger = new VideoTextureManger();
-    baseProgramInner = new BaseProgram();
-    baseProgramInner->init();
 }
 
 void BZRenderEngine::setFlip(bool flipHorizontal, bool flipVertical) {
@@ -91,11 +89,6 @@ int BZRenderEngine::releaseResource() {
         delete (baseProgram);
         baseProgram = nullptr;
     }
-    if (nullptr != baseProgramInner) {
-        baseProgramInner->releaseResource();
-        delete (baseProgramInner);
-        baseProgramInner = nullptr;
-    }
     if (nullptr != textureYUVProgram) {
         textureYUVProgram->releaseResource();
         delete (textureYUVProgram);
@@ -128,8 +121,8 @@ void BZRenderEngine::setTextureSize(int textureWidth, int textureHeight) {
         textureWidth = textureHeight;
         textureHeight = temp;
     }
-    if (nullptr != frameBufferUtils && this->textureWidth != textureWidth &&
-        this->textureHeight != textureHeight) {
+    if (nullptr != frameBufferUtils && (this->textureWidth != textureWidth ||
+                                        this->textureHeight != textureHeight)) {
         frameBufferUtils->releaseFrameBuffer();
         delete (frameBufferUtils);
         frameBufferUtils = nullptr;
@@ -154,11 +147,6 @@ BZRenderEngine::~BZRenderEngine() {
         videoTextureManger->release();
         delete (videoTextureManger);
         videoTextureManger = nullptr;
-    }
-    if (nullptr != baseProgramInner) {
-        baseProgramInner->releaseResource();
-        delete (baseProgramInner);
-        baseProgramInner = nullptr;
     }
 }
 

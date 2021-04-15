@@ -37,7 +37,7 @@
        repositories {
            google()
            jcenter()
-           maven { url 'https://dl.bintray.com/bookzhan/bzlib' }
+            maven { url "https://www.raoyunsoft.com/nexus/repository/maven-releases/" }
        }
    }
    ```
@@ -45,9 +45,9 @@
 2. 然后添加依赖
 
    ```
-   implementation 'com.luoye.bzlib:bzmedia:1.0.8' 
-   implementation 'com.luoye.bzlib:bzcommon:1.1.5'
-   implementation 'com.luoye.bzlib:bzyuv:1.1.16'
+       implementation 'com.guaishou.bzlib:bzyuv:1.1.17@aar'
+       implementation 'com.guaishou.bzlib:bzcommon:1.1.16@aar'
+       implementation 'com.guaishou.bzlib:bzmedia:1.0.8@aar'
    ```
 
 3. 具体使用在工程里面都有Demo
@@ -55,9 +55,9 @@
 
 #### 相关链接:
 
-#### [FFmpeg 在Android下的编译](https://www.bzblog.online/wordpress/index.php/2020/05/26/ffmpeg-build-android/)
+#### [FFmpeg 在Android下的编译](https://www.raoyunsoft.com/wordpress/index.php/2020/05/26/ffmpeg-build-android/)
 
-#### [Android FFmpeg命令行工具支持进度回调](https://www.bzblog.online/wordpress/index.php/2020/06/29/bzcmdffmpeg/)
+#### [Android FFmpeg命令行工具支持进度回调](https://www.raoyunsoft.com/wordpress/index.php/2020/06/29/bzcmdffmpeg/)
 
-#### [Android YUV转换，支持Camera1，Camera2](https://www.bzblog.online/wordpress/index.php/2020/05/25/androidlibyuv/)
+#### [Android YUV转换，支持Camera1，Camera2](https://www.raoyunsoft.com/wordpress/index.php/2020/05/25/androidlibyuv/)
 

@@ -9,8 +9,8 @@ import com.bzcommon.utils.BZSpUtils;
 import com.luoye.bzmedia.bean.VideoSize;
 
 /**
- * Created by zhandalin on 2017-08-22 13:33.
- * 说明:根据手机CPU与手机版本,以及原始视频宽高给出合适的视频分辨率
+ * Created by bookzhan on 2017-08-22 13:33.
+ * Description:According to the mobile phone CPU and mobile phone version, and the original video width and height, give a suitable video resolution
  */
 public class VideoTacticsManager {
     private static final int CPU_DIVIDE_VALUE_FLOOR = 1500;//1.5GHz
@@ -18,7 +18,7 @@ public class VideoTacticsManager {
     private static final String TAG = "bz_VideoSize";
 
     /**
-     * @return false使用原生视频录制
+     * @return false Use media codec video recording
      */
     public static boolean isUseFFmpegRecorder() {
         if (BZSpUtils.getBoolean("use_ffmpeg_new", false)) {
@@ -31,7 +31,7 @@ public class VideoTacticsManager {
     }
 
     /**
-     * @return 最大分辨率为720p
+     * @return The maximum resolution is 720p
      */
     private static VideoSize getFFmpegVideoSize(int width, int height) {
         BZLogUtil.d(TAG, "use ffmpeg recorder");
@@ -42,16 +42,16 @@ public class VideoTacticsManager {
         long maxCpuFreq = BZCPUTool.getMaxCpuFreq();
         int targetWith = 720;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            BZLogUtil.d(TAG, "android 4.3以下 版本 最大为480");
+            BZLogUtil.d(TAG, "Versions below android 4.3 The maximum is 480");
             targetWith = 480;//最大为480
             if (maxCpuFreq < CPU_DIVIDE_VALUE_FLOOR) {
                 targetWith = 320;
-                BZLogUtil.d(TAG, "cpu跟不上只支持320");
+                BZLogUtil.d(TAG, "The cpu is too low and only supports 320");
             }
         } else {
             if (maxCpuFreq < CPU_DIVIDE_VALUE_FLOOR) {
                 targetWith = 480;
-                BZLogUtil.d(TAG, "cpu跟不上只支持480");
+                BZLogUtil.d(TAG, "The cpu is too low and only supports 480");
             } else {
                 BZLogUtil.d(TAG, "maxCpuFreq=" + maxCpuFreq + "--720p");
                 targetWith = 720;
@@ -59,11 +59,11 @@ public class VideoTacticsManager {
         }
         if (targetWith > width) {
             targetWith = width;
-            BZLogUtil.d(TAG, "targetWidth >width 取width值");
+            BZLogUtil.d(TAG, "targetWidth >width Take the width value");
         }
         VideoSize videoSize = new VideoSize(targetWith, targetWith * height / width);
         if (videoSize.getVideoHeight() > height) {
-            BZLogUtil.d(TAG, "targetHeight >height 以height为准取值 即保持原值不变");
+            BZLogUtil.d(TAG, "targetHeight >height Take height as the standard, that is, keep the original value unchanged");
             videoSize.setVideoHeight(height);
             videoSize.setVideoWidth(width * height / height);
         }
@@ -93,7 +93,7 @@ public class VideoTacticsManager {
 
         VideoSize videoSize = new VideoSize(targetWith, targetWith * height / width);
         if (videoSize.getVideoHeight() > height) {
-            BZLogUtil.d(TAG, "targetHeight >height 以height为准取值 即保持原值不变");
+            BZLogUtil.d(TAG, "targetHeight >height Take height as the standard, that is, keep the original value unchanged");
             videoSize.setVideoHeight(height);
             videoSize.setVideoWidth(width * height / height);
         }
@@ -101,9 +101,9 @@ public class VideoTacticsManager {
     }
 
     /**
-     * android 4.3是一个大的区分点
-     * android 4.3以下最大分辨率为480
-     * android 4.3以上最大分辨率为1080
+     * Android 4.3 is a big distinction
+     * The maximum resolution below android 4.3 is 480
+     * The maximum resolution above android 4.3 is 1080
      */
     public static VideoSize getFitVideoSize(int width, int height) {
         if (width <= 0 || height <= 0) {

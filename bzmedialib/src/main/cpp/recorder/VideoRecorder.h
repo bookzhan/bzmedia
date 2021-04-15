@@ -1,5 +1,5 @@
 /**
- * Created by zhandalin on 2017-03-29 17:55.
+ * Created by bookzhan on 2017-03-29 17:55.
  * 说明:
  */
 
@@ -109,8 +109,8 @@ private:
     int64_t bit_rate = 0;
 
     //外部传入的时间戳
-    std::list<int64_t> *videoPts = nullptr;
-    std::list<int64_t> *audioPts = nullptr;
+    std::list<int64_t> *videoPtsList = nullptr;
+    std::list<int64_t> *audioPtsList = nullptr;
 
     std::list<int64_t> *videoPtsBuffer = nullptr;
 
@@ -173,6 +173,8 @@ private:
     bool isWriteHeaderSuccess = false;
     unsigned char *bufferHeader = nullptr;
     int64_t headerSize = 0;
+
+    int64_t getDefaultBitRate(int width, int height);
 };
 
 

@@ -12,6 +12,7 @@
 ### Java template
 # Compiled class file
 *.class
+*.shader
 
 # BlueJ files
 *.ctxt

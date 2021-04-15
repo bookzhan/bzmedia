@@ -1,6 +1,6 @@
 
 /**
- * Created by zhandalin on 2017-06-14 15:57.
+ * Created by bookzhan on 2017-06-14 15:57.
  * 说明:
  */
 
@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <list>
 #include <jni/OnActionListener.h>
+#include <bean/FilteringContext.h>
 
 extern "C" {
 #include <include/libavformat/avformat.h>
@@ -51,21 +52,21 @@ public:
     //对传入的视频或者音频,前一段时间的音频插入静音,并保存成音频
     int
     delayMusic(const char *mediaPath, const char *outPath, int64_t startTime,
+               OnActionListener *onActionListener,
                int64_t seekStartTime = 0, int64_t seekEndTime = 0);
 
     int mixMusic(list<const char *> *musicList, const char *outPath,
                  OnActionListener *onActionListener);
 
-    //对音频做淡出处理
-    int fadeMusic(const char *musicPath, const char *outputPath);
+    //对音频做淡入淡出处理
+    int
+    fadeMusic(const char *musicPath, const char *outputPath, bool needFadeIn, long fadeInDuration,
+              bool needFadeOut, long fadeOutDuration);
 
 private:
 
-    AVFilterContext *buffersink_ctx = NULL;
-    AVFilterContext *buffersrc_ctx = NULL;
-    AVFilterGraph *filter_graph = NULL;
-
-    int initAudioFilters(const char *filters_descr, AVCodecContext *avCodecContext);
+    int initAudioFilters(FilteringContext *filteringContext, const char *filters_descr,
+                         AVCodecContext *avCodecContext);
 
 };
 

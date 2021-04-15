@@ -9,7 +9,14 @@ cmake_minimum_required(VERSION 3.4.1)
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
+if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    add_definitions(-DDEBUG_TYPE)
+endif()
 
+aux_source_directory(./glprogram DIR_GLPROGRAM_SRCS)
+aux_source_directory(./mediaedit DIR_MEDIAEDIT_SRCS)
+aux_source_directory(./player DIR_PLAYER_SRCS)
+aux_source_directory(./soundtouch DIR_SOUNDTOUCH_SRCS)
 
 add_library( # Sets the name of the library.
         bzmedia
@@ -23,7 +30,13 @@ add_library( # Sets the name of the library.
         ./jni/OnActionListener.cpp
         ./jni/ffmpeg_audio_player.cpp
         ./jni/video_edit_sdk.cpp
-        ./jni/android_external_texture_program.cpp
+        ./jni/jni_VideoFrameGetter.cpp
+        ./jni/video_recorder_jni.cpp
+        ./jni/android_gl_program.cpp
+        ./jni/jni_BZRenderEngine.cpp;
+        ./jni/video_player_jni.cpp;
+        ./jni/soundtouch_jni.cpp;
+
 
         ./common/BZLogUtil.cpp
         ./common/bz_time.cpp
@@ -31,12 +44,7 @@ add_library( # Sets the name of the library.
         ./common/GLUtil.cpp
         ./common/PngReader.cpp
 
-        ./mediaedit/VideoUtil.cpp
-        ./mediaedit/BackgroundMusicUtil.cpp
-        ./mediaedit/MergeVideoUtil.cpp
-        ./mediaedit/AdjustVideoSpeedUtil.cpp
-        ./mediaedit/ClipVideoFrameToImage.cpp
-        ./mediaedit/VideoTransCode.cpp
+        ${DIR_MEDIAEDIT_SRCS}
 
         ./glutils/FrameBufferUtils.cpp;
         ./glutils/GLImageTextureUtil.cpp;
@@ -49,21 +57,17 @@ add_library( # Sets the name of the library.
         ./glutils/TextureConvertYUVUtil.cpp;
         ./glutils/TextureUtil.cpp;
 
-        ./glprogram/BaseProgram.cpp;
-        ./glprogram/BaseMatrixProgram.cpp;
-        ./glprogram/BaseParticleProgram.cpp;
-        ./glprogram/CircleProgram.cpp;
-        ./glprogram/ImageExternalProgram.cpp;
-        ./glprogram/BaseYUVDrawProgram.cpp;
-        ./glprogram/YUV420DrawProgram.cpp;
-        ./glprogram/YUVNVDrawProgram.cpp;
-        ./glprogram/AVFrameDrawProgram.cpp;
-        ./glprogram/TextureYUVProgram.cpp;
-        ./glprogram/GaussBlurProgram.cpp;
+        ${DIR_GLPROGRAM_SRCS}
+        ${DIR_PLAYER_SRCS}
+        ${DIR_SOUNDTOUCH_SRCS}
 
-        ./player/PCMPlayerNative.cpp
-        ./player/AudioPlayer.cpp
         ./recorder/VideoRecorder.cpp
+
+        ./utils/AdjustConfigUtil.cpp
+        ./utils/PcmDeque.cpp
+
+        ./permission/base64.c
+        ./permission/PermissionUtil.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -71,8 +75,8 @@ add_library( # Sets the name of the library.
 # default, you only need to specify the name of the public NDK library
 # you want to add. CMake verifies that the library exists before
 # completing its build.
-configure_file(${Project_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libbzffmpeg.so ${Project_BINARY_DIR}/libbzffmpeg.so COPYONLY)
-configure_file(${Project_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libbzffmpegcmd.so ${Project_BINARY_DIR}/libbzffmpegcmd.so COPYONLY)
+configure_file(${Project_SOURCE_DIR}/lib/${ANDROID_ABI}/libbzffmpeg.so ${Project_BINARY_DIR}/libbzffmpeg.so COPYONLY)
+configure_file(${Project_SOURCE_DIR}/lib/${ANDROID_ABI}/libbzffmpegcmd.so ${Project_BINARY_DIR}/libbzffmpegcmd.so COPYONLY)
 
 #ffmpeg
 add_library(bzffmpeg-lib
@@ -88,7 +92,12 @@ add_library(bzffmpegcmd-lib
 set_target_properties(bzffmpegcmd-lib
         PROPERTIES IMPORTED_LOCATION
         libbzffmpegcmd.so)
-
+add_library(yuv-lib
+        STATIC
+        IMPORTED)
+set_target_properties(yuv-lib
+        PROPERTIES IMPORTED_LOCATION
+        ${Project_SOURCE_DIR}/lib/${ANDROID_ABI}/libyuv_static.a)
 
 find_library(log-lib log)
 find_library(m-lib m)
@@ -97,6 +106,7 @@ find_library(android-lib android)
 find_library(EGL-lib EGL)
 find_library(jnigraphics-lib jnigraphics)
 find_library(GLES-lib GLESv2)
+find_library(OpenSLES-lib OpenSLES)
 
 
 include_directories(
@@ -106,6 +116,8 @@ include_directories(
         ./bean
         ./cmdutilt
         ./include
+        ./utils
+        ./permission
         ./include/libavcodec
         ./include/libavdevice
         ./include/libavfilter
@@ -114,6 +126,8 @@ include_directories(
         ./include/libpostproc
         ./include/libswresample
         ./include/libswscale
+        ./include/libyuv
+        ./include/soundtouch
 )
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -124,4 +138,4 @@ target_link_libraries( # Specifies the target library.
 
         # Links the target library to the log library
         # included in the NDK.
-        bzffmpeg-lib bzffmpegcmd-lib ${log-lib} ${m-lib} ${z-lib} ${android-lib} ${EGL-lib} ${GLES-lib} ${jnigraphics-lib})
+        bzffmpeg-lib bzffmpegcmd-lib yuv-lib ${log-lib} ${m-lib} ${z-lib} ${android-lib} ${EGL-lib} ${GLES-lib} ${jnigraphics-lib} ${OpenSLES-lib})

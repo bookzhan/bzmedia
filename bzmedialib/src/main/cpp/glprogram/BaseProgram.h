@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2017-10-11 18:57.
+ * Created by bookzhan on 2017-10-11 18:57.
  * 说明:
  */
 //
@@ -22,7 +22,7 @@ public:
 
     void setFlip(bool flipHorizontal, bool flipVertical);
 
-    int setTextureId(int textureId);
+    virtual int setTextureId(int textureId);
 
     virtual int draw();
 
@@ -57,18 +57,18 @@ protected:
 
     void updateCoordinateBuffer();
 
+    GLuint textureId = 0;
 protected:
     GLuint mProgram = 0;
 private:
     GLuint positionBuffer = 0;
     GLuint coordinateBuffer = 0;
-    GLuint textureId = 0;
 
     GLint vPositionLocation = 0, inputTextureCoordinateLocation = 0;
 
     int rotation = 0;
     bool flipHorizontal = false;
-    bool flipVertical = true;
+    bool flipVertical = false;
 };
 
 

@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2020-05-25 17:00.
+ * Created by bookzhan on 2020-05-25 17:00.
  *description:
  */
 //
@@ -26,6 +26,6 @@ int getFFmpegSupportAVCodec(char *info);
 
 int getFFmpegSupportAVFilter(char *info);
 
-int testH264AAC();
+int testLib();
 
 #endif //BZMEDIA_FFMPEG_BASE_INFO_H

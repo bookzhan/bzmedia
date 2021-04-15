@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="video_resolution">
+        <item>2160p</item>
+        <item>1080p</item>
+        <item>720p</item>
+        <item>640p</item>
+        <item>480p</item>
+        <item>320p</item>
+    </string-array>
+    <string-array name="video_quality">
+        <item>High quality</item>
+        <item>Medium quality</item>
+        <item>Low quality</item>
+    </string-array>
+</resources>

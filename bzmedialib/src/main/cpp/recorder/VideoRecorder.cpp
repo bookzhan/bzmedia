@@ -1,10 +1,11 @@
 /**
- * Created by zhandalin on 2017-03-29 17:55.
+ * Created by bookzhan on 2017-03-29 17:55.
  * 说明:视频录制
  */
 #include <common/BZLogUtil.h>
 #include <bean/FilteringContext.h>
 #include <common/bzcommon.h>
+#include <tgmath.h>
 #include "VideoRecorder.h"
 #include "h264_util.h"
 
@@ -44,11 +45,11 @@ int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
             videoRecordParams.allFrameIsKey, videoRecordParams.synEncode,
             videoRecordParams.avPacketFromMediaCodec);
 
-    videoRecordParams.targetWidth = videoRecordParams.targetWidth / 16 * 16;
-    videoRecordParams.inputWidth = videoRecordParams.inputWidth / 16 * 16;
+    videoRecordParams.targetWidth = videoRecordParams.targetWidth / 8 * 8;
+    videoRecordParams.inputWidth = videoRecordParams.inputWidth / 8 * 8;
 
-    videoRecordParams.targetHeight = videoRecordParams.targetHeight / 16 * 16;
-    videoRecordParams.inputHeight = videoRecordParams.inputHeight / 16 * 16;
+    videoRecordParams.targetHeight = videoRecordParams.targetHeight / 8 * 8;
+    videoRecordParams.inputHeight = videoRecordParams.inputHeight / 8 * 8;
 
     BZLogUtil::logD("VideoRecorder 对齐后targetWidth=%d--targetHeight=%d",
                     videoRecordParams.targetWidth,
@@ -71,8 +72,12 @@ int VideoRecorder::startRecord(VideoRecordParams videoRecordParams) {
     this->pixelFormat = videoRecordParams.pixelFormat;
     this->allFrameIsKey = videoRecordParams.allFrameIsKey;
     this->bit_rate = videoRecordParams.bit_rate;
-    this->videoPts = videoRecordParams.videoPts;
-    this->audioPts = videoRecordParams.audioPts;
+    if (this->bit_rate <= 0) {
+        this->bit_rate = getDefaultBitRate(this->targetWidth, this->targetHeight);
+        BZLogUtil::logD("getDefaultBitRate bit_rate=%lld", bit_rate);
+    }
+    this->videoPtsList = videoRecordParams.videoPts;
+    this->audioPtsList = videoRecordParams.audioPts;
     this->synEncode = videoRecordParams.synEncode;
     this->avPacketFromMediaCodec = videoRecordParams.avPacketFromMediaCodec;
 
@@ -165,6 +170,7 @@ void VideoRecorder::flushBuffer() {
     BZLogUtil::logV("VideoRecorder ------flush_video start-------");
     int got_picture = 0, ret = 0;
     int64_t startTime = 0;
+    int64_t pts = -1;
     while (true) {
         av_init_packet(video_st->avPacket);
         startTime = getCurrentTime();
@@ -177,11 +183,21 @@ void VideoRecorder::flushBuffer() {
         }
         int64_t time = getCurrentTime() - startTime;
         encodeTotalTime += time;
-        BZLogUtil::logV("VideoRecorder flush_video avcodec_encode_video2 time cost=%lld", time);
         //防止最后保存的时候帧率大于30帧,只是适合外部传入PTS的情况,一般录制不会超过30帧
         video_st->avPacket->pts = 1;
         video_st->avPacket->dts = 1;
-        writeVideoPacket(video_st->avPacket, got_picture, -1);
+        pts = -1;
+        if (nullptr != videoPtsList && !videoPtsList->empty()) {
+            pts = videoPtsList->front();
+            videoPtsList->pop_front();
+        }
+        if (nullptr != videoPtsBuffer && !videoPtsBuffer->empty()) {
+            pts = videoPtsBuffer->front();
+            videoPtsBuffer->pop_front();
+        }
+        BZLogUtil::logV("VideoRecorder flush_video avcodec_encode_video2 time cost=%lld pts=%lld",
+                        time, pts);
+        writeVideoPacket(video_st->avPacket, got_picture, pts);
     }
 
 //    BZLogUtil::logV("VideoRecorder ------flush_audio start-------");
@@ -336,6 +352,13 @@ int VideoRecorder::closeStream(BZOutputStream *stream) {
     return 0;
 }
 
+int64_t VideoRecorder::getDefaultBitRate(int width, int height) {
+    float bitratePre = width * height / 1000.0f;
+    auto result = (int64_t) (2.0f * std::pow(10, -9) * std::pow(bitratePre, 3) -
+                             0.0001f * std::pow(bitratePre, 2) + 4.0037f * bitratePre + 1081.8f);
+    return result * 1000;
+}
+
 int VideoRecorder::addStream(BZOutputStream *stream, AVMediaType mediaType, AVCodecID codec_id) {
     BZLogUtil::logD("VideoRecorder addStream mediaType=%d", mediaType);
     AVCodecContext *avCodecContext;
@@ -374,7 +397,10 @@ int VideoRecorder::addStream(BZOutputStream *stream, AVMediaType mediaType, AVCo
 
             avCodecContext->codec_id = codec_id;
             avCodecContext->bit_rate = bit_rate;
-            avCodecContext->bit_rate_tolerance = (int) (bit_rate * 2);
+            avCodecContext->rc_min_rate = bit_rate;
+            avCodecContext->rc_max_rate = bit_rate;
+            avCodecContext->bit_rate_tolerance = bit_rate;
+            avCodecContext->rc_buffer_size = 2 * bit_rate;
             avCodecContext->width = this->targetWidth;
             avCodecContext->height = this->targetHeight;
             avCodecContext->time_base = (AVRational) {1,
@@ -437,6 +463,7 @@ int VideoRecorder::openVideo(BZOutputStream *stream, const char *extraFilterPara
     av_dict_set(&param, "tune", "film", 0);
     av_dict_set(&param, "no-cabac", "1", 0);
     av_dict_set(&param, "no-deblock", "1", 0);
+    av_dict_set(&param, "x264-params", "nal-hrd=cbr", 0);
     //零延迟编码,但是有的播放器播放不了,直播适合打开
     //现在由于是自己打时间戳,所以如果有缓存的话就导致,视频开始时间就延后了,导致音视频不同步
     //这个参数会导致编码速度大幅降低,时间会加大4倍左右
@@ -642,14 +669,14 @@ int VideoRecorder::writeAudioFrame(AVFrame *frame, int64_t audioPtsInput) {
         av_packet_rescale_ts(audio_st->avPacket, audio_st->avCodecContext->time_base,
                              audio_st->avStream->time_base);
 
-        if (nullptr != audioPts && !audioPts->empty()) {
-            audio_st->avPacket->pts = audioPts->front();
-            audio_st->avPacket->dts = audioPts->front();
-            audioPts->pop_front();
+        if (nullptr != audioPtsList && !audioPtsList->empty()) {
+            audio_st->avPacket->pts = audioPtsList->front();
+            audio_st->avPacket->dts = audioPtsList->front();
+            audioPtsList->pop_front();
         }
     }
     recorderTime = (long) (audio_st->avPacket->pts * av_q2d(audio_st->avStream->time_base) * 1000);
-//    BZLogUtil::logE("VideoRecorder recordTime=%ld", recordTime);
+//    BZLogUtil::logE("VideoRecorder recordTime=%lld", recordTime);
 
     audio_st->last_pts = audio_st->avPacket->pts;
 
@@ -824,10 +851,10 @@ int VideoRecorder::writeVideoPacket(AVPacket *avPacket, int got_picture, int64_t
             avPacket->pts += video_st->avStream->time_base.den / videoRate;
             avPacket->dts = avPacket->pts;
         }
-        if (nullptr != videoPts && !videoPts->empty()) {
-            avPacket->pts = videoPts->front();
-            avPacket->dts = videoPts->front();
-            videoPts->pop_front();
+        if (nullptr != videoPtsList && !videoPtsList->empty()) {
+            avPacket->pts = videoPtsList->front();
+            avPacket->dts = videoPtsList->front();
+            videoPtsList->pop_front();
         }
         if (showDebugLog) {
             int64_t temp = static_cast<int64_t>((avPacket->pts - video_st->last_pts) * 1000.0 *

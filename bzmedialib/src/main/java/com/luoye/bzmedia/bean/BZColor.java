@@ -4,12 +4,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Created by zhandalin on 2017-10-27 13:31.
- * 说明:
+ * Created by bookzhan on 2017-10-27 13:31.
+ * Description:
  */
-public class BZColor implements Parcelable {
-    public float r, g, b, a;
+public class BZColor implements Parcelable{
+    public float r, g, b, a;//0~1
 
+    /**
+     * @param r 0~1
+     * @param g 0~1
+     * @param b 0~1
+     * @param a 0~1
+     */
     public BZColor(float r, float g, float b, float a) {
         this.r = r;
         this.g = g;

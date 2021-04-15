@@ -7,6 +7,8 @@
 #include "EGLContextUtil.h"
 
 int EGLContextUtil::initEGLContext(int width, int height) {
+    width = width / 2 * 2;
+    height = height / 2 * 2;
     return initEGLContext(width, height, EGL_NO_CONTEXT);
 }
 

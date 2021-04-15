@@ -8,20 +8,19 @@ import com.luoye.bzmedia.BZMedia;
  */
 public class VideoRecordParams {
     /**
-     * outputPath      视频输出路径
-     * inputWidth      视频输入的宽,注意是否是倒置的
-     * inputHeight     视频输入的高
-     * targetWidth      最终视频输出的宽
-     * targetHeight     最终视频输出的高
-     * videoFrameRate        视频帧率
-     * bitRate          视频码率
-     * nbSamples        每一个音频帧有多少采样
-     * sampleRate       音频的采样率
-     * videoRotate      视频旋转角度
-     * extraFilterParam 额外的滤镜参数,保留参数,可以传ffmpeg支持的参数
-     * pixelFormat      录制的像素格式
-     * hasAudio         是否有音频
-     * recordSpeed      视频录制速度
+     * outputPath      Video output path
+     * inputWidth      The width of the video input, pay attention to whether it is inverted
+     * inputHeight     Video input high
+     * targetWidth      The width of the final video output
+     * targetHeight     The high of the final video output
+     * videoFrameRate        Video frame rate
+     * bitRate          Video bitrate
+     * nbSamples        How many samples are in each audio frame
+     * sampleRate       Audio sampling rate
+     * videoRotate      Video rotation angle
+     * pixelFormat      Recorded pixel format
+     * hasAudio         Whether there is audio
+     * recordSpeed      Video recording speed
      */
     private String outputPath;
     private int inputWidth;
@@ -33,7 +32,7 @@ public class VideoRecordParams {
     private int sampleRate;
     private int videoRotate;
     private int pixelFormat = BZMedia.PixelFormat.YUVI420.ordinal();
-    private boolean hasAudio = true;
+    private boolean needAudio = true;
 
     /**
      * Only useful for texture
@@ -79,8 +78,8 @@ public class VideoRecordParams {
     }
 
     public void setTargetWidth(int targetWidth) {
-        //align to 16
-        this.targetWidth = targetWidth / 16 * 16;
+        //align to 8
+        this.targetWidth = targetWidth / 8 * 8;
     }
 
     public int getTargetHeight() {
@@ -89,7 +88,7 @@ public class VideoRecordParams {
 
     public void setTargetHeight(int targetHeight) {
         //align to 16
-        this.targetHeight = targetHeight / 16 * 16;
+        this.targetHeight = targetHeight / 8 * 8;
     }
 
     public int getVideoFrameRate() {
@@ -132,12 +131,12 @@ public class VideoRecordParams {
         this.pixelFormat = pixelFormat.ordinal();
     }
 
-    public boolean isHasAudio() {
-        return hasAudio;
+    public boolean isNeedAudio() {
+        return needAudio;
     }
 
-    public void setHasAudio(boolean hasAudio) {
-        this.hasAudio = hasAudio;
+    public void setNeedAudio(boolean needAudio) {
+        this.needAudio = needAudio;
     }
 
     public boolean isNeedFlipVertical() {
@@ -201,7 +200,7 @@ public class VideoRecordParams {
                 ", sampleRate=" + sampleRate +
                 ", videoRotate=" + videoRotate +
                 ", pixelFormat=" + pixelFormat +
-                ", hasAudio=" + hasAudio +
+                ", hasAudio=" + needAudio +
                 ", needFlipVertical=" + needFlipVertical +
                 ", allFrameIsKey=" + allFrameIsKey +
                 ", bitRate=" + bitRate +

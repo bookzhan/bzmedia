@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-08-13 11:11.
+ * Created by bookzhan on 2018-08-13 11:11.
  * 说明:
  */
 //
@@ -82,7 +82,11 @@ void GaussBlurProgram::setRadius(float radius) {
 }
 
 int GaussBlurProgram::draw() {
-    for (int i = 0; i < (int) (radius); ++i) {
+    int count = static_cast<int>(radius);
+    if (count < 1) {
+        count = 1;
+    }
+    for (int i = 0; i < count; ++i) {
         frameBufferUtils_1->bindFrameBuffer();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -186,3 +190,4 @@ int GaussBlurProgram::setSize(int textureWidth, int textureHeight, int viewPortW
     finalViewPortY = (viewPortHeight - finalViewPortHeight) / 2;
     return 0;
 }
+

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:id="@+id/rl_circle"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/circle_white" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/rl_ellipse_h"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ellipse_h" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/rl_ellipse_v"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#5C000000"
+                android:src="@drawable/ellipse_v" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/rl_rect_1_1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <com.luoye.bzmedia.widget.BZRectView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                app:strokeColor="@color/color_fff"
+                app:strokeWidth="1dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_rect_2_1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <com.luoye.bzmedia.widget.BZRectView
+                android:layout_width="30dp"
+                android:layout_height="15dp"
+                app:strokeColor="@color/color_fff"
+                app:strokeWidth="1dp" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/rl_rect_1_2"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <com.luoye.bzmedia.widget.BZRectView
+                android:layout_width="15dp"
+                android:layout_height="30dp"
+                app:strokeColor="@color/color_fff"
+                app:strokeWidth="1dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_rect_3_1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <com.luoye.bzmedia.widget.BZRectView
+                android:layout_width="30dp"
+                android:layout_height="10dp"
+                app:strokeColor="@color/color_fff"
+                app:strokeWidth="1dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_rect_1_3"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <com.luoye.bzmedia.widget.BZRectView
+                android:layout_width="10dp"
+                android:layout_height="30dp"
+                app:strokeColor="@color/color_fff"
+                app:strokeWidth="1dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_rect_5_1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <com.luoye.bzmedia.widget.BZRectView
+                android:layout_width="30dp"
+                android:layout_height="6dp"
+                app:strokeColor="@color/color_fff"
+                app:strokeWidth="1dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_rect_1_5"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <com.luoye.bzmedia.widget.BZRectView
+                android:layout_width="6dp"
+                android:layout_height="30dp"
+                app:strokeColor="@color/color_fff"
+                app:strokeWidth="1dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_rect_10_1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <com.luoye.bzmedia.widget.BZRectView
+                android:layout_width="30dp"
+                android:layout_height="3dp"
+                app:strokeColor="@color/color_fff"
+                app:strokeWidth="1dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_rect_1_10"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:background="#5C000000"
+            android:gravity="center">
+
+            <com.luoye.bzmedia.widget.BZRectView
+                android:layout_width="3dp"
+                android:layout_height="30dp"
+                app:strokeColor="@color/color_fff"
+                app:strokeWidth="1dp" />
+        </RelativeLayout>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</HorizontalScrollView>

@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2019-01-19 18:00.
+ * Created by bookzhan on 2019-01-19 18:00.
  * 说明:
  */
 //
@@ -70,7 +70,8 @@ int AdjustVideoSpeedUtil::adjustVideoSpeed(const char *srcVideoPath, const char 
             avPacket->stream_index = 0;
             avPacket->pts = static_cast<int64_t>(avPacket->pts * 1.0f /
                                                  inVideoStream->duration * videoMaxPts);
-            avPacket->dts = avPacket->pts;
+            avPacket->dts = static_cast<int64_t>(avPacket->dts * 1.0f /
+                                                inVideoStream->duration * videoMaxPts);
             av_interleaved_write_frame(outAVFormatContext, avPacket);
         }
         av_packet_unref(avPacket);

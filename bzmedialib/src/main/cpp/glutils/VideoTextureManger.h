@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-11-14 10:49.
+ * Created by bookzhan on 2018-11-14 10:49.
  * 说明:管理MpGetTextureNative 共三个,建立一个队列,在gl线程调用
  */
 //
@@ -44,6 +44,7 @@ private:
     int uniformTextureWidth = 0;
     int uniformTextureHeight = 0;
     GaussBlurProgram *gaussBlurProgram = nullptr;
+    GaussBlurProgram *imageBgGaussBlurProgram = nullptr;
     BaseProgram *baseProgram = nullptr;
     FrameBufferUtils *uniformSizeFrameBufferUtils = nullptr;
     TextureHandleInfo *textureHandleInfo = nullptr;

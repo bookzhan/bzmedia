@@ -1,23 +1,25 @@
 package bz.luoye.sample.activity;
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bzcommon.utils.BZLogUtil;
+import com.luoye.bzmedia.BZMedia;
+import com.luoye.bzmedia.bean.VideoItem;
 import com.luoye.bzmedia.widget.BZVideoView;
 
 import bz.luoye.sample.R;
 import bz.luoye.sample.utils.FilePathUtil;
 
 public class VideoPlayerActivity extends AppCompatActivity {
-    private String videoPath = FilePathUtil.getWorkDir() + "/testvideo.mp4";
+    public static final String ARG_VIDEO_PATH = "videoPath";
+    private String videoPath;
     private BZVideoView bz_video_view;
     private SeekBar seek_bar;
     private static final String TAG = "bz_VideoPlayerActivity";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +27,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_video_player);
         bz_video_view = findViewById(R.id.bz_video_view);
         seek_bar = findViewById(R.id.seek_bar);
-        String stringExtra = getIntent().getStringExtra("videoPath");
+        String stringExtra = getIntent().getStringExtra(ARG_VIDEO_PATH);
         if (null != stringExtra) {
             videoPath = stringExtra;
         }
@@ -33,38 +35,36 @@ public class VideoPlayerActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
+                    if (bz_video_view.isPlaying()) {
+                        bz_video_view.pause();
+                    }
                     bz_video_view.seek(1.0f * progress / seekBar.getMax());
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                bz_video_view.startSeek();
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                bz_video_view.stopSeek();
+                bz_video_view.seek(1.0f * seekBar.getProgress() / seekBar.getMax());
             }
         });
-//        bz_video_view.setFitFullView(true);
         bz_video_view.setAutoStartPlay(true);
-        bz_video_view.setDataSource(this.videoPath);
-        bz_video_view.setPrepareSyn(true);
-//        bz_video_view.setDataSource(BZAssetsFileManager.getFinalPath(this,"sexy.mp4"));
+        if (null == videoPath) {
+            videoPath = FilePathUtil.getReadWorkDir() + "/testvideo.mp4";
+        }
+        bz_video_view.addVideoItem(new VideoItem(videoPath,0, BZMedia.getMediaDuration(videoPath)));
         bz_video_view.setPlayLoop(true);
         bz_video_view.setOnProgressChangedListener(new BZVideoView.OnProgressChangedListener() {
             @Override
-            public void onProgressChanged(float progress) {
-                seek_bar.setProgress((int) (seek_bar.getMax() * progress));
+            public void onProgressChanged(float currentProgress, int currentMediaItemIndex, float totalProgress) {
+//                BZLogUtil.d(TAG, "currentProgress=" + currentProgress + " currentMediaItemIndex=" + currentMediaItemIndex + " totalProgress=" + totalProgress);
+                seek_bar.setProgress((int) (seek_bar.getMax() * totalProgress));
             }
         });
-        bz_video_view.setOnStartRenderListener(new BZVideoView.OnStartRenderListener() {
-            @Override
-            public void onStartRender() {
-                BZLogUtil.d(TAG, "onStartRender");
-            }
-        });
+        bz_video_view.prepare();
         bz_video_view.start();
     }
 
@@ -88,5 +88,22 @@ public class VideoPlayerActivity extends AppCompatActivity {
 
     public void start(View view) {
         bz_video_view.start();
+    }
+
+    public void pause(View view) {
+        bz_video_view.pause();
+    }
+
+    public void mute(View view) {
+        bz_video_view.setVolume(0);
+    }
+
+    public void Flip(View view) {
+        bz_video_view.setFlip(true, false);
+    }
+
+    public void addItem(View view) {
+        String path = FilePathUtil.getReadWorkDir() + "/testvideo2.mp4";
+        bz_video_view.addVideoItem(new VideoItem(path,0,BZMedia.getMediaDuration(path)));
     }
 }

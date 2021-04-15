@@ -1,7 +1,7 @@
 package com.luoye.bzmedia.recorder;
 
 /**
- * Created by zhandalin on 2017-09-04 12:56.
+ * Created by bookzhan on 2017-09-04 12:56.
  * 说明:
  */
 

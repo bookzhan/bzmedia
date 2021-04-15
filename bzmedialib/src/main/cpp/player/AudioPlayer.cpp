@@ -1,12 +1,13 @@
 //
 /**
- * Created by zhandalin on 2020-08-10 15:47.
+ * Created by bookzhan on 2020-08-10 15:47.
  *description:
  */
 //
 
 #include <mediaedit/VideoUtil.h>
 #include <thread>
+#include <common/bz_time.h>
 #include "AudioPlayer.h"
 #include "PCMPlayerNative.h"
 
@@ -42,8 +43,8 @@ int AudioPlayer::init(const char *audioPath, int64_t methodHandle,
                 return -1;
             }
             /* set options */
-            av_opt_set_int(swr_audio_ctx, "out_channel_count", 1, 0);
-            av_opt_set_int(swr_audio_ctx, "out_sample_rate", SAMPLE_RATE, 0);
+            av_opt_set_int(swr_audio_ctx, "out_channel_count", in_stream->codecpar->channels, 0);
+            av_opt_set_int(swr_audio_ctx, "out_sample_rate", in_stream->codecpar->sample_rate, 0);
             av_opt_set_sample_fmt(swr_audio_ctx, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
 
             av_opt_set_int(swr_audio_ctx, "in_channel_count", in_stream->codecpar->channels, 0);
@@ -52,14 +53,15 @@ int AudioPlayer::init(const char *audioPath, int64_t methodHandle,
             av_opt_set_sample_fmt(swr_audio_ctx, "in_sample_fmt",
                                   static_cast<AVSampleFormat>(in_stream->codecpar->format),
                                   0);
-
+            if (nullptr != pcmPlayer) {
+                pcmPlayer->init(in_stream->codecpar->sample_rate, in_stream->codecpar->channels);
+            }
             /* initialize the resampling context */
             if ((ret = swr_init(swr_audio_ctx)) < 0) {
                 BZLogUtil::logD("Failed to initialize the resampling context\n");
                 return ret;
             }
             audioFrame = av_frame_alloc();
-
             audioCodecContext = in_stream->codec;
         }
     }
@@ -68,8 +70,7 @@ int AudioPlayer::init(const char *audioPath, int64_t methodHandle,
         release();
         return -1;
     }
-    audioFifo = av_audio_fifo_alloc(AV_SAMPLE_FMT_S16, 1,
-                                    NB_SAMPLES);
+
 
     BZLogUtil::logD("audioStreamTotalTime=%lld", audioStreamTotalTime);
 
@@ -83,9 +84,12 @@ void AudioPlayer::audioPlayThread() {
     BZLogUtil::logD("audioPlayThread start");
     std::chrono::milliseconds dura(30);
     int ret = 0, got_picture_ptr = 0;
-    AVFrame *audioFrameTemp = VideoUtil::allocAudioFrame(AV_SAMPLE_FMT_S16,
-                                                         AV_CH_LAYOUT_MONO,
-                                                         SAMPLE_RATE, NB_SAMPLES);
+    int bytes_per_sample = av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
+
+    AVFrame *audioFrameTemp = VideoUtil::allocAudioFrame(
+            AV_SAMPLE_FMT_S16,
+            static_cast<uint64_t>(audioStream->codecpar->channels),
+            audioStream->codecpar->sample_rate, FRAME_SIZE);
     int errorCount = 0;
     AVPacket *decode_pkt = av_packet_alloc();
     while (true) {
@@ -130,14 +134,13 @@ void AudioPlayer::audioPlayThread() {
             requestSeek = false;
             continue;
         }
-
         //回调进度
         if (audioStream->duration > 0) {
             float progress = 1.0f * audioCodecContext->pts_correction_last_pts /
                              audioStream->duration;
             callBackProgress(progress);
         }
-
+//        int64_t startTime = getMicrosecondTime();
         ret = avcodec_decode_audio4(audioCodecContext, audioFrame, &got_picture_ptr,
                                     decode_pkt);
         if (ret < 0) {
@@ -159,18 +162,13 @@ void AudioPlayer::audioPlayThread() {
                                        audioFrameTemp->nb_samples,
                                        (const uint8_t **) audioFrame->data,
                                        audioFrame->nb_samples);
-//            BZLogUtil::logD("samplesCount=%d", samplesCount);
-        av_audio_fifo_write(audioFifo, (void **) &audioFrameTemp->data[0], samplesCount);
-        while (av_audio_fifo_size(audioFifo) >= NB_SAMPLES) {
-            av_audio_fifo_read(audioFifo, (void **) &audioFrameTemp->data[0],
-                               NB_SAMPLES);
-            onPCMDataAvailable((const char *) audioFrameTemp->data[0],
-                               audioFrameTemp->linesize[0]);
-        }
+//        BZLogUtil::logD("samplesCount=%d", samplesCount);
+//        BZLogUtil::logD("avcodec_decode_audio4 耗时=%lld", getMicrosecondTime() - startTime);
+        onPCMDataAvailable((const char *) audioFrameTemp->data[0],
+                           audioFrameTemp->linesize[0] * bytes_per_sample);
         audioPlayTime = audioCodecContext->pts_correction_last_pts * 1000 *
                         audioStream->time_base.num /
                         audioStream->time_base.den;
-
         av_frame_unref(audioFrame);
 //        BZLogUtil::logE("videoPlayTime=% lld--audioPlayTime=%lld", videoPlayTime, audioPlayTime);
     }
@@ -198,10 +196,8 @@ int AudioPlayer::setPlayLoop(bool isLoop) {
 }
 
 void AudioPlayer::setAudioVolume(float volume) {
-    if (nullptr == pcmPlayer) {
-        return;
-    }
     this->volume = volume;
+    requestSetVolume = true;
 }
 
 int64_t AudioPlayer::getDuration() {
@@ -209,19 +205,18 @@ int64_t AudioPlayer::getDuration() {
 }
 
 int AudioPlayer::pause() {
-    if (nullptr != pcmPlayer)
+    playerIsPause = true;
+    if (nullptr != pcmPlayer) {
         pcmPlayer->pause();
+    }
     return 0;
 }
 
 int AudioPlayer::start() {
     playerIsPause = false;
-    if (nullptr != pcmPlayer)
+    if (nullptr != pcmPlayer) {
         pcmPlayer->start();
-    return 0;
-}
-
-int AudioPlayer::stop() {
+    }
     return 0;
 }
 
@@ -265,8 +260,9 @@ int AudioPlayer::release() {
 
 
 void AudioPlayer::onPCMDataAvailable(const char *pcmData, int length) {
-    if (nullptr != pcmPlayer)
+    if (nullptr != pcmPlayer) {
         pcmPlayer->onPCMDataAvailable(pcmData, length);
+    }
 }
 
 void AudioPlayer::callBackProgress(float progress) {
@@ -275,18 +271,15 @@ void AudioPlayer::callBackProgress(float progress) {
     }
 }
 
-AudioPlayer::AudioPlayer() {
-    pcmPlayer = new PCMPlayerNative();
-    pcmPlayer->setVideoPlayerVolume(volume);
-}
-
-
 AudioPlayer::~AudioPlayer() {
     BZLogUtil::logD("~AudioPlayer");
     if (nullptr != pcmPlayer) {
-        pcmPlayer->pause();
         pcmPlayer->stopAudioTrack();
-        delete (pcmPlayer);
+        delete pcmPlayer;
         pcmPlayer = nullptr;
     }
+}
+
+AudioPlayer::AudioPlayer() {
+    pcmPlayer = new PCMPlayerNative();
 }

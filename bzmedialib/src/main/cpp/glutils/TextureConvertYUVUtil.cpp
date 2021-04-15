@@ -1,6 +1,6 @@
 
 /**
- * Created by zhandalin on 2017-08-02 17:09.
+ * Created by bookzhan on 2017-08-02 17:09.
  * 说明:
  */
 
@@ -180,7 +180,7 @@ AVFrame *TextureConvertYUVUtil::captureYUVByDirectReadPix() {
 
 int TextureConvertYUVUtil::destroyResource() {
     BZLogUtil::logD("TextureConvertYUVUtil::destroyResource()");
-    BZLogUtil::logD("采集像素 平均耗时=%ld", totalTime / count);
+    BZLogUtil::logD("采集像素 平均耗时=%lld", totalTime / count);
     int64_t startTime = getCurrentTime();
     GLUtil::checkGlError("TextureConvertYUVUtil::destroyResource start");
     if (NULL != pixBuffers) {

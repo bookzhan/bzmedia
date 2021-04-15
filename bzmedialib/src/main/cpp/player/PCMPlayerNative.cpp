@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-11-28 16:36.
+ * Created by bookzhan on 2018-11-28 16:36.
  * 说明:
  */
 //
@@ -20,6 +20,10 @@ PCMPlayerNative::PCMPlayerNative() {
         jobject pcmPlayerObjTemp = env->NewObject(pcmPlayerClass, constructorMid);
         pcmPlayerObj = env->NewGlobalRef(pcmPlayerObjTemp);
         env->DeleteLocalRef(pcmPlayerObjTemp);
+
+        initMethodId = env->GetMethodID(pcmPlayerClass,
+                                        "init",
+                                        "(II)V");
 
         onPCMDataAvailableMethodId = env->GetMethodID(pcmPlayerClass,
                                                       "onPCMDataAvailable",
@@ -135,6 +139,22 @@ void PCMPlayerNative::start() {
     }
     jniEnv->CallVoidMethod(pcmPlayerObj,
                            startMethodId);
+    jniEnv = nullptr;
+    if (needDetach)
+        JvmManager::getJavaVM()->DetachCurrentThread();
+}
+
+void PCMPlayerNative::init(int sampleRateInHz, int channelCount) {
+    if (nullptr == pcmPlayerClass) {
+        return;
+    }
+    JNIEnv *jniEnv = nullptr;
+    bool needDetach = JvmManager::getJNIEnv(&jniEnv);
+    if (nullptr == jniEnv) {
+        return;
+    }
+    jniEnv->CallVoidMethod(pcmPlayerObj,
+                           initMethodId, sampleRateInHz, channelCount);
     jniEnv = nullptr;
     if (needDetach)
         JvmManager::getJavaVM()->DetachCurrentThread();

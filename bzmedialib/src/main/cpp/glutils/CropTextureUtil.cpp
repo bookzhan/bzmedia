@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-06-12 11:31.
+ * Created by bookzhan on 2018-06-12 11:31.
  * 说明:
  */
 //
@@ -19,18 +19,25 @@ CropTextureUtil::cropTexture(int srcTexture, int srcWidth, int srcHeight, int st
                         "            targetWidth > srcWidth || targetHeight > srcHeight || startX >= srcWidth || startY >= srcHeight");
         return -1;
     }
+    if (nullptr != frameBufferUtils && (frameBufferUtils->getWidth() != targetWidth ||
+                                        frameBufferUtils->getHeight() != targetHeight)) {
+        frameBufferUtils->releaseFrameBuffer();
+        delete frameBufferUtils;
+        frameBufferUtils = nullptr;
+    }
     if (nullptr == frameBufferUtils) {
         frameBufferUtils = new FrameBufferUtils();
         frameBufferUtils->initFrameBuffer(targetWidth, targetHeight);
     }
+
     if (nullptr == baseProgram) {
         baseProgram = new BaseProgram();
     }
     baseProgram->setTextureId(srcTexture);
 
     frameBufferUtils->bindFrameBuffer();
-    glViewport(-startX, -startY, srcWidth,
-               srcHeight);
+    glViewport(-startX - 1, -startY - 1, srcWidth + 1,
+               srcHeight + 1);
     baseProgram->draw();
     frameBufferUtils->unbindFrameBuffer();
 
@@ -38,10 +45,6 @@ CropTextureUtil::cropTexture(int srcTexture, int srcWidth, int srcHeight, int st
 }
 
 int CropTextureUtil::releaseCropTexture() {
-    return 0;
-}
-
-void CropTextureUtil::cropTextureOnPause() {
     if (nullptr != frameBufferUtils) {
         frameBufferUtils->releaseFrameBuffer();
         delete (frameBufferUtils);
@@ -52,4 +55,5 @@ void CropTextureUtil::cropTextureOnPause() {
         delete (baseProgram);
         baseProgram = nullptr;
     }
+    return 0;
 }

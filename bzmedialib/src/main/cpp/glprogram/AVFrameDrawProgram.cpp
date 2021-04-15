@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-11-01 15:26.
+ * Created by bookzhan on 2018-11-01 15:26.
  * 说明:
  */
 //
@@ -18,9 +18,11 @@ AVFrameDrawProgram::AVFrameDrawProgram(YUV_Type yuv_type) {
     } else {
         BZLogUtil::logE("AVFrameDrawProgram yuv_type error");
     }
+    BZLogUtil::logD("AVFrameDrawProgram yuv_type=%d", yuv_type);
     if (nullptr != baseYUVDrawProgram) {
         baseYUVDrawProgram->init();
     }
+    this->yuv_type = yuv_type;
 }
 
 void AVFrameDrawProgram::setRotation(int rotation) {
@@ -54,4 +56,8 @@ AVFrameDrawProgram::~AVFrameDrawProgram() {
         delete (baseYUVDrawProgram);
         baseYUVDrawProgram = nullptr;
     }
+}
+
+YUV_Type AVFrameDrawProgram::getYUVType() {
+    return yuv_type;
 }

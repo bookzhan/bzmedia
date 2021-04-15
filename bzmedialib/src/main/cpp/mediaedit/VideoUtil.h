@@ -1,6 +1,6 @@
 
 /**
- * Created by zhandalin on 2017-08-09 20:46.
+ * Created by bookzhan on 2017-08-09 20:46.
  * 说明:
  */
 
@@ -58,7 +58,8 @@ public:
 
     //根据一个已有的视频信息打开一个视频
     static int openOutputFile(AVFormatContext *in_fmt_ctx, AVFormatContext **out_fmt_ctx,
-                              const char *output_path, bool needAudio = true);
+                              const char *output_path, bool needAudio = true,
+                              bool needOpenCodec = false);
 
     static int64_t getBitRate(int videoWidth, int videoHeight, bool allFrameIsKey);
 
@@ -75,7 +76,7 @@ public:
 
     static float getVideoAverageDuration(const char *videoPath);
 
-    static bool videoIsSupport(const char *videoPath, bool isSoftDecode);
+    static bool videoIsSupport(const char *videoPath);
 
     static bool audioIsSupport(const char *audioPath);
 
@@ -87,11 +88,21 @@ public:
 
     static bool hasAudio(const char *path);
 
+    static bool isAACAudio(const char *videoPath);
+
+    static bool isStandardAudio(const char *path);
+
     static bool hasVideo(const char *path);
 
     static int
     mixAudios2Video(const char *outPath, const char *videoStreamInputPath, char **audioPaths,
                     size_t audioCount, OnActionListener *onActionListener);
+
+    static int repeatVideoToDuration(const char *inputPath, const char *outPath, int64_t duration);
+
+    static int setVideoDuration(const char *inputPath, const char *outPath, int64_t duration);
+
+    static bool videoCodecIsSupportForExoPlayer(const char *path);
 
 private:
     static bool str_ends_with(const char *str, const char *suffix) {

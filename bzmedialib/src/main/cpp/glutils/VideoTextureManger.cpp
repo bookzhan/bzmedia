@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-11-14 10:49.
+ * Created by bookzhan on 2018-11-14 10:49.
  * 说明:
  */
 //
@@ -29,6 +29,11 @@ void VideoTextureManger::release() {
         delete (baseProgram);
         baseProgram = nullptr;
     }
+    if (nullptr != imageBgGaussBlurProgram) {
+        imageBgGaussBlurProgram->releaseResource();
+        delete (imageBgGaussBlurProgram);
+        imageBgGaussBlurProgram = nullptr;
+    }
 }
 
 void VideoTextureManger::setUniformTextureSize(int uniformTextureWidth, int uniformTextureHeight) {
@@ -55,7 +60,6 @@ TextureInfo *VideoTextureManger::getUniformTexture(TextureInfo *textureInfo) {
         }
         if (nullptr == baseProgram) {
             baseProgram = new BaseProgram();
-            baseProgram->setFlip(false, true);
             baseProgram->init();
         }
         int result = 0;
@@ -76,6 +80,24 @@ TextureInfo *VideoTextureManger::getUniformTexture(TextureInfo *textureInfo) {
             uniformSizeFrameBufferUtils->initFrameBuffer(uniformTextureWidth, uniformTextureHeight);
         }
 
+        //bg Texture
+        if (nullptr != textureHandleInfo && textureHandleInfo->bgFillType == IMAGE &&
+            textureHandleInfo->bgTextureId > 0 && textureHandleInfo->bgTextureWidth > 0 &&
+            textureHandleInfo->bgTextureHeight > 0) {
+            if (nullptr == imageBgGaussBlurProgram) {
+                imageBgGaussBlurProgram = new GaussBlurProgram();
+                imageBgGaussBlurProgram->setFlip(false, false);
+            }
+            imageBgGaussBlurProgram->setRadius(textureHandleInfo->bgTextureIntensity);
+            imageBgGaussBlurProgram->setTextureId(textureHandleInfo->bgTextureId);
+            imageBgGaussBlurProgram->setSize(textureHandleInfo->bgTextureWidth,
+                                             textureHandleInfo->bgTextureHeight,
+                                             uniformTextureWidth,
+                                             uniformTextureHeight,
+                                             true);
+            result = imageBgGaussBlurProgram->draw();
+        }
+
         uniformSizeFrameBufferUtils->bindFrameBuffer();
         if (nullptr != textureHandleInfo) {
             glClearColor(textureHandleInfo->bgColor.r, textureHandleInfo->bgColor.g,
@@ -86,7 +108,7 @@ TextureInfo *VideoTextureManger::getUniformTexture(TextureInfo *textureInfo) {
         glClear(GL_COLOR_BUFFER_BIT);
         glViewport(0, 0, uniformTextureWidth, uniformTextureHeight);
 
-        if (result > 0) {
+        if (result > 0) {//draw bg
             baseProgram->setTextureId(result);
             baseProgram->draw();
         }
@@ -130,6 +152,10 @@ TextureInfo *VideoTextureManger::getUniformTexture(TextureInfo *textureInfo) {
 }
 
 void VideoTextureManger::setTextureHandleInfo(TextureHandleInfo *textureHandleInfo) {
+    if (nullptr != this->textureHandleInfo) {
+        delete (this->textureHandleInfo);
+        this->textureHandleInfo = nullptr;
+    }
     this->textureHandleInfo = textureHandleInfo;
     setGaussBlurProgramRadius(textureHandleInfo->gaussBlurRadius);
 }

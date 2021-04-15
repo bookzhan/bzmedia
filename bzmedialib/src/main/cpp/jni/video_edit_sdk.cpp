@@ -1,17 +1,20 @@
 //
 /**
- * Created by zhandalin on 2018-08-27 13:28.
+ * Created by bookzhan on 2018-08-27 13:28.
  * 说明: 视频编辑SDK入口
  */
 //
 
 #include <jni.h>
 #include <common/BZLogUtil.h>
+#include <mediaedit/AudioFeatureInfoUtil.h>
+#include <mediaedit/BackgroundMusicUtil.h>
+#include <mediaedit/AudioTransCode.h>
 #include "../mediaedit/VideoUtil.h"
 #include "../mediaedit/VideoTranscodeParams.h"
 #include "../common/JvmManager.h"
-#include "../mediaedit/VideoTransCode.h"
 #include "../common/CallbackMethodIDInfo.h"
+#include "ffmpeg_cmd.h"
 
 typedef struct TransCodeMethodInfo {
     jobject classObj = nullptr;
@@ -22,6 +25,43 @@ typedef struct TransCodeMethodInfo {
     jbyteArray videoTransPcmjbyteArray = nullptr;
 } TransCodeMethodInfo;
 
+typedef struct AudioFeatureMethodInfo {
+    jobject classObj = nullptr;
+    jmethodID callBackMethodId = nullptr;
+} AudioFeatureMethodInfo;
+
+typedef struct AudioTransCodeMethodInfo {
+    jobject classObj = nullptr;
+    jmethodID pcmCallBackCallBackMethodId = nullptr;
+    jmethodID progressCallBackMethodId = nullptr;
+    jmethodID finishCallBackMethodId = nullptr;
+    jbyteArray videoTransPcmjbyteArray = nullptr;
+} AudioTransCodeMethodInfo;
+
+
+void audioFeatureCallBack(int64_t methodInfo, int64_t videoTime, float feature) {
+    if (methodInfo == 0) {
+        return;
+    }
+    AudioFeatureMethodInfo *featureMethodInfo = reinterpret_cast<AudioFeatureMethodInfo *>(methodInfo);
+    JNIEnv *jniEnv = nullptr;
+    bool needDetach = JvmManager::getJNIEnv(&jniEnv);
+    if (nullptr == featureMethodInfo->classObj ||
+        nullptr == featureMethodInfo->callBackMethodId || nullptr == jniEnv) {
+        jniEnv = nullptr;
+        if (needDetach)
+            JvmManager::getJavaVM()->DetachCurrentThread();
+        return;
+    }
+
+    jniEnv->CallVoidMethod(featureMethodInfo->classObj,
+                           featureMethodInfo->callBackMethodId, videoTime, feature);
+
+    jniEnv = nullptr;
+    if (needDetach)
+        JvmManager::getJavaVM()->DetachCurrentThread();
+
+}
 
 void transCodeProgressCallBack(int64_t methodInfo, float progress) {
     if (methodInfo == 0) {
@@ -29,12 +69,12 @@ void transCodeProgressCallBack(int64_t methodInfo, float progress) {
     }
     TransCodeMethodInfo *transCodeMethodInfo = reinterpret_cast<TransCodeMethodInfo *>(methodInfo);
 
-    JNIEnv *jniEnv = NULL;
+    JNIEnv *jniEnv = nullptr;
     bool needDetach = JvmManager::getJNIEnv(&jniEnv);
 
-    if (NULL == transCodeMethodInfo->classObj ||
-        NULL == transCodeMethodInfo->progressCallBackMethodId || NULL == jniEnv) {
-        jniEnv = NULL;
+    if (nullptr == transCodeMethodInfo->classObj ||
+        nullptr == transCodeMethodInfo->progressCallBackMethodId || nullptr == jniEnv) {
+        jniEnv = nullptr;
         if (needDetach)
             JvmManager::getJavaVM()->DetachCurrentThread();
         return;
@@ -45,7 +85,7 @@ void transCodeProgressCallBack(int64_t methodInfo, float progress) {
     jniEnv->CallVoidMethod(transCodeMethodInfo->classObj,
                            transCodeMethodInfo->progressCallBackMethodId, progress);
 
-    jniEnv = NULL;
+    jniEnv = nullptr;
     if (needDetach)
         JvmManager::getJavaVM()->DetachCurrentThread();
 
@@ -57,12 +97,12 @@ void transCodeFinishCallBack(int64_t methodInfo) {
     }
     TransCodeMethodInfo *transCodeMethodInfo = reinterpret_cast<TransCodeMethodInfo *>(methodInfo);
 
-    JNIEnv *jniEnv = NULL;
+    JNIEnv *jniEnv = nullptr;
     bool needDetach = JvmManager::getJNIEnv(&jniEnv);
 
-    if (NULL == transCodeMethodInfo->classObj ||
-        NULL == transCodeMethodInfo->finishCallBackMethodId || NULL == jniEnv) {
-        jniEnv = NULL;
+    if (nullptr == transCodeMethodInfo->classObj ||
+        nullptr == transCodeMethodInfo->finishCallBackMethodId || nullptr == jniEnv) {
+        jniEnv = nullptr;
         if (needDetach)
             JvmManager::getJavaVM()->DetachCurrentThread();
         return;
@@ -71,7 +111,7 @@ void transCodeFinishCallBack(int64_t methodInfo) {
     jniEnv->CallVoidMethod(transCodeMethodInfo->classObj,
                            transCodeMethodInfo->finishCallBackMethodId);
 
-    jniEnv = NULL;
+    jniEnv = nullptr;
     if (needDetach)
         JvmManager::getJavaVM()->DetachCurrentThread();
 
@@ -83,16 +123,16 @@ const char *videoTransCodePCMCallBack(int64_t methodInfo, const char *pcmData, i
     }
     TransCodeMethodInfo *transCodeMethodInfo = reinterpret_cast<TransCodeMethodInfo *>(methodInfo);
 
-    JNIEnv *jniEnv = NULL;
+    JNIEnv *jniEnv = nullptr;
     bool needDetach = JvmManager::getJNIEnv(&jniEnv);
-    if (NULL == transCodeMethodInfo->classObj ||
-        NULL == transCodeMethodInfo->pcmCallBackCallBackMethodId || NULL == jniEnv) {
-        jniEnv = NULL;
+    if (nullptr == transCodeMethodInfo->classObj ||
+        nullptr == transCodeMethodInfo->pcmCallBackCallBackMethodId || nullptr == jniEnv) {
+        jniEnv = nullptr;
         if (needDetach)
             JvmManager::getJavaVM()->DetachCurrentThread();
-        return NULL;
+        return nullptr;
     }
-    if (NULL == transCodeMethodInfo->videoTransPcmjbyteArray) {
+    if (nullptr == transCodeMethodInfo->videoTransPcmjbyteArray) {
         jbyteArray pcmjbyteArrayTemp = jniEnv->NewByteArray(length);
         transCodeMethodInfo->videoTransPcmjbyteArray = (jbyteArray) jniEnv->NewGlobalRef(
                 pcmjbyteArrayTemp);
@@ -104,11 +144,11 @@ const char *videoTransCodePCMCallBack(int64_t methodInfo, const char *pcmData, i
                                                                  transCodeMethodInfo->pcmCallBackCallBackMethodId,
                                                                  transCodeMethodInfo->videoTransPcmjbyteArray);
 
-    if (NULL == byteArray) {
-        jniEnv = NULL;
+    if (nullptr == byteArray) {
+        jniEnv = nullptr;
         if (needDetach)
             JvmManager::getJavaVM()->DetachCurrentThread();
-        return NULL;
+        return nullptr;
     }
     char *pcmBuffer = (char *) malloc(sizeof(char) * jniEnv->GetArrayLength(byteArray));
     jniEnv->GetByteArrayRegion(byteArray, 0, jniEnv->GetArrayLength(byteArray),
@@ -116,7 +156,7 @@ const char *videoTransCodePCMCallBack(int64_t methodInfo, const char *pcmData, i
 
     jniEnv->DeleteLocalRef(byteArray);
 
-    jniEnv = NULL;
+    jniEnv = nullptr;
     if (needDetach)
         JvmManager::getJavaVM()->DetachCurrentThread();
     return (const char *) pcmBuffer;
@@ -130,12 +170,12 @@ int videoTextureCallBack(int64_t methodInfo, int textureId, int width, int heigh
     }
     TransCodeMethodInfo *transCodeMethodInfo = reinterpret_cast<TransCodeMethodInfo *>(methodInfo);
 
-    JNIEnv *jniEnv = NULL;
+    JNIEnv *jniEnv = nullptr;
     bool needDetach = JvmManager::getJNIEnv(&jniEnv);
-    if (NULL == transCodeMethodInfo->classObj ||
-        NULL == transCodeMethodInfo->videoTextureCallBackMethodId ||
-        NULL == jniEnv) {
-        jniEnv = NULL;
+    if (nullptr == transCodeMethodInfo->classObj ||
+        nullptr == transCodeMethodInfo->videoTextureCallBackMethodId ||
+        nullptr == jniEnv) {
+        jniEnv = nullptr;
         if (needDetach)
             JvmManager::getJavaVM()->DetachCurrentThread();
         return 0;
@@ -144,7 +184,7 @@ int videoTextureCallBack(int64_t methodInfo, int textureId, int width, int heigh
                                       transCodeMethodInfo->videoTextureCallBackMethodId, textureId,
                                       width, height, pts, videoTime);
 
-    jniEnv = NULL;
+    jniEnv = nullptr;
     if (needDetach)
         JvmManager::getJavaVM()->DetachCurrentThread();
     return textureId;
@@ -163,82 +203,34 @@ VideoTransCodeParams *parseVideoTransCodeParamsObj(JNIEnv *env, jobject videoTra
                                                         env->GetFieldID(VideoTransCodeParamsClass,
                                                                         "outputPath",
                                                                         "Ljava/lang/String;"));
-    const char *inputPath = NULL;
-    if (NULL != inputPath_) {
+    const char *inputPath = nullptr;
+    if (nullptr != inputPath_) {
         inputPath = env->GetStringUTFChars(inputPath_, 0);
         transCodeParams->inputPath = inputPath;
         BZLogUtil::logD("inputPath=%s", inputPath);
         env->DeleteLocalRef(inputPath_);
     } else {
         env->DeleteLocalRef(inputPath_);
-        BZLogUtil::logE("inputPath is NULL");
+        BZLogUtil::logE("inputPath is nullptr");
         delete (transCodeParams);
-        return NULL;
+        return nullptr;
     }
-    const char *outPutPath = NULL;
-    if (NULL != outPutPath_) {
+    const char *outPutPath = nullptr;
+    if (nullptr != outPutPath_) {
         outPutPath = env->GetStringUTFChars(outPutPath_, 0);
         transCodeParams->outputPath = outPutPath;
         BZLogUtil::logD("outPutPath=%s", outPutPath);
         env->DeleteLocalRef(outPutPath_);
     } else {
         env->DeleteLocalRef(outPutPath_);
-        BZLogUtil::logE("outPutPath is NULL");
+        BZLogUtil::logE("outPutPath is nullptr");
         delete (transCodeParams);
-        return NULL;
+        return nullptr;
     }
-    transCodeParams->videoTransCodeFinish = transCodeFinishCallBack;
-    transCodeParams->progressCallBack = transCodeProgressCallBack;
-
     jint gopSize = env->GetIntField(videoTransCodeParamsObj,
                                     env->GetFieldID(VideoTransCodeParamsClass, "gopSize", "I"));
     transCodeParams->gopSize = gopSize;
     BZLogUtil::logD("gopSize=%d", gopSize);
-
-
-    jboolean doWithVideo = env->GetBooleanField(videoTransCodeParamsObj,
-                                                env->GetFieldID(VideoTransCodeParamsClass,
-                                                                "doWithVideo",
-                                                                "Z"));
-    BZLogUtil::logD("doWithVideo=%d", doWithVideo);
-    transCodeParams->doWithVideo = doWithVideo;
-
-
-    jboolean userSoftDecode = env->GetBooleanField(videoTransCodeParamsObj,
-                                                   env->GetFieldID(VideoTransCodeParamsClass,
-                                                                   "userSoftDecode",
-                                                                   "Z"));
-    BZLogUtil::logD("userSoftDecode=%d", userSoftDecode);
-    transCodeParams->userSoftDecode = userSoftDecode;
-
-
-    jboolean needCallBackVideo = env->GetBooleanField(videoTransCodeParamsObj,
-                                                      env->GetFieldID(VideoTransCodeParamsClass,
-                                                                      "needCallBackVideo",
-                                                                      "Z"));
-    BZLogUtil::logD("needCallBackVideo=%d", needCallBackVideo);
-    transCodeParams->needCallBackVideo = needCallBackVideo;
-
-    if (needCallBackVideo) {
-        transCodeParams->videoTextureCallBack = videoTextureCallBack;
-    }
-
-    jboolean doWithAudio = env->GetBooleanField(videoTransCodeParamsObj,
-                                                env->GetFieldID(VideoTransCodeParamsClass,
-                                                                "doWithAudio",
-                                                                "Z"));
-    BZLogUtil::logD("doWithAudio=%d", doWithAudio);
-    transCodeParams->doWithAudio = doWithAudio;
-    if (doWithAudio) {
-        transCodeParams->pcmCallBack = videoTransCodePCMCallBack;
-    }
-
-
-    jint maxWidth = env->GetIntField(videoTransCodeParamsObj,
-                                     env->GetFieldID(VideoTransCodeParamsClass, "maxWidth", "I"));
-    transCodeParams->maxWidth = maxWidth;
-    BZLogUtil::logD("maxWidth=%d", maxWidth);
-
 
     jlong startTime = env->GetLongField(videoTransCodeParamsObj,
                                         env->GetFieldID(VideoTransCodeParamsClass, "startTime",
@@ -257,13 +249,6 @@ VideoTransCodeParams *parseVideoTransCodeParamsObj(JNIEnv *env, jobject videoTra
     transCodeParams->frameRate = frameRate;
     BZLogUtil::logD("frameRate=%d", frameRate);
 
-    jint videoRotate = env->GetIntField(videoTransCodeParamsObj,
-                                        env->GetFieldID(VideoTransCodeParamsClass, "videoRotate",
-                                                        "I"));
-    transCodeParams->videoRotate = videoRotate;
-    BZLogUtil::logD("videoRotate=%d", videoRotate);
-
-
     jint targetWidth = env->GetIntField(videoTransCodeParamsObj,
                                         env->GetFieldID(VideoTransCodeParamsClass, "targetWidth",
                                                         "I"));
@@ -279,18 +264,16 @@ VideoTransCodeParams *parseVideoTransCodeParamsObj(JNIEnv *env, jobject videoTra
 
     env->DeleteLocalRef(videoTransCodeParamsObj);
     env->DeleteLocalRef(VideoTransCodeParamsClass);
-
     return transCodeParams;
 }
 
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_com_luoye_bzmedia_BZMedia_videoIsSupport(JNIEnv *env, jclass type, jstring videoPath_,
-                                                  jboolean isSoftDecode) {
+Java_com_luoye_bzmedia_BZMedia_videoIsSupportForBZMedia(JNIEnv *env, jclass type, jstring videoPath_) {
     const char *videoPath = env->GetStringUTFChars(videoPath_, 0);
 
-    bool result = VideoUtil::videoIsSupport(videoPath, isSoftDecode);
+    bool result = VideoUtil::videoIsSupport(videoPath);
 
     env->ReleaseStringUTFChars(videoPath_, videoPath);
 
@@ -308,79 +291,245 @@ Java_com_luoye_bzmedia_BZMedia_audioIsSupport(JNIEnv *env, jclass type, jstring 
     return static_cast<jboolean>(result);
 }
 
+
+extern "C" JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_startVideoTransCode(JNIEnv *env, jclass type,
+                                                   jobject videoTransCodeParamsObj,
+                                                   jobject callBackObj) {
+    if (nullptr == videoTransCodeParamsObj) {
+        BZLogUtil::logE("nullptr==videoTransCodeParamsObj");
+        return -1;
+    }
+    int ret = 0;
+    VideoTransCodeParams *transCodeParams = parseVideoTransCodeParamsObj(env,
+                                                                         videoTransCodeParamsObj);
+    string cmd_buffer;
+    cmd_buffer.append("ffpeg -y");
+    char buffer[128];
+    if (transCodeParams->startTime > 0) {
+        memset(buffer, 0, 128);
+        sprintf(buffer, "%.3f", transCodeParams->startTime / 1000.0f);
+        cmd_buffer.append(" -ss ");
+        cmd_buffer.append(buffer);
+    }
+    if (transCodeParams->endTime > 0) {
+        memset(buffer, 0, 128);
+        sprintf(buffer, "%.3f", (transCodeParams->endTime - transCodeParams->startTime) / 1000.0f);
+        cmd_buffer.append(" -t ");
+        cmd_buffer.append(buffer);
+    }
+    cmd_buffer.append(" -i \"");
+    cmd_buffer.append(transCodeParams->inputPath);
+    cmd_buffer.append("\"");
+
+    if (transCodeParams->targetHeight > 0 || transCodeParams->targetWidth > 0) {
+        memset(buffer, 0, 128);
+        sprintf(buffer, "%d:%d", transCodeParams->targetWidth, transCodeParams->targetHeight);
+        cmd_buffer.append(" -vf scale=");
+        cmd_buffer.append(buffer);
+    }
+    if (transCodeParams->gopSize > 0) {
+        memset(buffer, 0, 128);
+        sprintf(buffer, " -g %d", transCodeParams->gopSize);
+        cmd_buffer.append(buffer);
+    }
+    if (transCodeParams->frameRate > 0) {
+        memset(buffer, 0, 128);
+        sprintf(buffer, " -r %d", transCodeParams->frameRate);
+        cmd_buffer.append(buffer);
+    }
+    cmd_buffer.append(" \"");
+    cmd_buffer.append(transCodeParams->outputPath);
+    cmd_buffer.append("\"");
+    const char *cmd = cmd_buffer.c_str();
+    BZLogUtil::logD("cmd=%s", cmd);
+    OnActionListener *onActionListener = new OnActionListener(callBackObj);
+    int64_t total_time = -1;
+    if (transCodeParams->endTime - transCodeParams->startTime > 0) {
+        total_time = transCodeParams->endTime - transCodeParams->startTime;
+        int64_t duration = VideoUtil::getMediaDuration(transCodeParams->inputPath);
+        if (duration < total_time) {
+            total_time = duration - transCodeParams->startTime;
+        }
+    }
+    ret = executeFFmpegCommand4TotalTime(reinterpret_cast<int64_t>(onActionListener), cmd,
+                                         OnActionListener::progressCallBack, total_time);
+    if (ret >= 0) {
+        onActionListener->success();
+    } else {
+        onActionListener->fail();
+    }
+    delete (onActionListener);
+    delete (transCodeParams);
+    return ret;
+}
+
+extern "C" JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_stopVideoTransCode(JNIEnv *env, jclass type) {
+    return cancelExecuteFFmpegCommand();
+}
 extern "C"
-JNIEXPORT jlong JNICALL
-Java_com_luoye_bzmedia_BZMedia_initVideoTransCode(JNIEnv *env, jclass type) {
-    VideoTransCode *videoTransCode = new VideoTransCode();
-    return reinterpret_cast<jlong>(videoTransCode);
+JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_getAudioFeatureInfo(JNIEnv *env, jclass clazz, jstring audioPath_,
+                                                   jint samples,
+                                                   jobject featureObj) {
+    const char *audioPath = env->GetStringUTFChars(audioPath_, 0);
+
+    AudioFeatureInfoUtil audioFeatureInfoUtil;
+    int result = 0;
+    if (nullptr != featureObj) {
+        AudioFeatureMethodInfo *audioFeatureMethodInfo = new AudioFeatureMethodInfo();
+        jclass audioFeatureClass = env->GetObjectClass(featureObj);
+        jmethodID audioFeatureMethodID = env->GetMethodID(audioFeatureClass, "onAudioFeatureInfo",
+                                                          "(JF)V");
+
+        audioFeatureMethodInfo->classObj = featureObj;
+        audioFeatureMethodInfo->callBackMethodId = audioFeatureMethodID;
+
+        audioFeatureInfoUtil.setCallBackHandle(reinterpret_cast<int64_t>(audioFeatureMethodInfo));
+
+        result = audioFeatureInfoUtil.getAudioFeatureInfo(audioPath, samples, audioFeatureCallBack);
+
+        delete (audioFeatureMethodInfo);
+    } else {
+        result = audioFeatureInfoUtil.getAudioFeatureInfo(audioPath, samples, audioFeatureCallBack);
+    }
+    env->ReleaseStringUTFChars(audioPath_, audioPath);
+    return result;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_audioFade(JNIEnv *env, jclass clazz, jstring mediaPath_,
+                                         jstring outPath_, jboolean need_fade_in,
+                                         jlong fade_in_duration, jboolean need_fade_out,
+                                         jlong fade_out_duration) {
+    const char *mediaPath = env->GetStringUTFChars(mediaPath_, 0);
+    const char *outPath = env->GetStringUTFChars(outPath_, 0);
+
+    int ret = 0;
+    BackgroundMusicUtil backgroundMusicUtil;
+    backgroundMusicUtil.fadeMusic(mediaPath, outPath, need_fade_in, fade_in_duration, need_fade_out,
+                                  fade_out_duration);
+    env->ReleaseStringUTFChars(mediaPath_, mediaPath);
+    env->ReleaseStringUTFChars(outPath_, outPath);
+    return ret;
 }
 
 
-extern "C" JNIEXPORT jint JNICALL
-Java_com_luoye_bzmedia_BZMedia_startVideoTransCode(JNIEnv *env, jclass type, jlong nativeHandel,
-                                                       jobject videoTransCodeParamsObj,
-                                                       jobject callBackObj) {
-
-    if (nativeHandel == 0) {
-        return -1;
+void audioTransCodeProgressCallBack(int64_t methodInfo, float progress) {
+    if (methodInfo == 0) {
+        return;
     }
-    VideoTransCode *videoTransCode = reinterpret_cast<VideoTransCode *>(nativeHandel);
+    auto *transCodeMethodInfo = reinterpret_cast<AudioTransCodeMethodInfo *>(methodInfo);
 
-    VideoTransCodeParams *transCodeParams = parseVideoTransCodeParamsObj(env,
-                                                                         videoTransCodeParamsObj);
+    JNIEnv *jniEnv = nullptr;
+    bool needDetach = JvmManager::getJNIEnv(&jniEnv);
 
+    if (nullptr == transCodeMethodInfo->classObj ||
+        nullptr == transCodeMethodInfo->progressCallBackMethodId || nullptr == jniEnv) {
+        jniEnv = nullptr;
+        if (needDetach)
+            JvmManager::getJavaVM()->DetachCurrentThread();
+        return;
+    }
+    if (progress > 1)progress = 1;
+    if (progress < 0)progress = 0;
+
+    jniEnv->CallVoidMethod(transCodeMethodInfo->classObj,
+                           transCodeMethodInfo->progressCallBackMethodId, progress);
+
+    jniEnv = nullptr;
+    if (needDetach)
+        JvmManager::getJavaVM()->DetachCurrentThread();
+
+}
+
+const char *audioTransCodePCMCallBack(int64_t methodInfo, const char *pcmData, int length) {
+    if (methodInfo == 0) {
+        return nullptr;
+    }
+    auto *transCodeMethodInfo = reinterpret_cast<AudioTransCodeMethodInfo *>(methodInfo);
+
+    JNIEnv *jniEnv = nullptr;
+    bool needDetach = JvmManager::getJNIEnv(&jniEnv);
+    if (nullptr == transCodeMethodInfo->classObj ||
+        nullptr == transCodeMethodInfo->pcmCallBackCallBackMethodId || nullptr == jniEnv) {
+        jniEnv = nullptr;
+        if (needDetach)
+            JvmManager::getJavaVM()->DetachCurrentThread();
+        return nullptr;
+    }
+    if (nullptr == transCodeMethodInfo->videoTransPcmjbyteArray) {
+        jbyteArray pcmjbyteArrayTemp = jniEnv->NewByteArray(length);
+        transCodeMethodInfo->videoTransPcmjbyteArray = (jbyteArray) jniEnv->NewGlobalRef(
+                pcmjbyteArrayTemp);
+    }
+    jniEnv->SetByteArrayRegion(transCodeMethodInfo->videoTransPcmjbyteArray, 0, length,
+                               (const jbyte *) pcmData);
+
+    jbyteArray byteArray = (jbyteArray) jniEnv->CallObjectMethod(transCodeMethodInfo->classObj,
+                                                                 transCodeMethodInfo->pcmCallBackCallBackMethodId,
+                                                                 transCodeMethodInfo->videoTransPcmjbyteArray);
+    if (nullptr == byteArray) {
+        jniEnv = nullptr;
+        if (needDetach)
+            JvmManager::getJavaVM()->DetachCurrentThread();
+        return nullptr;
+    }
+    char *pcmBuffer = (char *) malloc(sizeof(char) * jniEnv->GetArrayLength(byteArray));
+    jniEnv->GetByteArrayRegion(byteArray, 0, jniEnv->GetArrayLength(byteArray),
+                               (jbyte *) pcmBuffer);
+
+    jniEnv->DeleteLocalRef(byteArray);
+
+    jniEnv = nullptr;
+    if (needDetach)
+        JvmManager::getJavaVM()->DetachCurrentThread();
+    return (const char *) pcmBuffer;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_startAudioTransCode(JNIEnv *env, jclass clazz, jstring input_path_,
+                                                   jstring output_path_,
+                                                   jobject callBackObj) {
+    AudioTransCode audioTransCode;
+    long methodInfoHandle = 0;
     if (nullptr != callBackObj) {
-        TransCodeMethodInfo *transCodeMethodInfo = new TransCodeMethodInfo();
+        auto *transCodeMethodInfo = new AudioTransCodeMethodInfo();
         jclass callBackClass = env->GetObjectClass(callBackObj);
         transCodeMethodInfo->classObj = env->NewGlobalRef(callBackObj);
         transCodeMethodInfo->progressCallBackMethodId = env->GetMethodID(callBackClass,
-                                                                         "videoTransCodeProgress",
+                                                                         "transCodeProgress",
                                                                          "(F)V");
 
         transCodeMethodInfo->pcmCallBackCallBackMethodId = env->GetMethodID(callBackClass,
                                                                             "onPcmCallBack",
                                                                             "([B)[B");
 
-        transCodeMethodInfo->finishCallBackMethodId = env->GetMethodID(callBackClass,
-                                                                       "videoTransCodeFinish",
-                                                                       "()V");
-
-        transCodeMethodInfo->videoTextureCallBackMethodId = env->GetMethodID(callBackClass,
-                                                                             "onTextureCallBack",
-                                                                             "(IIIJJ)I");
-
-
-        videoTransCode->setMethodInfoHandle((int64_t) transCodeMethodInfo);
+        methodInfoHandle = reinterpret_cast<long>(transCodeMethodInfo);
     }
+    const char *input_path = env->GetStringUTFChars(input_path_, 0);
+    const char *output_path = env->GetStringUTFChars(output_path_, 0);
 
-    if (NULL == transCodeParams) {
-        return -1;
-    }
-
-    int ret = videoTransCode->startTransCode(transCodeParams);
-    delete (transCodeParams);
+    int ret = audioTransCode.startTransCode(input_path, output_path, methodInfoHandle,
+                                            audioTransCodePCMCallBack,
+                                            audioTransCodeProgressCallBack);
+    env->ReleaseStringUTFChars(input_path_, input_path);
+    env->ReleaseStringUTFChars(output_path_, output_path);
     return ret;
 }
 
-extern "C" JNIEXPORT jint JNICALL
-Java_com_luoye_bzmedia_BZMedia_stopVideoTransCode(JNIEnv *env, jclass type,
-                                                      jlong nativeHandel) {
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_luoye_bzmedia_BZMedia_videoCodecIsSupportForExoPlayer(JNIEnv *env, jclass clazz,
+                                                               jstring videoPath_) {
+    const char *videoPath = env->GetStringUTFChars(videoPath_, 0);
 
-    if (nativeHandel == 0) {
-        return 0;
-    }
-    VideoTransCode *videoTransCode = reinterpret_cast<VideoTransCode *>(nativeHandel);
-    int64_t methodInfoHandle = videoTransCode->getMethodInfoHandle();
-    videoTransCode->stopVideoTransCode();
+    bool result = VideoUtil::videoCodecIsSupportForExoPlayer(videoPath);
 
-    if (methodInfoHandle != 0) {
-        TransCodeMethodInfo *transCodeMethodInfo = reinterpret_cast<TransCodeMethodInfo *>(methodInfoHandle);
-        if (nullptr != transCodeMethodInfo->classObj) {
-            env->DeleteGlobalRef(transCodeMethodInfo->classObj);
-        }
-        delete (transCodeMethodInfo);
-    }
-    delete (videoTransCode);
-    return 0;
+    env->ReleaseStringUTFChars(videoPath_, videoPath);
+
+    return static_cast<jboolean>(result);
 }
-

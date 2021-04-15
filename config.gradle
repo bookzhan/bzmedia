@@ -1,0 +1,11 @@
+
+project.ext {
+    compileSdkVersion = 31
+    minSdkVersion = 21
+    targetSdkVersion = 28
+    guavaVersion = '27.1-android'
+    appcompatVersion = '1.4.1'
+    bzyuvVersion = '1.1.17'
+    bzcommonVersion = '1.1.18'
+    exoplayerVersion = '2.14.1-5'
+}

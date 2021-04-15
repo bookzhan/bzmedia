@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-11-01 13:54.
+ * Created by bookzhan on 2018-11-01 13:54.
  * 说明:
  */
 //
@@ -27,16 +27,16 @@ YUV420DrawProgram::YUV420DrawProgram() {
                       "uniform sampler2D tex_u;\n"
                       "uniform sampler2D tex_v;\n"
                       "const mat3 yuv2rgb = mat3(\n"
-                      "            1.164,1.164,1.164,\n"
-                      "            0.0,-0.392,2.017,\n"
-                      "            1.596,-0.813,0.0\n"
+                      "            1.164,0.000,1.596,\n"
+                      "            1.164,-0.391,-0.813,\n"
+                      "            1.164,2.018,0.000\n"
                       "            );\n"
                       "void main() {\n"
                       "    vec3 yuv;\n"
                       "    yuv.x = texture2D(tex_y, textureCoordinate).r - (16.0 / 255.0);\n"
                       "    yuv.y = texture2D(tex_u, textureCoordinate).r - 0.5;\n"
                       "    yuv.z = texture2D(tex_v, textureCoordinate).r - 0.5;\n"
-                      "    vec3 videoColor = yuv2rgb * yuv;\n"
+                      "    vec3 videoColor =yuv*yuv2rgb;\n"
                       "    gl_FragColor =vec4(videoColor.rgb, 1.0);\n"
                       "}";
 }
@@ -107,22 +107,17 @@ int YUV420DrawProgram::initProgram(const char *vertexShader, const char *fragmen
 }
 
 int YUV420DrawProgram::draw(AVFrame *inputAVFrame) {
-    if (nullptr == inputAVFrame || nullptr == inputAVFrame->linesize
-        || nullptr == inputAVFrame->data[0]
+    if (nullptr == inputAVFrame || nullptr == inputAVFrame->data[0]
         || nullptr == inputAVFrame->data[1]
         || nullptr == inputAVFrame->data[2]) {
         BZLogUtil::logE("YUV420DrawProgram::draw AVFrame data Error");
         return -1;
     }
-    AVFrame *finalAVFrame = getAlignAVFrame(inputAVFrame);
-    if (nullptr == finalAVFrame) {
-        return 0;
-    }
+    AVFrame *finalAVFrame = inputAVFrame;
     if (mProgram <= 0) {
         initProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     }
     glUseProgram(mProgram);
-
 
     glEnableVertexAttribArray((GLuint) vPositionLocation);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
@@ -172,6 +167,67 @@ int YUV420DrawProgram::draw(AVFrame *inputAVFrame) {
     return 0;
 }
 
+int YUV420DrawProgram::draw(const void *pixels, int width, int height) {
+    if (nullptr == pixels || width <= 0 || height <= 0) {
+        BZLogUtil::logE("YUV420DrawProgram nullptr==pixels||width<=0||height<=0");
+        return -1;
+    }
+    if (mProgram <= 0) {
+        initProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+    }
+    glUseProgram(mProgram);
+
+    glEnableVertexAttribArray((GLuint) vPositionLocation);
+    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    glVertexAttribPointer((GLuint) vPositionLocation, COORDS_PER_VERTEX, GL_FLOAT, GL_FALSE,
+                          VERTEX_STRIDE,
+                          0);
+    //一定要解绑,防止影响后面的使用
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    if (inputTextureCoordinateLocation != -1) {
+        glEnableVertexAttribArray((GLuint) inputTextureCoordinateLocation);
+        glBindBuffer(GL_ARRAY_BUFFER, coordinateBuffer);
+        glVertexAttribPointer((GLuint) inputTextureCoordinateLocation, COORDS_PER_VERTEX, GL_FLOAT,
+                              GL_FALSE, VERTEX_STRIDE, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    //Y
+    //选择当前活跃的纹理单元
+    glActiveTexture(GL_TEXTURE0);
+    //允许建立一个绑定到目标纹理的有名称的纹理
+    glBindTexture(GL_TEXTURE_2D, textures_y);
+    //根据指定的参数，生成一个2D纹理（Texture）。相似的函数还有glTexImage1D、glTexImage3D。
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0,
+                 GL_LUMINANCE, GL_UNSIGNED_BYTE, pixels);
+    char *pPixels = (char *) pixels + width * height;
+    //U
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, textures_u);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width / 2,
+                 height / 2,
+                 0,
+                 GL_LUMINANCE, GL_UNSIGNED_BYTE, pPixels);
+    pPixels += width * height / 4;
+    //V
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, textures_v);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width / 2,
+                 height / 2,
+                 0,
+                 GL_LUMINANCE, GL_UNSIGNED_BYTE, pPixels);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, drawOrder);
+    glDisableVertexAttribArray((GLuint) vPositionLocation);
+
+    glDisableVertexAttribArray((GLuint) inputTextureCoordinateLocation);
+    glUseProgram(0);
+
+    return 0;
+}
+
+
 void YUV420DrawProgram::updateCoordinateBuffer() {
     if (coordinateBuffer <= 0)
         glGenBuffers(1, &coordinateBuffer);
@@ -198,7 +254,6 @@ void YUV420DrawProgram::setFlip(bool flipHorizontal, bool flipVertical) {
 }
 
 int YUV420DrawProgram::releaseResource() {
-    BaseYUVDrawProgram::releaseResource();
     GLUtil::checkGlError("AVFrameProgram::releaseResource start");
     if (mProgram > 0 && glIsProgram(mProgram)) {
         glDeleteProgram(mProgram);

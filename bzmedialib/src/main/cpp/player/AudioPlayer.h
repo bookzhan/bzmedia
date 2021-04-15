@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2020-08-10 15:47.
+ * Created by bookzhan on 2020-08-10 15:47.
  *description:
  */
 //
@@ -13,6 +13,7 @@ extern "C" {
 #include <include/libswresample/swresample.h>
 #include <include/libavutil/frame.h>
 #include <include/libavutil/audio_fifo.h>
+#include "opensl_io.h"
 }
 
 #include <cstdint>
@@ -41,19 +42,18 @@ public:
 
     int start();
 
-    int stop();
-
     int release();
 
     ~AudioPlayer();
 
 private:
-    const int NB_SAMPLES = 2048;
-    const int SAMPLE_RATE = 44100;
+    //以1024 audio samples对齐
+    const int FRAME_SIZE = 1024;
     const int LOG_SPACE = 30;
     int64_t logCount = 0;
     int64_t methodHandle = 0;
-    void (*progressCallBack)(int64_t javaHandle, float progress)=nullptr;
+
+    void (*progressCallBack)(int64_t javaHandle, float progress) = nullptr;
 
     SwrContext *swr_audio_ctx = nullptr;
     AVFrame *audioFrame = nullptr;
@@ -62,7 +62,6 @@ private:
     bool isLoop = false;
     float volume = 1;
 
-    PCMPlayerNative *pcmPlayer = nullptr;
     AVFormatContext *in_fmt_ctx = nullptr;
     AVStream *audioStream = nullptr;
     int64_t audioStreamTotalTime = 0;
@@ -84,6 +83,7 @@ private:
     bool requestSetVolume = false;
     bool requestSeek = false;
     int64_t seekAudioPts = 0;
+    PCMPlayerNative *pcmPlayer= nullptr;
 };
 
 

@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-11-28 16:36.
+ * Created by bookzhan on 2018-11-28 16:36.
  * 说明:
  */
 //
@@ -13,6 +13,8 @@
 class PCMPlayerNative {
 public:
     PCMPlayerNative();
+
+    void init(int sampleRateInHz, int channelCount);
 
     void onPCMDataAvailable(const char *pcmData, int length);
 
@@ -27,6 +29,7 @@ public:
     static jclass pcmPlayerClass;
 private:
     jobject pcmPlayerObj = nullptr;
+    jmethodID initMethodId = nullptr;
     jmethodID onPCMDataAvailableMethodId = nullptr;
     jmethodID setVideoPlayerVolumeMethodId = nullptr;
     jmethodID stopAudioTrackMethodId = nullptr;

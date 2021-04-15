@@ -1,5 +1,12 @@
 package com.luoye.bzmedia.widget;
 
+import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
+import static android.opengl.GLES20.GL_RGBA;
+import static android.opengl.GLES20.GL_UNSIGNED_BYTE;
+import static android.opengl.GLES20.glClear;
+import static android.opengl.GLES20.glClearColor;
+import static android.opengl.GLES20.glViewport;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -20,16 +27,9 @@ import java.util.Locale;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
-import static android.opengl.GLES20.GL_RGBA;
-import static android.opengl.GLES20.GL_UNSIGNED_BYTE;
-import static android.opengl.GLES20.glClear;
-import static android.opengl.GLES20.glClearColor;
-import static android.opengl.GLES20.glViewport;
-
 /**
- * Created by zhandalin on 2017-10-11 11:13.
- * 说明:
+ * Created by bookzhan on 2017-10-11 11:13.
+ * Description:
  */
 public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener {
     private static final String TAG = "bz_BZBaseGLSurfaceView";
@@ -46,18 +46,21 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
 
     protected int viewWidth;
     protected int viewHeight;
-    protected int inputWidth = 1080;
-    protected int inputHeight = 1080;
+    protected int inputWidth = -1;
+    protected int inputHeight = -1;
     private boolean isNeedTakeShot;
     protected ViewPort mDrawViewPort = new ViewPort();
+    protected ViewPort mFirstDrawViewPort = null;
     protected BZColor bzClearColor = new BZColor(1, 1, 1, 1);
 
 
     protected OnDrawFrameListener onDrawFrameListener;
-    private boolean needFlipHorizontal = false;
-    private boolean needFlipVertical = true;
-    private byte[] dataBuffer = null;
-    private BaseProgram baseProgram;
+    protected boolean needFlipHorizontal = false;
+    protected boolean needFlipVertical = true;
+    protected byte[] dataBuffer = null;
+    protected BaseProgram srcProgram;
+    protected BaseProgram baseProgram;
+    protected boolean surfaceIsCreated = false;
 
     public BZBaseGLSurfaceView(Context context) {
         this(context, null);
@@ -77,6 +80,7 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        surfaceIsCreated = true;
         glClearColor(bzClearColor.r, bzClearColor.g, bzClearColor.b, bzClearColor.a);
         glClear(GL_COLOR_BUFFER_BIT);
         if (null != surfaceCallback) {
@@ -97,16 +101,7 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
         if (null == rgba) {
             return;
         }
-        if (this.inputWidth != inputWidth || this.inputHeight != inputHeight) {
-            this.inputWidth = inputWidth;
-            this.inputHeight = inputHeight;
-            queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    calcViewport();
-                }
-            });
-        }
+        setInputSize(inputWidth, inputHeight);
         if (null == dataBuffer || dataBuffer.length != rgba.length) {
             dataBuffer = new byte[rgba.length];
         }
@@ -120,13 +115,21 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
         if (this.inputWidth != inputWidth || this.inputHeight != inputHeight) {
             this.inputWidth = inputWidth;
             this.inputHeight = inputHeight;
-            queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    calcViewport();
+            queueEvent(() -> {
+                calcViewport();
+                if (null == mFirstDrawViewPort && viewWidth > 0 && viewHeight > 0 && inputWidth > 0 && inputHeight > 0) {
+                    mFirstDrawViewPort = new ViewPort(mDrawViewPort.x, mDrawViewPort.y, mDrawViewPort.width, mDrawViewPort.height);
                 }
             });
         }
+    }
+
+    public int getInputWidth() {
+        return inputWidth;
+    }
+
+    public int getInputHeight() {
+        return inputHeight;
     }
 
     @Override
@@ -140,6 +143,7 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
                 }
             }
         });
+        surfaceIsCreated = false;
         super.onPause();
     }
 
@@ -147,6 +151,9 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
     public void onDrawFrame(GL10 gl) {
         glClearColor(bzClearColor.r, bzClearColor.g, bzClearColor.b, bzClearColor.a);
         glClear(GL_COLOR_BUFFER_BIT);
+        if (null == dataBuffer) {
+            return;
+        }
         int textureID;
         synchronized (this) {
             textureID = BZOpenGlUtils.loadTexture(dataBuffer, inputWidth, inputHeight);
@@ -177,7 +184,7 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
             isNeedTakeShot = false;
         }
         if (null != onDrawFrameListener) {
-            onDrawFrameListener.onDrawFrame(textureID);
+            onDrawFrameListener.onDrawFrame(textureID, 0);
         }
         BZOpenGlUtils.deleteTexture(textureID);
     }
@@ -204,6 +211,10 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
         });
     }
 
+    public boolean isFitFullView() {
+        return mFitFullView;
+    }
+
     public void setOnViewportCalcCompleteListener(OnViewportCalcCompleteListener onViewportCalcCompleteListener) {
         this.onViewportCalcCompleteListener = onViewportCalcCompleteListener;
     }
@@ -219,8 +230,12 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
         requestRender();
     }
 
-    public ViewPort getDrawViewport() {
+    public ViewPort getCurrentDrawViewport() {
         return mDrawViewPort;
+    }
+
+    public ViewPort getFirstDrawViewport() {
+        return mFirstDrawViewPort;
     }
 
     @Override
@@ -279,6 +294,18 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
     public void setFlip(final boolean needFlipHorizontal, final boolean needFlipVertical) {
         this.needFlipHorizontal = needFlipHorizontal;
         this.needFlipVertical = needFlipVertical;
+        if (null != baseProgram) {
+            queueEvent(new Runnable() {
+                @Override
+                public void run() {
+                    if (null != baseProgram) {
+                        baseProgram.release();
+                        baseProgram = null;
+                    }
+                }
+            });
+        }
+        requestRender();
     }
 
 
@@ -303,6 +330,6 @@ public class BZBaseGLSurfaceView extends GLSurfaceView implements GLSurfaceView.
     }
 
     public interface OnDrawFrameListener {
-        void onDrawFrame(int textureId);
+        void onDrawFrame(int textureId, long time);
     }
 }

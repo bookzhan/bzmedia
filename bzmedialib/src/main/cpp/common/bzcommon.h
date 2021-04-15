@@ -1,5 +1,5 @@
 /**
- * Created by zhandalin on 2017-04-19 11:26.
+ * Created by bookzhan on 2017-04-19 11:26.
  * 说明:定义一些基本东西
  */
 #ifndef BZFFMPEG_BZCOMMON_H

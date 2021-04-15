@@ -7,16 +7,42 @@ import android.media.AudioTrack;
 import com.bzcommon.utils.BZLogUtil;
 
 /**
- * Created by zhandalin on 2018-11-28 15:54.
- * 说明: call from jni
+ * Created by bookzhan on 2018-11-28 15:54.
+ * Description: call from jni
  */
 public class PCMPlayer {
     private AudioTrack audioTrack = null;
     private String TAG = "bz_PCMPlayer";
-    private boolean isRelease = false;
     private float volume = 1;
 
-    private void setVideoPlayerVolume(float volume) {
+    public void init(int sampleRateInHz, int channelCount) {
+        BZLogUtil.d(TAG, "init sampleRateInHz=" + sampleRateInHz + " channelCount=" + channelCount);
+        if (null != audioTrack) {
+            stopAudioTrack();
+            audioTrack = null;
+        }
+        int channelConfig = AudioFormat.CHANNEL_OUT_MONO;
+        if (channelCount == 2) {
+            channelConfig = AudioFormat.CHANNEL_OUT_STEREO;
+        }
+        try {
+            int audioBufSize = AudioTrack.getMinBufferSize(sampleRateInHz,
+                    channelConfig,
+                    AudioFormat.ENCODING_PCM_16BIT);
+
+            audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRateInHz,
+                    channelConfig,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    audioBufSize,
+                    AudioTrack.MODE_STREAM);
+            audioTrack.play();
+            audioTrack.setStereoVolume(volume, volume);
+        } catch (Exception e) {
+            BZLogUtil.e(TAG, e);
+        }
+    }
+
+    public void setVideoPlayerVolume(float volume) {
         BZLogUtil.d(TAG, "setVideoPlayerVolume volume=" + volume + " --" + this);
         this.volume = volume;
         try {
@@ -30,25 +56,9 @@ public class PCMPlayer {
     /**
      * call from jni
      */
-    protected void onPCMDataAvailable(byte[] pcmData, int length) {
+    public void onPCMDataAvailable(byte[] pcmData, int length) {
 //        BZLogUtil.d(TAG, "onPCMDataAvailable length=" + length);
-        if (null == audioTrack && !isRelease) {
-            try {
-                int audioBufSize = AudioTrack.getMinBufferSize(44100,
-                        AudioFormat.CHANNEL_OUT_MONO,
-                        AudioFormat.ENCODING_PCM_16BIT);
 
-                audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
-                        AudioFormat.CHANNEL_OUT_MONO,
-                        AudioFormat.ENCODING_PCM_16BIT,
-                        audioBufSize,
-                        AudioTrack.MODE_STREAM);
-                audioTrack.play();
-                audioTrack.setStereoVolume(volume, volume);
-            } catch (Exception e) {
-                BZLogUtil.e(TAG, e);
-            }
-        }
         try {
             if (null != audioTrack) {
                 audioTrack.write(pcmData, 0, length);
@@ -58,7 +68,7 @@ public class PCMPlayer {
         }
     }
 
-    private void pause() {
+    public void pause() {
         try {
             if (null != audioTrack)
                 audioTrack.pause();
@@ -67,7 +77,7 @@ public class PCMPlayer {
         }
     }
 
-    private void start() {
+    public void start() {
         try {
             if (null != audioTrack)
                 audioTrack.play();
@@ -76,9 +86,8 @@ public class PCMPlayer {
         }
     }
 
-    private void stopAudioTrack() {
+    public void stopAudioTrack() {
         BZLogUtil.d(TAG, "stopAudioTrack=" + this);
-        isRelease = true;
         if (null != audioTrack) {
             try {
                 audioTrack.flush();

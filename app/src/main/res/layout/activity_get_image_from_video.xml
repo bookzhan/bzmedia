@@ -19,14 +19,11 @@
             android:orientation="horizontal" />
     </HorizontalScrollView>
 
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:onClick="getImageFromVideo"
-        android:text="getImageFromVideo"
-        android:textAllCaps="false" />
+    <ImageView
+        android:id="@+id/iv_test"
+        android:layout_width="200dp"
+        android:visibility="gone"
+        android:layout_height="200dp" />
 
     <Button
         android:layout_width="wrap_content"
@@ -36,5 +33,12 @@
         android:text="getBitmapFromVideo"
         android:textAllCaps="false" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:onClick="getVideoFrameAtTime"
+        android:text="getVideoFrameAtTime"
+        android:textAllCaps="false" />
 
 </LinearLayout>

@@ -1,6 +1,6 @@
 
 /**
- * Created by zhandalin on 2017-08-09 20:46.
+ * Created by bookzhan on 2017-08-09 20:46.
  * 说明: 视频工具类
  */
 #include "VideoUtil.h"
@@ -17,12 +17,12 @@ extern "C" {
 
 AVFrame *VideoUtil::allocVideoFrame(enum AVPixelFormat pix_fmt, int width, int height) {
 //    BZLogUtil::logD("alloc_picture");
-    AVFrame *picture = NULL;
+    AVFrame *picture = nullptr;
     int ret;
 
     picture = av_frame_alloc();
     if (!picture)
-        return NULL;
+        return nullptr;
     picture->format = pix_fmt;
     picture->width = width;
     picture->height = height;
@@ -43,7 +43,7 @@ AVFrame *VideoUtil::allocAudioFrame(enum AVSampleFormat sample_fmt,
     int ret;
     if (!frame) {
         BZLogUtil::logD("Error allocating an audio frame\n");
-        return NULL;
+        return nullptr;
     }
     frame->format = sample_fmt;
     frame->channel_layout = channel_layout;
@@ -65,14 +65,14 @@ int VideoUtil::getVideoWidth(const char *videoPath) {
         BZLogUtil::logE("nullptr == videoPath");
         return -1;
     }
-    AVFormatContext *in_fmt_ctx = NULL;
+    AVFormatContext *in_fmt_ctx = nullptr;
     int ret = 0;
-    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, NULL, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return ret;
     }
-    if ((ret = avformat_find_stream_info(in_fmt_ctx, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    if ((ret = avformat_find_stream_info(in_fmt_ctx, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
         return ret;
     }
     int temp = 0;
@@ -84,7 +84,7 @@ int VideoUtil::getVideoWidth(const char *videoPath) {
             break;
         }
     }
-    if (NULL != in_fmt_ctx)
+    if (nullptr != in_fmt_ctx)
         avformat_close_input(&in_fmt_ctx);
     return temp;
 }
@@ -94,14 +94,14 @@ int VideoUtil::getVideoHeight(const char *videoPath) {
         BZLogUtil::logE("getVideoHeight nullptr == videoPath");
         return -1;
     }
-    AVFormatContext *in_fmt_ctx = NULL;
+    AVFormatContext *in_fmt_ctx = nullptr;
     int ret = 0;
-    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, NULL, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return ret;
     }
-    if ((ret = avformat_find_stream_info(in_fmt_ctx, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    if ((ret = avformat_find_stream_info(in_fmt_ctx, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
         return ret;
     }
     int temp = 0;
@@ -113,7 +113,7 @@ int VideoUtil::getVideoHeight(const char *videoPath) {
             break;
         }
     }
-    if (NULL != in_fmt_ctx)
+    if (nullptr != in_fmt_ctx)
         avformat_close_input(&in_fmt_ctx);
     return temp;
 }
@@ -123,14 +123,14 @@ int VideoUtil::getVideoRotate(const char *videoPath) {
         BZLogUtil::logE("getVideoRotate nullptr == videoPath");
         return 0;
     }
-    AVFormatContext *in_fmt_ctx = NULL;
+    AVFormatContext *in_fmt_ctx = nullptr;
     int ret = 0;
-    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, NULL, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return ret;
     }
-    if ((ret = avformat_find_stream_info(in_fmt_ctx, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    if ((ret = avformat_find_stream_info(in_fmt_ctx, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
         return ret;
     }
     int videoRotate = 0;
@@ -138,44 +138,36 @@ int VideoUtil::getVideoRotate(const char *videoPath) {
         AVStream *stream;
         stream = in_fmt_ctx->streams[i];
         if (stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-            AVDictionaryEntry *entry = av_dict_get(stream->metadata, "rotate", NULL,
+            AVDictionaryEntry *entry = av_dict_get(stream->metadata, "rotate", nullptr,
                                                    AV_DICT_IGNORE_SUFFIX);
-            if (NULL != entry) {
+            if (nullptr != entry) {
                 videoRotate = atoi(entry->value);
             }
             break;
         }
     }
-    if (NULL != in_fmt_ctx)
+    if (nullptr != in_fmt_ctx)
         avformat_close_input(&in_fmt_ctx);
     return videoRotate;
 }
 
 int64_t VideoUtil::getMediaDuration(const char *mediaPath) {
     if (nullptr == mediaPath) {
-        BZLogUtil::logE("getMediaDuration nullptr == videoPath");
+        BZLogUtil::logE("getMediaDuration nullptr == mediaPath");
         return -1;
     }
-    AVFormatContext *in_fmt_ctx = NULL;
+    AVFormatContext *in_fmt_ctx = nullptr;
     int ret = 0;
-    if ((ret = avformat_open_input(&in_fmt_ctx, mediaPath, NULL, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    if ((ret = avformat_open_input(&in_fmt_ctx, mediaPath, nullptr, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file mediaPath=%s", mediaPath);
         return ret;
     }
-    if ((ret = avformat_find_stream_info(in_fmt_ctx, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    if ((ret = avformat_find_stream_info(in_fmt_ctx, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
         return ret;
     }
-    int64_t videoDuration = 0;
-    for (int i = 0; i < in_fmt_ctx->nb_streams; i++) {
-        AVStream *stream;
-        stream = in_fmt_ctx->streams[i];
-        int64_t temp = stream->duration * 1000 * stream->time_base.num /
-                       stream->time_base.den;
-        if (temp > videoDuration)
-            videoDuration = temp;
-    }
-    if (NULL != in_fmt_ctx)
+    int64_t videoDuration = in_fmt_ctx->duration / 1000;
+    if (nullptr != in_fmt_ctx)
         avformat_close_input(&in_fmt_ctx);
 
     return videoDuration;
@@ -188,16 +180,16 @@ int VideoUtil::getVideoInfo(const char *videoPath, long handle, void (*sendMedia
         BZLogUtil::logE("nullptr == videoPath");
         return -1;
     }
-    if (NULL == sendMediaInfoCallBack)
+    if (nullptr == sendMediaInfoCallBack)
         return -1;
-    AVFormatContext *in_fmt_ctx = NULL;
+    AVFormatContext *in_fmt_ctx = nullptr;
     int ret = 0;
-    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, NULL, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return ret;
     }
-    if ((ret = avformat_find_stream_info(in_fmt_ctx, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    if ((ret = avformat_find_stream_info(in_fmt_ctx, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
         return ret;
     }
     long videoDuration = 0;
@@ -212,15 +204,15 @@ int VideoUtil::getVideoInfo(const char *videoPath, long handle, void (*sendMedia
         if (stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
             width = stream->codecpar->width;
             height = stream->codecpar->height;
-            AVDictionaryEntry *entry = av_dict_get(stream->metadata, "rotate", NULL,
+            AVDictionaryEntry *entry = av_dict_get(stream->metadata, "rotate", nullptr,
                                                    AV_DICT_IGNORE_SUFFIX);
-            if (NULL != entry) {
+            if (nullptr != entry) {
                 rotate = atoi(entry->value);
             }
         }
 
     }
-    if (NULL != in_fmt_ctx)
+    if (nullptr != in_fmt_ctx)
         avformat_close_input(&in_fmt_ctx);
     sendMediaInfoCallBack(handle, MEDIA_INFO_WHAT_VIDEO_DURATION, (int) videoDuration);
     sendMediaInfoCallBack(handle, MEDIA_INFO_WHAT_VIDEO_ROTATE, rotate);
@@ -235,14 +227,15 @@ int VideoUtil::printVideoTimeStamp(const char *videoPath) {
         BZLogUtil::logE("nullptr == videoPath");
         return -1;
     }
-    AVFormatContext *in_fmt_ctx = NULL;
+    BZLogUtil::logD("videoPath=%s", videoPath);
+    AVFormatContext *in_fmt_ctx = nullptr;
     int ret = 0;
-    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, NULL, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return ret;
     }
-    if ((ret = avformat_find_stream_info(in_fmt_ctx, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    if ((ret = avformat_find_stream_info(in_fmt_ctx, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
         return ret;
     }
     int videoIndex = 0;
@@ -252,44 +245,12 @@ int VideoUtil::printVideoTimeStamp(const char *videoPath) {
         if (stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
             BZLogUtil::logD("video index=%d", i);
             videoIndex = i;
-            AVCodec *avCodec = avcodec_find_decoder(stream->codecpar->codec_id);
-            if (NULL == avCodec) {
-                BZLogUtil::logE("can't find_decoder");
-                return -1;
-            }
-            AVCodecContext *codec_ctx = avcodec_alloc_context3(avCodec);
-            if (NULL == codec_ctx) {
-                BZLogUtil::logE("can't avcodec_alloc_context3");
-                return -1;
-            }
-            avcodec_parameters_to_context(codec_ctx, stream->codecpar);
-
-            /* Reencode video & audio and remux subtitles etc. */
-            if (codec_ctx->codec_type == AVMEDIA_TYPE_VIDEO
-                || codec_ctx->codec_type == AVMEDIA_TYPE_AUDIO) {
-                /* Open decoder */
-                ret = avcodec_open2(codec_ctx,
-                                    NULL, NULL);
-                if (ret < 0) {
-                    av_log(NULL, AV_LOG_ERROR, "Failed to open decoder for stream #%u\n", i);
-                    return ret;
-                }
-            }
-            stream->codec = codec_ctx;
         }
         if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             BZLogUtil::logD("--audio-- index=%d", i);
         }
     }
-
     AVStream *videoInStream = in_fmt_ctx->streams[videoIndex];
-    AVFrame *videoFrame = VideoUtil::allocVideoFrame(videoInStream->codec->pix_fmt,
-                                                     videoInStream->codecpar->width,
-                                                     videoInStream->codecpar->height);
-
-//    FILE *yuvFile = fopen("/sdcard/Filter/out.yuv", "wb");
-    int got_picture_ptr = 0;
-    size_t ySize = (size_t) (videoInStream->codecpar->width * videoInStream->codecpar->height);
     AVPacket *decode_pkt = av_packet_alloc();
     int videoKeyFrameCount = 0;
     int videoFrameCount = 0;
@@ -299,42 +260,30 @@ int VideoUtil::printVideoTimeStamp(const char *videoPath) {
             if (decode_pkt->flags == AV_PKT_FLAG_KEY) {
                 videoKeyFrameCount++;
             }
-            BZLogUtil::logD(
-                    "video stream_index=%d\tpts=%lld\tdts=%lld\tduration=%lld\t durationTime=%lld isKeyFrame=%d",
-                    decode_pkt->stream_index,
-                    decode_pkt->pts, decode_pkt->dts, decode_pkt->duration,
-                    (decode_pkt->duration * 1000 *
-                     videoInStream->time_base.num /
-                     videoInStream->time_base.den), decode_pkt->flags == AV_PKT_FLAG_KEY);
+            AVStream *stream = in_fmt_ctx->streams[decode_pkt->stream_index];
+            int64_t temp = decode_pkt->pts * 1000 * stream->time_base.num /
+                           stream->time_base.den;
+            if (temp < 16000) {
+                BZLogUtil::logD(
+                        "videoFrameCount=%d\tflags=%d\tvideo stream_index=%d\tpts=%lld\tdts=%lld\tduration=%lld\tdurationTime=%lld isKeyFrame=%d time=%lld",
+                        videoFrameCount,
+                        decode_pkt->flags,
+                        decode_pkt->stream_index,
+                        decode_pkt->pts, decode_pkt->dts, decode_pkt->duration,
+                        (decode_pkt->duration * 1000 *
+                         videoInStream->time_base.num /
+                         videoInStream->time_base.den), decode_pkt->flags == AV_PKT_FLAG_KEY, temp);
+            }
         } else {
 //            BZLogUtil::logD("audio stream_index=%d\tpts=%lld\tdts=%lld\tduration=%lld",
 //                            decode_pkt->stream_index,
 //                            decode_pkt->pts, decode_pkt->dts, decode_pkt->duration);
         }
-
-
-//        if (decode_pkt->stream_index == videoIndex) {
-//            ret = avcodec_decode_video2(in_stream->codec, videoFrame, &got_picture_ptr,
-//                                        decode_pkt);
-//            if (ret < 0) {
-//                BZLogUtil::logD("avcodec_decode_video2 fail");
-//            }
-//            BZLogUtil::logD("stream_index=%d\tpts=%lld\tdts=%lld\tduration=%lld", videoIndex,
-//                 videoFrame->pts, videoFrame->pkt_dts, videoFrame->pkt_duration);
-//
-//            fwrite(videoFrame->data[0], ySize, 1, yuvFile);
-//
-//            fwrite(videoFrame->data[1], ySize / 4, 1, yuvFile);
-//            fwrite(videoFrame->data[2], ySize / 4, 1, yuvFile);
-//        }
         av_init_packet(decode_pkt);
     }
-//    fflush(yuvFile);
-//    fclose(yuvFile);
-
     BZLogUtil::logD("videoKeyFrameCount=%d,videoFrameCount=%d", videoKeyFrameCount,
                     videoFrameCount);
-    if (NULL != in_fmt_ctx)
+    if (nullptr != in_fmt_ctx)
         avformat_close_input(&in_fmt_ctx);
     return 0;
 }
@@ -348,76 +297,46 @@ int
 VideoUtil::openInputFileForHard(const char *filename, AVFormatContext **in_fmt_ctx,
                                 bool openVideoDecode,
                                 bool openAudioDecode) {
-    if (NULL == filename)
+    if (nullptr == filename)
         return -1;
     int ret;
     unsigned int i;
 
-    if ((ret = avformat_open_input(in_fmt_ctx, filename, NULL, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    if ((ret = avformat_open_input(in_fmt_ctx, filename, nullptr, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return ret;
     }
-    if ((ret = avformat_find_stream_info(*in_fmt_ctx, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
-        return ret;
-    }
-
-    for (i = 0; i < (*in_fmt_ctx)->nb_streams; i++) {
-        AVStream *stream = (*in_fmt_ctx)->streams[i];
-        if (stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-            if (openVideoDecode) {
-                ret = openAVCodecContext(stream);
-                if (ret < 0) {
-                    BZLogUtil::logE("openAVCodecContext AVMEDIA_TYPE_AUDIO fail");
-                    break;
-                }
-            } else {
-                stream->codec = NULL;
-            }
-        }
-        if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-            if (openAudioDecode) {
-                ret = openAVCodecContext(stream);
-                if (ret < 0) {
-                    BZLogUtil::logE("openAVCodecContext AVMEDIA_TYPE_AUDIO fail");
-                    break;
-                }
-            } else {
-                stream->codec = NULL;
-            }
-        }
-    }
-    //如果有一个流没有打开, 那么dump就会有问题
-//    av_dump_format((*in_fmt_ctx), 0, filename, 0);
-    return ret;
-}
-
-int VideoUtil::openInputFileForSoft(const char *filename, AVFormatContext **in_fmt_ctx,
-                                    bool openVideoDecode,
-                                    bool openAudioDecode) {
-    if (NULL == filename)
-        return -1;
-    int ret;
-    unsigned int i;
-
-    if ((ret = avformat_open_input(in_fmt_ctx, filename, NULL, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
-        return ret;
-    }
-    if ((ret = avformat_find_stream_info((*in_fmt_ctx), NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    if ((ret = avformat_find_stream_info((*in_fmt_ctx), nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
         return ret;
     }
 
     for (i = 0; i < (*in_fmt_ctx)->nb_streams; i++) {
         AVStream *inStream = (*in_fmt_ctx)->streams[i];
-        AVCodec *avCodec = avcodec_find_decoder(inStream->codecpar->codec_id);
-        if (NULL == avCodec) {
+        if (nullptr == inStream) {
+            continue;
+        }
+        AVCodecID codec_id = inStream->codecpar->codec_id;
+        if (codec_id == AV_CODEC_ID_NONE) {
+            BZLogUtil::logW("openInputFileForHard codec_id == AV_CODEC_ID_NONE");
+            continue;
+        }
+        AVCodec *avCodec = nullptr;
+        if (codec_id == AV_CODEC_ID_H264) {//换成硬解码
+            avCodec = avcodec_find_decoder_by_name("h264_mediacodec");
+        } else if (codec_id == AV_CODEC_ID_MPEG4) {
+            avCodec = avcodec_find_decoder_by_name("mpeg4_mediacodec");
+        } else if (codec_id == AV_CODEC_ID_HEVC) {
+            avCodec = avcodec_find_decoder_by_name("hevc_mediacodec");
+        } else {
+            avCodec = avcodec_find_decoder(codec_id);
+        }
+        if (nullptr == avCodec) {
             BZLogUtil::logE("can't find_decoder");
             return -1;
         }
         AVCodecContext *codec_ctx = avcodec_alloc_context3(avCodec);
-        if (NULL == codec_ctx) {
+        if (nullptr == codec_ctx) {
             BZLogUtil::logE("can't avcodec_alloc_context3");
             return -1;
         }
@@ -426,16 +345,83 @@ int VideoUtil::openInputFileForSoft(const char *filename, AVFormatContext **in_f
         if (codec_ctx->codec_type == AVMEDIA_TYPE_VIDEO && openVideoDecode) {
             /* Open decoder */
             ret = avcodec_open2(codec_ctx,
-                                NULL, NULL);
+                                nullptr, nullptr);
+            if (ret < 0) {
+                BZLogUtil::logE("Failed to open decoder for stream");
+                return ret;
+            }
+        } else if (codec_ctx->codec_type == AVMEDIA_TYPE_AUDIO && openAudioDecode) {
+            /* Open decoder */
+            ret = avcodec_open2(codec_ctx,
+                                nullptr, nullptr);
             if (ret < 0) {
                 BZLogUtil::logE("Failed to open decoder for stream");
                 return ret;
             }
         }
-        if (codec_ctx->codec_type == AVMEDIA_TYPE_AUDIO && openAudioDecode) {
+        if (nullptr != inStream->codec)
+            avcodec_free_context(&inStream->codec);
+        inStream->codec = codec_ctx;
+    }
+//    av_dump_format((*in_fmt_ctx), 0, filename, 0);
+    return ret;
+}
+
+int VideoUtil::openInputFileForSoft(const char *filename, AVFormatContext **in_fmt_ctx,
+                                    bool openVideoDecode,
+                                    bool openAudioDecode) {
+    if (nullptr == filename)
+        return -1;
+    int ret;
+    unsigned int i;
+
+    if ((ret = avformat_open_input(in_fmt_ctx, filename, nullptr, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
+        return ret;
+    }
+    if ((ret = avformat_find_stream_info((*in_fmt_ctx), nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
+        return ret;
+    }
+
+    for (i = 0; i < (*in_fmt_ctx)->nb_streams; i++) {
+        AVStream *inStream = (*in_fmt_ctx)->streams[i];
+        if (nullptr == inStream) {
+            continue;
+        }
+        if (inStream->codecpar->codec_id == AV_CODEC_ID_NONE) {
+            BZLogUtil::logW("openInputFileForSoft codec_id == AV_CODEC_ID_NONE");
+            continue;
+        }
+        if (inStream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && !openVideoDecode) {
+            continue;
+        } else if (inStream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && !openAudioDecode) {
+            continue;
+        }
+        AVCodec *avCodec = avcodec_find_decoder(inStream->codecpar->codec_id);
+        if (nullptr == avCodec) {
+            BZLogUtil::logE("can't find_decoder");
+            return -1;
+        }
+        AVCodecContext *codec_ctx = avcodec_alloc_context3(avCodec);
+        if (nullptr == codec_ctx) {
+            BZLogUtil::logE("can't avcodec_alloc_context3");
+            return -1;
+        }
+        avcodec_parameters_to_context(codec_ctx, inStream->codecpar);
+        /* Reencode video & audio and remux subtitles etc. */
+        if (inStream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && openVideoDecode) {
             /* Open decoder */
             ret = avcodec_open2(codec_ctx,
-                                NULL, NULL);
+                                nullptr, nullptr);
+            if (ret < 0) {
+                BZLogUtil::logE("Failed to open decoder for stream");
+                return ret;
+            }
+        } else if (inStream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && openAudioDecode) {
+            /* Open decoder */
+            ret = avcodec_open2(codec_ctx,
+                                nullptr, nullptr);
             if (ret < 0) {
                 BZLogUtil::logE("Failed to open decoder for stream");
                 return ret;
@@ -453,7 +439,7 @@ int VideoUtil::openInputFileForSoft(const char *filename, AVFormatContext **in_f
 int VideoUtil::openAVCodecContext(AVStream *inStream) {
     int ret = 0;
     AVCodecID codec_id = inStream->codecpar->codec_id;
-    AVCodec *avCodec = NULL;
+    AVCodec *avCodec = nullptr;
     if (codec_id == AV_CODEC_ID_H264) {//换成硬解码
         avCodec = avcodec_find_decoder_by_name("h264_mediacodec");
     } else if (codec_id == AV_CODEC_ID_MPEG4) {
@@ -462,12 +448,12 @@ int VideoUtil::openAVCodecContext(AVStream *inStream) {
         avCodec = avcodec_find_decoder(codec_id);
     }
 
-    if (NULL == avCodec) {
+    if (nullptr == avCodec) {
         BZLogUtil::logE("can't find_decoder");
         return -1;
     }
     AVCodecContext *codec_ctx = avcodec_alloc_context3(avCodec);
-    if (NULL == codec_ctx) {
+    if (nullptr == codec_ctx) {
         BZLogUtil::logE("can't avcodec_alloc_context3");
         return -1;
     }
@@ -478,7 +464,7 @@ int VideoUtil::openAVCodecContext(AVStream *inStream) {
         || codec_ctx->codec_type == AVMEDIA_TYPE_AUDIO) {
         /* Open decoder */
         ret = avcodec_open2(codec_ctx,
-                            NULL, NULL);
+                            avCodec, nullptr);
         if (ret < 0) {
             BZLogUtil::logE("Failed to open decoder for stream openAVCodecContext");
             return ret;
@@ -524,13 +510,13 @@ int64_t VideoUtil::getBitRate(int videoWidth, int videoHeight, bool allFrameIsKe
 }
 
 int VideoUtil::openOutputFile(AVFormatContext *in_fmt_ctx, AVFormatContext **out_fmt_ctx,
-                              const char *output_path, bool needAudio) {
+                              const char *output_path, bool needAudio, bool needOpenCodec) {
     if (nullptr == output_path) {
         BZLogUtil::logE("nullptr == output_path");
         return -1;
     }
     int ret = 0;
-    ret = avformat_alloc_output_context2(out_fmt_ctx, NULL, NULL, output_path);
+    ret = avformat_alloc_output_context2(out_fmt_ctx, nullptr, nullptr, output_path);
     if (ret < 0) {
         BZLogUtil::logE("alloc_output_context2 fail");
         return ret;
@@ -541,6 +527,13 @@ int VideoUtil::openOutputFile(AVFormatContext *in_fmt_ctx, AVFormatContext **out
     int out_stream_index = 0;
     for (int i = 0; i < in_fmt_ctx->nb_streams; ++i) {
         AVStream *in_stream = in_fmt_ctx->streams[i];
+        if (nullptr == in_stream) {
+            continue;
+        }
+        if (in_stream->codecpar->codec_id == AV_CODEC_ID_NONE) {
+            BZLogUtil::logW("openOutputFile codec_id == AV_CODEC_ID_NONE");
+            continue;
+        }
         if (in_stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && !needAudio) {
             continue;
         }
@@ -561,6 +554,20 @@ int VideoUtil::openOutputFile(AVFormatContext *in_fmt_ctx, AVFormatContext **out
         if (ret < 0) {
             BZLogUtil::logD("Failed to copy context from input to output stream codec context\n");
             return ret;
+        }
+        if (needOpenCodec) {
+            AVDictionary *param = nullptr;
+            if (in_stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+                av_dict_set(&param, "preset", "ultrafast", 0);
+            }
+            ret = avcodec_open2(out_stream->codec, in_stream->codec->codec, &param);
+            if (nullptr != param) {
+                av_dict_free(&param);
+            }
+            if (ret < 0) {
+                BZLogUtil::logD("avCodecContext Could not open video codec: %s\n", av_err2str(ret));
+                return -1;
+            }
         }
         ret = avcodec_parameters_from_context(out_stream->codecpar, in_stream->codec);
         if (ret < 0) {
@@ -585,7 +592,7 @@ int VideoUtil::openOutputFile(AVFormatContext *in_fmt_ctx, AVFormatContext **out
         }
     }
     /* Write the stream header, if any. */
-    ret = avformat_write_header(*out_fmt_ctx, NULL);
+    ret = avformat_write_header(*out_fmt_ctx, nullptr);
     if (ret < 0) {
         BZLogUtil::logD("Error occurred when opening output file: %s\n",
                         av_err2str(ret));
@@ -598,8 +605,8 @@ int VideoUtil::getVideoPts(const char *videoPath, list<int64_t> *ptsList) {
     if (nullptr == videoPath || nullptr == ptsList)return -1;
     AVFormatContext *in_fmt_ctx = nullptr;
     int ret = 0;
-    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, NULL, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return ret;
     }
     AVPacket *avPacket = av_packet_alloc();
@@ -624,8 +631,8 @@ float VideoUtil::getVideoAverageDuration(const char *videoPath) {
     if (nullptr == videoPath)return -1;
     AVFormatContext *in_fmt_ctx = nullptr;
     int ret = 0;
-    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, NULL, NULL)) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    if ((ret = avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr)) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return ret;
     }
     float averageDuration = 3333;
@@ -640,44 +647,37 @@ float VideoUtil::getVideoAverageDuration(const char *videoPath) {
     return averageDuration;
 }
 
-bool VideoUtil::videoIsSupport(const char *videoPath, bool isSoftDecode) {
+bool VideoUtil::videoIsSupport(const char *videoPath) {
     if (nullptr == videoPath) {
         return false;
     }
     AVFormatContext *in_fmt_ctx = nullptr;
     unsigned int i;
-    if (avformat_open_input(&in_fmt_ctx, videoPath, NULL, NULL) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    if (avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return false;
     }
     if (nullptr == in_fmt_ctx) {
         return false;
     }
-    if (avformat_find_stream_info(in_fmt_ctx, NULL) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    if (avformat_find_stream_info(in_fmt_ctx, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
         return false;
     }
     bool result = false;
     for (i = 0; i < in_fmt_ctx->nb_streams; i++) {
         AVStream *inStream = in_fmt_ctx->streams[i];
-        if (inStream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
-            if (isSoftDecode) {
-                if (inStream->codecpar->codec_id == AV_CODEC_ID_H264
-                    || inStream->codecpar->codec_id == AV_CODEC_ID_MPEG4) {
-                    result = true;
-                    break;
-                }
-            } else {
-                if (inStream->codecpar->codec_id == AV_CODEC_ID_H264
-                    || inStream->codecpar->codec_id == AV_CODEC_ID_MPEG4
-                    || inStream->codecpar->codec_id == AV_CODEC_ID_VP9
-                    || inStream->codecpar->codec_id == AV_CODEC_ID_HEVC
-                    || inStream->codecpar->codec_id == AV_CODEC_ID_VP8) {
-                    result = true;
-                    break;
-                }
-            }
+        if (inStream->codecpar->codec_type != AVMEDIA_TYPE_VIDEO
+            && inStream->codecpar->codec_type != AVMEDIA_TYPE_AUDIO) {
+            continue;
         }
+        AVCodec *avCodec = avcodec_find_decoder(inStream->codecpar->codec_id);
+        if (nullptr == avCodec) {
+            BZLogUtil::logE("can't find_decoder");
+            result = false;
+            break;
+        }
+        result = true;
     }
     if (nullptr != in_fmt_ctx)
         avformat_close_input(&in_fmt_ctx);
@@ -691,15 +691,15 @@ bool VideoUtil::audioIsSupport(const char *audioPath) {
     }
     AVFormatContext *in_fmt_ctx = nullptr;
     unsigned int i;
-    if (avformat_open_input(&in_fmt_ctx, audioPath, NULL, NULL) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    if (avformat_open_input(&in_fmt_ctx, audioPath, nullptr, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return false;
     }
     if (nullptr == in_fmt_ctx) {
         return false;
     }
-    if (avformat_find_stream_info(in_fmt_ctx, NULL) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    if (avformat_find_stream_info(in_fmt_ctx, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
         return false;
     }
     bool result = false;
@@ -726,7 +726,22 @@ VideoUtil::clipAudio(const char *audioPath, const char *outPath, int64_t startTi
         BZLogUtil::logE("nullptr == audioPath || startTime < 0 || startTime > endTime");
         return -1;
     }
-    return clipVideo(audioPath, outPath, startTime, endTime);
+    if (endTime <= 0) {
+        endTime = getMediaDuration(audioPath);
+        BZLogUtil::logD("endTime <= 0  getMediaDuration=%lld", endTime);
+    }
+    BZLogUtil::logD("clipAudio audioPath=%s,outPath=%s", audioPath, outPath);
+    BZLogUtil::logD("clipAudio startTime=%lld,endTime=%lld", startTime, endTime);
+    const char *fmt = "ffmpeg -y -ss %.3f -t %.3f -i \"%s\" -vn -c copy \"%s\"";
+    char cmd[1024] = {0};
+    sprintf(cmd, fmt, startTime / 1000.0f, (endTime - startTime) / 1000.0f, audioPath, outPath);
+    BZLogUtil::logD("cmd=%s", cmd);
+    int ret = executeFFmpegCommand(0, cmd, nullptr);
+    if (ret < 0) {
+        BZLogUtil::logE("executeFFmpegCommand fail %s", cmd);
+        return ret;
+    }
+    return ret;
 }
 
 bool VideoUtil::hasAudio(const char *videoPath) {
@@ -734,13 +749,13 @@ bool VideoUtil::hasAudio(const char *videoPath) {
         BZLogUtil::logE("hasAudio nullptr == videoPath");
         return false;
     }
-    AVFormatContext *in_fmt_ctx = NULL;
-    if (avformat_open_input(&in_fmt_ctx, videoPath, NULL, NULL) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    AVFormatContext *in_fmt_ctx = nullptr;
+    if (avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return false;
     }
-    if (avformat_find_stream_info(in_fmt_ctx, NULL) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    if (avformat_find_stream_info(in_fmt_ctx, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
         return false;
     }
     bool hasAudio = false;
@@ -752,9 +767,38 @@ bool VideoUtil::hasAudio(const char *videoPath) {
             break;
         }
     }
-    if (NULL != in_fmt_ctx)
+    if (nullptr != in_fmt_ctx)
         avformat_close_input(&in_fmt_ctx);
     return hasAudio;
+}
+
+bool VideoUtil::isAACAudio(const char *videoPath) {
+    if (nullptr == videoPath) {
+        BZLogUtil::logE("hasAudio nullptr == videoPath");
+        return false;
+    }
+    AVFormatContext *in_fmt_ctx = nullptr;
+    if (avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
+        return false;
+    }
+    if (avformat_find_stream_info(in_fmt_ctx, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
+        return false;
+    }
+    bool isAACAudio = false;
+    for (int i = 0; i < in_fmt_ctx->nb_streams; i++) {
+        AVStream *stream;
+        stream = in_fmt_ctx->streams[i];
+        if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && stream->duration > 0 &&
+            stream->codecpar->codec_id == AV_CODEC_ID_AAC) {
+            isAACAudio = true;
+            break;
+        }
+    }
+    if (nullptr != in_fmt_ctx)
+        avformat_close_input(&in_fmt_ctx);
+    return isAACAudio;
 }
 
 bool VideoUtil::hasVideo(const char *videoPath) {
@@ -762,13 +806,13 @@ bool VideoUtil::hasVideo(const char *videoPath) {
         BZLogUtil::logE("hasAudio nullptr == videoPath");
         return false;
     }
-    AVFormatContext *in_fmt_ctx = NULL;
-    if (avformat_open_input(&in_fmt_ctx, videoPath, NULL, NULL) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot open input file\n");
+    AVFormatContext *in_fmt_ctx = nullptr;
+    if (avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
         return false;
     }
-    if (avformat_find_stream_info(in_fmt_ctx, NULL) < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Cannot find stream information\n");
+    if (avformat_find_stream_info(in_fmt_ctx, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
         return false;
     }
     bool hasVideo = false;
@@ -780,7 +824,7 @@ bool VideoUtil::hasVideo(const char *videoPath) {
             break;
         }
     }
-    if (NULL != in_fmt_ctx)
+    if (nullptr != in_fmt_ctx)
         avformat_close_input(&in_fmt_ctx);
     return hasVideo;
 }
@@ -792,148 +836,17 @@ int VideoUtil::clipVideo(const char *videoPath, const char *outPath, int64_t sta
         BZLogUtil::logE("nullptr == videoPath || startTime < 0 || startTime >= endTime");
         return -1;
     }
-    //用命令行裁切之后时间戳有问题,自己写
-    int ret = 0;
-    //对总时长进行限制
-    int64_t durationTime = endTime - startTime;
-    AVFormatContext *in_fmt_ctx = nullptr;
-    ret = VideoUtil::openInputFileForSoft(videoPath, &in_fmt_ctx, false, false);
+    BZLogUtil::logD("clipVideo videoPath=%s,outPath=%s", videoPath, outPath);
+    BZLogUtil::logD("clipVideo startTime=%lld,endTime=%lld", startTime, endTime);
+    const char *fmt = "ffmpeg -y -ss %.3f -t %.3f -accurate_seek -i \"%s\" -avoid_negative_ts 1 -c copy \"%s\"";
+    char cmd[1024] = {0};
+    sprintf(cmd, fmt, startTime / 1000.0f, (endTime - startTime) / 1000.0f, videoPath, outPath);
+    BZLogUtil::logD("cmd=%s", cmd);
+    int ret = executeFFmpegCommand(0, cmd, nullptr);
     if (ret < 0) {
-        BZLogUtil::logE("openInputFileForSoft fail videoPath=%s", videoPath);
-        return -1;
+        BZLogUtil::logE("executeFFmpegCommand fail %s", cmd);
+        return ret;
     }
-
-    AVFormatContext *out_fmt_ctx = nullptr;
-    ret = VideoUtil::openOutputFile(in_fmt_ctx, &out_fmt_ctx, outPath);
-    if (ret < 0) {
-        BZLogUtil::logE("openOutputFile fail outPath=%s", outPath);
-        return -1;
-    }
-    if (nullptr == out_fmt_ctx) {
-        return -1;
-    }
-    out_fmt_ctx->duration = endTime - startTime;
-
-    AVStream *videoStream = nullptr;
-    AVStream *audioStream = nullptr;
-    for (int i = 0; i < in_fmt_ctx->nb_streams; ++i) {
-        AVStream *avStream = in_fmt_ctx->streams[i];
-        if (avStream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && avStream->nb_frames > 30) {
-            int64_t startPts =
-                    static_cast<int64_t>(1.0f * startTime * avStream->time_base.den /
-                                         (1000 * avStream->time_base.num));
-            av_seek_frame(in_fmt_ctx, avStream->index, startPts, AVSEEK_FLAG_BACKWARD);
-            videoStream = avStream;
-        } else if (avStream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
-            audioStream = avStream;
-        }
-    }
-    //这样要以音频seek
-    if (nullptr == videoStream && nullptr != audioStream) {
-        int64_t startPts =
-                static_cast<int64_t>(1.0f * startTime * audioStream->time_base.den /
-                                     (1000 * audioStream->time_base.num));
-        av_seek_frame(in_fmt_ctx, audioStream->index, startPts, AVSEEK_FLAG_BACKWARD);
-    }
-
-    bool videoStreamIsEnd = false;
-    bool audioStreamIsEnd = false;
-    int64_t videoStreamEndPts = 0;
-    if (nullptr != videoStream) {
-        videoStreamEndPts =
-                static_cast<int64_t>(1.0f * endTime * videoStream->time_base.den /
-                                     (1000 * videoStream->time_base.num));
-    } else {
-        videoStreamIsEnd = true;
-    }
-    int64_t audioStreamEndPts = 0;
-    if (nullptr != audioStream) {
-        audioStreamEndPts = static_cast<int64_t>(1.0f * endTime * audioStream->time_base.den /
-                                                 (1000 * audioStream->time_base.num));
-    } else {
-        audioStreamIsEnd = true;
-    }
-
-
-    AVPacket *avPacket = av_packet_alloc();
-    const int64_t START_FLAG = -11111;
-    int64_t videoStartPts = START_FLAG;
-    int64_t videoStartDts = START_FLAG;
-    int64_t audioStartPts = START_FLAG;
-    int64_t audioStartDts = START_FLAG;
-    while (true) {
-        av_init_packet(avPacket);
-        ret = av_read_frame(in_fmt_ctx, avPacket);
-        if (ret < 0) {
-            ret = 0;
-            break;
-        }
-        if (videoStreamIsEnd && audioStreamIsEnd) {
-            break;
-        }
-        if (avPacket->pts == AV_NOPTS_VALUE) {
-            continue;
-        }
-        if (in_fmt_ctx->streams[avPacket->stream_index]->codecpar->codec_type ==
-            AVMEDIA_TYPE_VIDEO) {
-            if (nullptr == videoStream) {
-                av_packet_unref(avPacket);
-                continue;
-            }
-            if (videoStartPts == START_FLAG) {
-                videoStartPts = avPacket->pts;
-                videoStartDts = avPacket->dts;
-            }
-            if (avPacket->pts > videoStreamEndPts) {
-                videoStreamIsEnd = true;
-                videoStream->duration = avPacket->pts - videoStartPts;
-                av_packet_unref(avPacket);
-                continue;
-            }
-            avPacket->pts -= videoStartPts;
-            avPacket->dts -= videoStartDts;
-
-            //计算持续时间是否到了,纠正关键帧太少导致的精度不够
-            auto temp = 1.0f * avPacket->pts * 1000 * videoStream->time_base.num /
-                        videoStream->time_base.den;
-            if (temp > durationTime) {
-                videoStreamIsEnd = true;
-                av_packet_unref(avPacket);
-                continue;
-            }
-        } else if (in_fmt_ctx->streams[avPacket->stream_index]->codecpar->codec_type ==
-                   AVMEDIA_TYPE_AUDIO) {
-            if (audioStartPts == START_FLAG) {
-                audioStartPts = avPacket->pts;
-                audioStartDts = avPacket->dts;
-            }
-            if (avPacket->pts > audioStreamEndPts) {
-                audioStreamIsEnd = true;
-                audioStream->duration = avPacket->pts - audioStartPts;
-                av_packet_unref(avPacket);
-                continue;
-            }
-            avPacket->pts -= audioStartPts;
-            avPacket->dts -= audioStartDts;
-            //计算持续时间是否到了,纠正关键帧太少导致的精度不够
-            auto temp = 1.0f * avPacket->pts * 1000 * audioStream->time_base.num /
-                        audioStream->time_base.den;
-            if (temp > durationTime) {
-                audioStreamIsEnd = true;
-                av_packet_unref(avPacket);
-                continue;
-            }
-        }
-        if (nullptr != avPacket->data && avPacket->size > 0) {
-            av_interleaved_write_frame(out_fmt_ctx, avPacket);
-        }
-    }
-    avformat_close_input(&in_fmt_ctx);
-    av_write_trailer(out_fmt_ctx);
-    if (!(out_fmt_ctx->oformat->flags & AVFMT_NOFILE))
-        avio_closep(&out_fmt_ctx->pb);
-    avformat_free_context(out_fmt_ctx);
-    av_packet_free(&avPacket);
     return ret;
 }
 
@@ -1020,5 +933,259 @@ VideoUtil::mixAudios2Video(const char *outPath, const char *videoStreamInputPath
     }
     BZLogUtil::logD("mixAudios2Video end");
     return ret;
+}
+
+bool VideoUtil::isStandardAudio(const char *path) {
+    if (nullptr == path) {
+        BZLogUtil::logE("hasAudio nullptr == path");
+        return false;
+    }
+    AVFormatContext *in_fmt_ctx = nullptr;
+    if (avformat_open_input(&in_fmt_ctx, path, nullptr, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
+        return false;
+    }
+    if (avformat_find_stream_info(in_fmt_ctx, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
+        return false;
+    }
+    bool isStandardAudio = false;
+    for (int i = 0; i < in_fmt_ctx->nb_streams; i++) {
+        AVStream *stream;
+        stream = in_fmt_ctx->streams[i];
+        if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && stream->duration > 0
+            && stream->codecpar->sample_rate == 44100 && stream->codecpar->channels == 2 &&
+            stream->codecpar->codec_id == AV_CODEC_ID_AAC) {
+            isStandardAudio = true;
+            break;
+        }
+    }
+    if (nullptr != in_fmt_ctx)
+        avformat_close_input(&in_fmt_ctx);
+    return isStandardAudio;
+}
+
+int VideoUtil::repeatVideoToDuration(const char *inputPath, const char *outPath, int64_t duration) {
+    if (nullptr == inputPath || nullptr == outPath || duration <= 0) {
+        BZLogUtil::logE(
+                "repeatVideoToDuration nullptr == input_path_ || nullptr == outputPath_ || duration <= 0");
+        return -1;
+    }
+    BZLogUtil::logD("repeatVideoToDuration inputPath=%s outPath=%s duration=%lld", inputPath,
+                    outPath, duration);
+    int ret = 0;
+    AVFormatContext *inAVFormatContext = nullptr;
+    ret = VideoUtil::openInputFileForSoft(inputPath, &inAVFormatContext, false, false);
+    if (ret < 0) {
+        BZLogUtil::logE("repeatVideoToDuration openInputFileForSoft fail path=%s", inputPath);
+        return -1;
+    }
+    if (nullptr == inAVFormatContext) {
+        BZLogUtil::logE("repeatVideoToDuration nullptr==inAVFormatContext");
+        return -1;
+    }
+    AVStream *inVideoStream = nullptr;
+    for (int i = 0; i < inAVFormatContext->nb_streams; ++i) {
+        AVStream *avStream = inAVFormatContext->streams[i];
+        if (avStream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            inVideoStream = avStream;
+            break;
+        }
+    }
+    if (nullptr == inVideoStream) {
+        avformat_close_input(&inAVFormatContext);
+        inAVFormatContext = nullptr;
+        BZLogUtil::logE("repeatVideoToDuration nullptr==inVideoStream");
+        return -1;
+    }
+    AVFormatContext *outAVFormatContext = nullptr;
+    ret = VideoUtil::openOutputFile(inAVFormatContext, &outAVFormatContext, outPath, false, false);
+    if (ret < 0) {
+        BZLogUtil::logE("repeatVideoToDuration openOutputFile fail path=%s", outPath);
+        return -1;
+    }
+    if (nullptr == outAVFormatContext) {
+        BZLogUtil::logE("repeatVideoToDuration nullptr == outAVFormatContext");
+        return -1;
+    }
+    AVPacket pkt;
+    int videoCount = 0;
+    long currentVideoTime = 0;
+    float VIDEO_RATE = 30;
+    while (true) {
+        ret = av_read_frame(inAVFormatContext, &pkt);
+        if (ret < 0) {
+            ret = av_seek_frame(inAVFormatContext, 0, 0, AVSEEK_FLAG_BACKWARD);
+            if (ret < 0) {
+                break;
+            }
+            continue;
+        }
+        AVStream *in_stream = inAVFormatContext->streams[pkt.stream_index];
+        if (in_stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+            continue;
+        }
+        pkt.pts =
+                currentVideoTime * in_stream->time_base.den / (1000.0f * in_stream->time_base.num);
+        pkt.dts = pkt.pts;
+        pkt.duration = (int64_t) ((1000.0f / VIDEO_RATE) * in_stream->time_base.den /
+                                  (1000.0f * in_stream->time_base.num));
+        pkt.pos = -1;
+        pkt.stream_index = 0;
+        currentVideoTime = (int64_t) (videoCount * (1000.0f / VIDEO_RATE));
+        videoCount++;
+        ret = av_interleaved_write_frame(outAVFormatContext, &pkt);
+        if (ret < 0) {
+            BZLogUtil::logE("Error muxing packet\n");
+            av_packet_unref(&pkt);
+            continue;
+        }
+        av_packet_unref(&pkt);
+        if (currentVideoTime > duration) {
+            break;
+        }
+    }
+    avformat_close_input(&inAVFormatContext);
+    ret = av_write_trailer(outAVFormatContext);
+    if (ret < 0) {
+        BZLogUtil::logE("av_write_trailer fail");
+    }
+    return 0;
+}
+
+int VideoUtil::setVideoDuration(const char *inputPath, const char *outPath, int64_t duration) {
+    if (nullptr == inputPath || nullptr == outPath || duration <= 0) {
+        BZLogUtil::logE(
+                "setVideoDuration nullptr == input_path_ || nullptr == outputPath_ || duration <= 0");
+        return -1;
+    }
+    BZLogUtil::logD("setVideoDuration inputPath=%s outPath=%s duration=%lld", inputPath,
+                    outPath, duration);
+    int ret = 0;
+    AVFormatContext *inAVFormatContext = nullptr;
+    ret = VideoUtil::openInputFileForSoft(inputPath, &inAVFormatContext, false, false);
+    if (ret < 0) {
+        BZLogUtil::logE("setVideoDuration openInputFileForSoft fail path=%s", inputPath);
+        return -1;
+    }
+    if (nullptr == inAVFormatContext) {
+        BZLogUtil::logE("setVideoDuration nullptr==inAVFormatContext");
+        return -1;
+    }
+    AVStream *inVideoStream = nullptr;
+    for (int i = 0; i < inAVFormatContext->nb_streams; ++i) {
+        AVStream *avStream = inAVFormatContext->streams[i];
+        if (avStream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            inVideoStream = avStream;
+            break;
+        }
+    }
+    if (nullptr == inVideoStream || inVideoStream->nb_frames <= 0) {
+        avformat_close_input(&inAVFormatContext);
+        inAVFormatContext = nullptr;
+        BZLogUtil::logE(
+                "setVideoDuration nullptr == inVideoStream || inVideoStream->nb_frames <= 0");
+        return -1;
+    }
+    //每一帧应该有多长
+    int64_t frameDuration = duration / inVideoStream->nb_frames;
+    //每一帧的PTS
+    int64_t frameDurationPts = (int64_t) (frameDuration * inVideoStream->time_base.den /
+                                          (1000.0f * inVideoStream->time_base.num));
+
+    AVFormatContext *outAVFormatContext = nullptr;
+    ret = VideoUtil::openOutputFile(inAVFormatContext, &outAVFormatContext, outPath, false, false);
+    if (ret < 0) {
+        BZLogUtil::logE("setVideoDuration openOutputFile fail path=%s", outPath);
+        return -1;
+    }
+    if (nullptr == outAVFormatContext) {
+        BZLogUtil::logE("setVideoDuration nullptr == outAVFormatContext");
+        return -1;
+    }
+    outAVFormatContext->duration = duration * 1000;
+    AVPacket pkt;
+    int videoCount = 0;
+    float VIDEO_RATE = 30;
+    int64_t pts = 0;
+    while (true) {
+        ret = av_read_frame(inAVFormatContext, &pkt);
+        if (ret < 0) {
+            break;
+        }
+        AVStream *in_stream = inAVFormatContext->streams[pkt.stream_index];
+        if (in_stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+            continue;
+        }
+        pkt.pts = pts;
+        pkt.dts = pkt.pts;
+        pkt.duration = frameDurationPts;
+        pkt.pos = -1;
+        pkt.stream_index = 0;
+        pts += frameDurationPts;
+        videoCount++;
+        ret = av_interleaved_write_frame(outAVFormatContext, &pkt);
+        if (ret < 0) {
+            BZLogUtil::logE("Error muxing packet\n");
+            av_packet_unref(&pkt);
+            continue;
+        }
+        av_packet_unref(&pkt);
+    }
+    avformat_close_input(&inAVFormatContext);
+    ret = av_write_trailer(outAVFormatContext);
+    if (ret < 0) {
+        BZLogUtil::logE("av_write_trailer fail");
+    }
+    return ret;
+}
+
+bool VideoUtil::videoCodecIsSupportForExoPlayer(const char *videoPath) {
+    if (nullptr == videoPath) {
+        return false;
+    }
+    AVFormatContext *in_fmt_ctx = nullptr;
+    unsigned int i;
+    if (avformat_open_input(&in_fmt_ctx, videoPath, nullptr, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot open input file\n");
+        return false;
+    }
+    if (nullptr == in_fmt_ctx) {
+        return false;
+    }
+    if (avformat_find_stream_info(in_fmt_ctx, nullptr) < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "Cannot find stream information\n");
+        return false;
+    }
+    bool result = false;
+    for (i = 0; i < in_fmt_ctx->nb_streams; i++) {
+        AVStream *inStream = in_fmt_ctx->streams[i];
+        if (inStream->codecpar->codec_type != AVMEDIA_TYPE_VIDEO
+            && inStream->codecpar->codec_type != AVMEDIA_TYPE_AUDIO) {
+            continue;
+        }
+        if (inStream->codecpar->codec_id == AV_CODEC_ID_AAC
+            || inStream->codecpar->codec_id == AV_CODEC_ID_HEVC
+            || inStream->codecpar->codec_id == AV_CODEC_ID_FLV1
+            || inStream->codecpar->codec_id == AV_CODEC_ID_MP3
+            || inStream->codecpar->codec_id == AV_CODEC_ID_AMR_NB
+            || inStream->codecpar->codec_id == AV_CODEC_ID_AMR_WB
+            || inStream->codecpar->codec_id == AV_CODEC_ID_FLAC
+            || inStream->codecpar->codec_id == AV_CODEC_ID_H263
+            || inStream->codecpar->codec_id == AV_CODEC_ID_MPEG4
+            || inStream->codecpar->codec_id == AV_CODEC_ID_VP8
+            || inStream->codecpar->codec_id == AV_CODEC_ID_VP9
+            || inStream->codecpar->codec_id == AV_CODEC_ID_PCM_S16LE
+            || inStream->codecpar->codec_id == AV_CODEC_ID_PCM_S8
+            || inStream->codecpar->codec_id == AV_CODEC_ID_H264) {
+            result = true;
+        } else {
+            result = false;
+            break;
+        }
+    }
+    if (nullptr != in_fmt_ctx)
+        avformat_close_input(&in_fmt_ctx);
+    return result;
 }
 

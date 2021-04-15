@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2017-10-11 18:10.
+ * Created by bookzhan on 2017-10-11 18:10.
  * 说明:FrameBuffer 的封装
  */
 //

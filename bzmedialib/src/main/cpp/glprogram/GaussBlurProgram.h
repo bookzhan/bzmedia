@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-08-13 11:11.
+ * Created by bookzhan on 2018-08-13 11:11.
  * 说明:
  */
 //
@@ -35,7 +35,6 @@ protected:
     float radius = 2.0f;
     GLint texelWidthOffsetLocation = 0;
     GLint texelHeightLocation = 0;
-
     FrameBufferUtils *frameBufferUtils_1 = nullptr;
     FrameBufferUtils *frameBufferUtils_2 = nullptr;
 

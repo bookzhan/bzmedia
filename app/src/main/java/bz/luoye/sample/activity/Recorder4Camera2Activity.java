@@ -70,7 +70,7 @@ public class Recorder4Camera2Activity extends AppCompatActivity {
         VideoRecordParams videoRecordParams = new VideoRecordParams();
         videoRecordParams.setInputWidth(displayWidth);
         videoRecordParams.setInputHeight(displayHeight);
-        videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath());
+        videoRecordParams.setOutputPath(FilePathUtil.getAVideoPath(this));
         videoRecorderNative = new VideoRecorderNative();
         videoRecorderNative.setOnVideoRecorderStateListener(new VideoRecorderBase.OnVideoRecorderStateListener() {
             @Override

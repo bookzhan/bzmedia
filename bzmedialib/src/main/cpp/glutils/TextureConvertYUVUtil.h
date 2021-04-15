@@ -1,6 +1,6 @@
 
 /**
- * Created by zhandalin on 2017-08-02 17:09.
+ * Created by bookzhan on 2017-08-02 17:09.
  * 说明:输入一个纹理ID,纹理的宽,高,输出YUV420p数据
  * 目前要在OpenGL线程里面调用
  */

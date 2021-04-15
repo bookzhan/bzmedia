@@ -1,6 +1,6 @@
 //
 /**
- * Created by zhandalin on 2018-06-12 11:31.
+ * Created by bookzhan on 2018-06-12 11:31.
  * 说明:
  */
 //
@@ -16,8 +16,6 @@ class CropTextureUtil {
 public:
     int cropTexture(int srcTexture, int srcWidth, int srcHeight,
                     int startX, int startY, int targetWidth, int targetHeight);
-
-    void cropTextureOnPause();
 
     int releaseCropTexture();
 

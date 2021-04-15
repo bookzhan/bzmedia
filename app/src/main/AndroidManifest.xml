@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="bz.luoye.sample">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -13,13 +16,45 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.VideoPlayerActivity"/>
+        <activity
+            android:name=".activity.PathMeasureDemoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.ViewDemoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.ChooseSoundEffectActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.SoundTouchDemoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.NewVideoMarkActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Fullscreen"
+            tools:ignore="LockedOrientationActivity" />
+        <activity
+            android:name=".activity.CameraMarkActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Fullscreen"
+            tools:ignore="LockedOrientationActivity" />
+        <activity android:name=".activity.FullVideoScreenActivity" />
+        <activity android:name=".activity.AdjustVideoSpeedActivity" />
+        <activity android:name=".activity.BZNativeVideoViewActivity" />
+        <activity android:name=".activity.MultipleImageEffectActivity" />
+        <activity android:name=".activity.ScaleAdjustmentActivity" />
+        <activity android:name=".activity.AudioFeatureActivity" />
+        <activity android:name=".activity.EffectsActivity" />
+        <activity android:name=".activity.MultipleImageFilterActivity" />
+        <activity android:name=".activity.VideoFilterActivity" />
+        <activity android:name=".activity.ImageFilterDemoActivity" />
+        <activity android:name=".activity.VideoPlayerActivity" />
         <activity android:name=".activity.GetImageFromVideoActivity" />
         <activity android:name=".activity.AudioPlayerActivity" />
-        <activity android:name=".activity.APITestActivity" />
         <activity android:name=".activity.Recorder4TextureActivity" />
         <activity android:name=".activity.Recorder4Camera2Activity" />
         <activity android:name=".activity.Recorder4BitmapActivity" />

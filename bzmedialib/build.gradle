@@ -1,17 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
 
-publish {
-    userOrg = 'bookzhan'
-    groupId = 'com.luoye.bzlib'
-    artifactId = 'bzmedia'
-    publishVersion = '1.0.8'
-    uploadName = 'bzmedia'
-    repoName = 'bzlib'
-    desc = 'bzmedia lib'
-    website = 'https://github.com/bookzhan/bookzhan.github.io'
-    licences = ['Apache-2.0']
-}
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
@@ -50,9 +38,35 @@ android {
         abortOnError false
     }
 }
+ext {
+    publish_group_id = 'io.github.bookzhan'
+    publish_artifact_id = "bzmedia"
+    publish_version = '1.0.8'
+    publish_description = 'bzmedialib'
 
+    developer_id = 'guaishou'
+    developer_name = 'bookzhan'
+    developer_email = 'bookzhan@qq.com'
+
+    github_name = 'bookzhan'
+    github_project_name = 'bzmedia'
+    github_project_url = 'https://github.com/bookzhan/bzmedia'
+}
+File secretPropsFile = project.rootProject.file('local.properties')
+if (secretPropsFile.exists()) {
+    Properties p = new Properties()
+    p.load(new FileInputStream(secretPropsFile))
+    if(p.containsKey("signing.keyId")&&p.containsKey("signing.password")&&p.containsKey("signing.secretKeyRingFile")
+            &&p.containsKey("ossrhUsername")&&p.containsKey("ossrhPassword")){
+        apply from: 'https://raw.githubusercontent.com/bookzhan/maven-publish-gradle/master/publish.gradle'
+        println("Configuration information detected")
+    }else {
+        println("Please configure the signature and account information in the local.properties file")
+    }
+}
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.luoye.bzlib:bzcommon:1.1.5'
-    implementation 'com.luoye.bzlib:bzyuv:1.1.16'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'io.github.bookzhan:bzcommon:1.1.14@aar'
+    implementation 'io.github.bookzhan:bzyuv:1.1.16@aar'
 }

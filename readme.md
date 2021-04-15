@@ -37,7 +37,7 @@
        repositories {
            google()
            jcenter()
-           maven { url 'https://dl.bintray.com/bookzhan/bzlib' }
+           mavenCentral()
        }
    }
    ```
@@ -45,9 +45,10 @@
 2. 然后添加依赖
 
    ```
-   implementation 'com.luoye.bzlib:bzmedia:1.0.8' 
-   implementation 'com.luoye.bzlib:bzcommon:1.1.5'
-   implementation 'com.luoye.bzlib:bzyuv:1.1.16'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'io.github.bookzhan:bzcommon:1.1.14@aar'
+    implementation 'io.github.bookzhan:bzyuv:1.1.16@aar'
+    implementation 'io.github.bookzhan:bzmedia:1.0.8@aar'
    ```
 
 3. 具体使用在工程里面都有Demo

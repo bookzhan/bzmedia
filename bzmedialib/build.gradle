@@ -55,7 +55,7 @@ ext {
 
     POM_GROUP_ID = 'com.guaishou.bzlib'
     POM_ATRIFACT_ID = 'bzmedia'
-    POM_VERSION = '1.0.9'
+    POM_VERSION = '1.0.10'
 }
 if (System.getenv('NEXUS_USER')) {
     NEXUS_USER = System.getenv('NEXUS_USER')

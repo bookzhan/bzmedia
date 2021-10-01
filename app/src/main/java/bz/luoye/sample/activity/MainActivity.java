@@ -3,6 +3,7 @@ package bz.luoye.sample.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -76,7 +77,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void OtherTest(View view) {
-        startActivity(new Intent(this, OtherTestActivity.class));
+//        startActivity(new Intent(this, OtherTestActivity.class));
+        String[] videos = new String[]{
+                Environment.getExternalStorageDirectory().getAbsolutePath() + "/bzmedia/test01.mp4",
+                Environment.getExternalStorageDirectory().getAbsolutePath() + "/bzmedia/test02.mp4"
+        };
+        String outPutPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/bzmedia/out_merge.mp4";
+        BZMedia.mergeVideoOrAudio(videos, outPutPath, new BZMedia.OnActionListener() {
+            @Override
+            public void progress(float progress) {
+                BZLogUtil.d(TAG, "progress=" + progress);
+            }
+
+            @Override
+            public void fail() {
+
+            }
+
+            @Override
+            public void success() {
+
+            }
+        });
     }
 
     public void AudioPlayerActivity(View view) {

@@ -1,16 +1,28 @@
 /**
- * Created by zhandalin on 2017-04-17 11:18.
+ * Created by bookzhan on 2017-04-17 11:18.
  * 说明:
  */
 
 #include "MergeVideoUtil.h"
 #include "../mediaedit/VideoUtil.h"
 
-int MergeVideoUtil::startMergeVideo(char **videoPaths, int length, const char *output_path,OnActionListener *onActionListener) {
+int MergeVideoUtil::startMergeVideo(char **videoPaths, int length, const char *output_path,
+                                    bool needVideo, bool needAudio,
+                                    OnActionListener *onActionListener) {
+    this->needVideo = needVideo;
+    this->needAudio = needAudio;
+    this->startMergeVideo(videoPaths, length, output_path, onActionListener);
+    return 0;
+}
+
+int MergeVideoUtil::startMergeVideo(char **videoPaths, int length, const char *output_path,
+                                    OnActionListener *onActionListener) {
     if (NULL == videoPaths || length <= 0 || NULL == output_path) {
         BZLogUtil::logE("params is error");
         return -1;
     }
+    BZLogUtil::logD("startMergeVideo needVideo=%d needAudio=%d output_path=%s", needVideo,
+                    needAudio, output_path);
     this->videoPaths = videoPaths;
     this->length = length;
     this->onActionListener = onActionListener;
@@ -29,7 +41,6 @@ int MergeVideoUtil::mergeVideo() {
         BZLogUtil::logE("mergeVideo params is error");
         return -1;
     }
-    BZLogUtil::logD("start mergeVideo output_path=%s", output_path);
     int ret = 0, videoIndex = 0, audioIndex = 1;
     AVPacket pkt;
     AVStream *in_stream, *out_stream;
@@ -38,7 +49,7 @@ int MergeVideoUtil::mergeVideo() {
 
     for (int i = 0; i < length; ++i) {
         ifmt_ctx = NULL;
-
+        BZLogUtil::logD("handle path=%s", videoPaths[i]);
         //加强兼容新,防止一个文件打开失败,其它的没法写入
         if (avformat_open_input(&ifmt_ctx, videoPaths[i], 0, 0) < 0) {
             BZLogUtil::logE("Could not open input file '%s'", videoPaths[i]);
@@ -68,7 +79,10 @@ int MergeVideoUtil::mergeVideo() {
                     audioIndex = j;
                 }
             }
-
+        }
+        int progressTargetIndex = videoIndex;
+        if (!needVideo) {
+            progressTargetIndex = audioIndex;
         }
 
         progress = (float) (1.0 * i / length);
@@ -92,6 +106,11 @@ int MergeVideoUtil::mergeVideo() {
                 break;
             }
             in_stream = ifmt_ctx->streams[pkt.stream_index];
+            if ((in_stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && !needVideo) ||
+                (in_stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO && !needAudio)) {
+                continue;
+            }
+
             if (in_stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
                 out_stream = avFormatContext->streams[videoIndex];
                 pkt.stream_index = videoIndex;
@@ -109,13 +128,13 @@ int MergeVideoUtil::mergeVideo() {
                                        (AVRounding) (AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
             pkt.duration = av_rescale_q(pkt.duration, in_stream->time_base, out_stream->time_base);
             pkt.pos = -1;
-            if (pkt.dts > 0 && pkt.stream_index == 0) {
+            if (pkt.dts > 0 && pkt.stream_index == progressTargetIndex) {
                 tempProgress = (float) (1.0 * pkt.dts / in_stream->duration) / length;
                 if (tempProgress < 0)tempProgress = 0;
                 if (tempProgress > 1)tempProgress = 1;
 
                 if (step % 10 == 0) {//防止频繁回调
-                    if (NULL != onActionListener)
+                    if (nullptr != onActionListener)
                         onActionListener->progress(progress + tempProgress);
                 }
                 step++;
@@ -153,7 +172,7 @@ int MergeVideoUtil::mergeVideo() {
                 pkt.pts += stream1Pts;
                 pkt.dts += stream1Dts;
             }
-//            BZLogUtil::logD("pkt.stream_index=%d--pkt.pts=%ld,pkt.dts=%ld", pkt.stream_index, pkt.pts,
+//            BZLogUtil::logD("pkt.stream_index=%d--pkt.pts=%lld,pkt.dts=%lld", pkt.stream_index, pkt.pts,
 //                 pkt.dts);
             ret = av_interleaved_write_frame(avFormatContext, &pkt);
             if (ret < 0) {
@@ -164,13 +183,13 @@ int MergeVideoUtil::mergeVideo() {
             av_packet_unref(&pkt);
         }
 
-        if (NULL != ifmt_ctx) {
+        if (nullptr != ifmt_ctx) {
             avformat_close_input(&ifmt_ctx);
-            ifmt_ctx = NULL;
+            ifmt_ctx = nullptr;
         }
     }
 
-    if (NULL != avFormatContext) {
+    if (nullptr != avFormatContext) {
         ret = av_write_trailer(avFormatContext);
         if (ret != 0) {
             BZLogUtil::logE("av_write_trailer fail");
@@ -204,4 +223,5 @@ int MergeVideoUtil::releaseResource() {
     }
     return 0;
 }
+
 

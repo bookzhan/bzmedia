@@ -66,6 +66,25 @@ public class BZMedia {
      */
     public static native int replaceBackgroundMusic(String videoPath, String musicPath, String outputPath, OnActionListener onActionListener);
 
+    /**
+     * Generally used for the same video, audio is split and then merged
+     *
+     * @param inputPaths If it is a video, it must be a video produced by the same encoder, and the width and height of the video must be the same.
+     *                   If it is audio, the sampling rate should be the same, and the format should be the same
+     */
+    public static int mergeVideoOrAudio(String[] inputPaths, String outPutPath, OnActionListener onActionListener) {
+        return mergeVideoOrAudio(inputPaths, outPutPath, true, true, onActionListener);
+    }
+
+    /**
+     * The following two parameters are generally true, and the file extension must be mp4
+     *
+     * @param needVideo false The video stream will not be retained. At this time, the file extension needs to be m4a
+     * @param needAudio false Audio is not retained, at this time the file extension must be mp4
+     */
+    public static native int mergeVideoOrAudio(String[] inputPaths, String outPutPath, boolean needVideo, boolean needAudio, OnActionListener onActionListener);
+
+
 
     public interface OnActionListener {
         void progress(float progress);

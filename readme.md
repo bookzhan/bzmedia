@@ -1,6 +1,6 @@
 ### BZMedia 是一个Android 音视频库，包含视频录制，视频编解码，视频编辑，常见的OpenGL操作
 
-> 项目介绍：这套音视频库包含了常见的音视频处理技术，服务于用户量高达到8亿的APP，里面使用的技术在市场上深度验证过，现在逐步整理出来然后开源，供大家学习交流
+> 项目介绍：这套音视频库包含了常见的音视频处理技术，服务于用户量高达到8亿的APP，里面使用的技术在市场上深度验证过，现在逐步整理出来然后开源，共大家学习交流
 
 
 ##### 如果帮到你了请点一个star
@@ -36,8 +36,7 @@
    allprojects {
        repositories {
            google()
-           jcenter()
-           mavenCentral()
+           maven { url "https://www.bzblog.online/nexus/repository/maven-releases/" }
        }
    }
    ```
@@ -45,10 +44,9 @@
 2. 然后添加依赖
 
    ```
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'io.github.bookzhan:bzcommon:1.1.14@aar'
-    implementation 'io.github.bookzhan:bzyuv:1.1.16@aar'
-    implementation 'io.github.bookzhan:bzmedia:1.0.8@aar'
+   implementation 'com.guaishou.bzlib:bzcommon:1.1.16@aar'
+   implementation 'com.guaishou.bzlib:bzyuv:1.1.17@aar'
+   implementation 'com.guaishou.bzlib:bzmedia:1.0.9@aar'
    ```
 
 3. 具体使用在工程里面都有Demo

@@ -46,7 +46,7 @@
    ```
    implementation 'com.guaishou.bzlib:bzcommon:1.1.16@aar'
    implementation 'com.guaishou.bzlib:bzyuv:1.1.17@aar'
-   implementation 'com.guaishou.bzlib:bzmedia:1.0.9@aar'
+   implementation 'com.guaishou.bzlib:bzmedia:1.0.10@aar'
    ```
 
 3. 具体使用在工程里面都有Demo

@@ -36,8 +36,7 @@
    allprojects {
        repositories {
            google()
-           jcenter()
-           maven { url 'https://dl.bintray.com/bookzhan/bzlib' }
+           maven { url "https://www.bzblog.online/nexus/repository/maven-releases/" }
        }
    }
    ```
@@ -45,9 +44,9 @@
 2. 然后添加依赖
 
    ```
-   implementation 'com.luoye.bzlib:bzmedia:1.0.5' 
-   implementation 'com.luoye.bzlib:bzcommon:1.1.4'
-   implementation 'com.luoye.bzlib:bzyuv:1.1.15'
+   implementation 'com.guaishou.bzlib:bzcommon:1.1.16@aar'
+   implementation 'com.guaishou.bzlib:bzyuv:1.1.17@aar'
+   implementation 'com.guaishou.bzlib:bzmedia:1.0.9@aar'
    ```
 
 3. 具体使用在工程里面都有Demo

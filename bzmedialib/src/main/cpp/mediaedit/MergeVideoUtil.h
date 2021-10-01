@@ -1,5 +1,5 @@
 /**
- * Created by zhandalin on 2017-04-17 11:18.
+ * Created by bookzhan on 2017-04-17 11:18.
  * 说明:
  */
 
@@ -24,6 +24,10 @@ public:
     int startMergeVideo(char **videoPaths, int length, const char *output_path,
                         OnActionListener *onActionListener);
 
+    int startMergeVideo(char **videoPaths, int length, const char *output_path, bool needVideo,
+                        bool needAudio,
+                        OnActionListener *onActionListener);
+
 private:
     char **videoPaths = nullptr;
     int length = 0;
@@ -40,6 +44,9 @@ private:
     int mergeVideo();
 
     int releaseResource();
+
+    bool needVideo = true;
+    bool needAudio = true;
 };
 
 

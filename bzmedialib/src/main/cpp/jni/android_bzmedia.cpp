@@ -6,6 +6,7 @@
 #include <mediaedit/AdjustVideoSpeedUtil.h>
 #include <mediaedit/BackgroundMusicUtil.h>
 #include <player/PCMPlayerNative.h>
+#include <mediaedit/MergeVideoUtil.h>
 #include "ffmpeg_base_info.h"
 #include "OnActionListener.h"
 
@@ -327,5 +328,51 @@ Java_com_luoye_bzmedia_BZMedia_replaceBackgroundMusic(
 
     env->ReleaseStringUTFChars(videoPath_, videoPath);
     env->ReleaseStringUTFChars(musicPath_, musicPath);
+    return ret;
+}
+extern "C" JNIEXPORT jint JNICALL
+Java_com_luoye_bzmedia_BZMedia_mergeVideoOrAudio(
+        JNIEnv *env, jclass type,
+        jobjectArray inputPaths,
+        jstring outPutPath, jboolean needVideo, jboolean needAudio, jobject onActionListenerObj) {
+
+    if (!needVideo && !needAudio) {
+        BZLogUtil::logE("!needVideo&&!needAudio");
+        return -1;
+    }
+    size_t arrayLength = static_cast<size_t>(env->GetArrayLength(inputPaths));
+    char **pstr = (char **) malloc(arrayLength * sizeof(char *));
+    memset(pstr, 0, arrayLength * sizeof(char *));
+
+    int i = 0;;
+    for (i = 0; i < arrayLength; i++) {
+        jstring javaPath = (jstring) env->GetObjectArrayElement(inputPaths, i);
+        const char *path = env->GetStringUTFChars(javaPath, 0);
+        size_t length = strlen(path) + 1;
+        char *buffer = static_cast<char *>(malloc(length));
+        memset(buffer, 0, length);
+        sprintf(buffer, "%s", path);
+        env->ReleaseStringUTFChars(javaPath, path);
+
+        pstr[i] = buffer;
+    }
+    const char *output_path = env->GetStringUTFChars(outPutPath, 0);
+    OnActionListener *onActionListener = new OnActionListener(onActionListenerObj);
+    MergeVideoUtil mergeVideoUtil;
+    int ret = mergeVideoUtil.startMergeVideo(pstr, static_cast<int>(arrayLength), output_path,
+                                             needVideo, needAudio,
+                                             onActionListener);
+
+    for (i = 0; i < arrayLength; i++) {
+        free(pstr[i]);
+    }
+    free(pstr);
+    if (ret < 0) {
+        onActionListener->fail();
+    } else {
+        onActionListener->success();
+    }
+    delete (onActionListener);
+    env->ReleaseStringUTFChars(outPutPath, output_path);
     return ret;
 }

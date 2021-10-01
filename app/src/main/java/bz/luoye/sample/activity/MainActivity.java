@@ -8,7 +8,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bzcommon.utils.BZLogUtil;
-import com.luoye.bzcamera.utils.PermissionUtil;
+import com.bzcommon.utils.BZPermissionUtil;
 import com.luoye.bzmedia.BZMedia;
 
 import java.io.File;
@@ -40,16 +40,16 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean requestPermission() {
         ArrayList<String> permissionList = new ArrayList<>();
-        if (!PermissionUtil.isPermissionGranted(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+        if (!BZPermissionUtil.isPermissionGranted(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
             permissionList.add(Manifest.permission.READ_EXTERNAL_STORAGE);
         }
-        if (!PermissionUtil.isPermissionGranted(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (!BZPermissionUtil.isPermissionGranted(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
-        if (!PermissionUtil.isPermissionGranted(this, Manifest.permission.CAMERA)) {
+        if (!BZPermissionUtil.isPermissionGranted(this, Manifest.permission.CAMERA)) {
             permissionList.add(Manifest.permission.CAMERA);
         }
-        if (!PermissionUtil.isPermissionGranted(this, Manifest.permission.RECORD_AUDIO)) {
+        if (!BZPermissionUtil.isPermissionGranted(this, Manifest.permission.RECORD_AUDIO)) {
             permissionList.add(Manifest.permission.RECORD_AUDIO);
         }
 
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         permissionList.toArray(permissionStrings);
 
         if (permissionList.size() > 0) {
-            PermissionUtil.requestPermission(this, permissionStrings, PermissionUtil.CODE_REQ_PERMISSION);
+            BZPermissionUtil.requestPermission(this, permissionStrings, BZPermissionUtil.CODE_REQ_PERMISSION);
             return false;
         } else {
             BZLogUtil.d(TAG, "Have all permissions");

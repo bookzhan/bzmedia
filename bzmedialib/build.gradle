@@ -1,17 +1,7 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
-publish {
-    userOrg = 'bookzhan'
-    groupId = 'com.luoye.bzlib'
-    artifactId = 'bzmedia'
-    publishVersion = '1.0.5'
-    uploadName = 'bzmedia'
-    repoName = 'bzlib'
-    desc = 'bzmedia lib'
-    website = 'https://github.com/bookzhan/bookzhan.github.io'
-    licences = ['Apache-2.0']
-}
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
@@ -49,10 +39,72 @@ android {
     lintOptions {
         abortOnError false
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    ndkVersion '22.1.7171670'
 }
+ext {
+    NEXUS_USER = ''
+    NEXUS_PASSWORD = ''
+    RELEASE_SNAPSHOT = false
+
+    POM_URL_SNAP = 'https://www.bzblog.online/nexus/repository/maven-snapshots/'
+    POM_URL = 'https://www.bzblog.online/nexus/repository/maven-releases/'
+
+    POM_GROUP_ID = 'com.guaishou.bzlib'
+    POM_ATRIFACT_ID = 'bzmedia'
+    POM_VERSION = '1.0.9'
+}
+if (System.getenv('NEXUS_USER')) {
+    NEXUS_USER = System.getenv('NEXUS_USER')
+}
+if (System.getenv('NEXUS_PASSWORD')) {
+    NEXUS_PASSWORD = System.getenv('NEXUS_PASSWORD')
+}
+println("NEXUS_USER=" + NEXUS_USER + " NEXUS_PASSWORD=" + NEXUS_PASSWORD)
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            if (RELEASE_SNAPSHOT) {
+                snapshotRepository(url: POM_URL_SNAP) {
+                    authentication(userName: NEXUS_USER, password: NEXUS_PASSWORD)
+                }
+                POM_VERSION += "-SNAPSHOT"
+            } else {
+                repository(url: POM_URL) {
+                    authentication(userName: NEXUS_USER, password: NEXUS_PASSWORD)
+                }
+            }
+
+            pom.groupId = POM_GROUP_ID
+            pom.artifactId = POM_ATRIFACT_ID
+            pom.version = POM_VERSION
+
+            pom.project {
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+}
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.getSrcDirs()
+}
+artifacts {
+    archives androidSourcesJar
+}
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.luoye.bzlib:bzcommon:1.1.4'
-    implementation 'com.luoye.bzlib:bzyuv:1.1.13'
+    implementation 'com.guaishou.bzlib:bzcommon:1.1.16@aar'
+    implementation 'com.guaishou.bzlib:bzyuv:1.1.17@aar'
 }

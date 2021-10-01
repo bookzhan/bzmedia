@@ -32,8 +32,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-    implementation 'com.luoye.bzlib:bzcommon:1.1.4'
-    implementation 'com.luoye.bzlib:bzcamera:1.0.17'
-    implementation 'com.luoye.bzlib:bzyuv:1.1.15'
+    implementation 'com.guaishou.bzlib:bzcommon:1.1.16@aar'
+    implementation 'com.guaishou.bzlib:bzyuv:1.1.17@aar'
+    implementation 'com.guaishou.bzlib:bzcamera:1.0.22@aar'
     implementation project(path: ':bzmedialib')
 }

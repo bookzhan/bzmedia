@@ -15,7 +15,7 @@ import com.bzcommon.glutils.BaseProgram;
 import com.bzcommon.glutils.FrameBufferUtil;
 import com.bzcommon.utils.BZLogUtil;
 import com.luoye.bzcamera.BZCameraView;
-import com.luoye.bzcamera.listener.CameraStateListener;
+import com.luoye.bzcamera.listener.OnCameraStateListener;
 import com.luoye.bzmedia.BZMedia;
 import com.luoye.bzmedia.bean.VideoRecordParams;
 import com.luoye.bzmedia.recorder.OnRecorderErrorListener;
@@ -37,7 +37,7 @@ import static android.opengl.GLES20.glClearColor;
 import static android.opengl.GLES20.glEnable;
 import static android.opengl.GLES20.glViewport;
 
-public class Recorder4TextureActivity extends AppCompatActivity implements CameraStateListener {
+public class Recorder4TextureActivity extends AppCompatActivity implements OnCameraStateListener {
     private final static String TAG = "bz_Recoder4Texture";
 
     private int previewFormat = ImageFormat.YV12;
@@ -64,7 +64,7 @@ public class Recorder4TextureActivity extends AppCompatActivity implements Camer
         bzCameraView = findViewById(R.id.bz_camera_view);
         bzCameraView.setPreviewFormat(previewFormat);
         bzCameraView.setNeedCallBackData(true);
-        bzCameraView.setCameraStateListener(this);
+        bzCameraView.setOnCameraStateListener(this);
 
         bzBaseGlSurfaceView.setOnDrawFrameListener(new BZBaseGLSurfaceView.OnDrawFrameListener() {
             @Override

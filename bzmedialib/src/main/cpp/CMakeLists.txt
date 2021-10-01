@@ -45,8 +45,8 @@ add_library( # Sets the name of the library.
 # default, you only need to specify the name of the public NDK library
 # you want to add. CMake verifies that the library exists before
 # completing its build.
-configure_file(${Project_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libbzffmpeg.so ${Project_BINARY_DIR}/libbzffmpeg.so COPYONLY)
-configure_file(${Project_SOURCE_DIR}/../jniLibs/${ANDROID_ABI}/libbzffmpegcmd.so ${Project_BINARY_DIR}/libbzffmpegcmd.so COPYONLY)
+configure_file(${Project_SOURCE_DIR}/../cpp/jniLibs/${ANDROID_ABI}/libbzffmpeg.so ${Project_BINARY_DIR}/libbzffmpeg.so COPYONLY)
+configure_file(${Project_SOURCE_DIR}/../cpp/jniLibs/${ANDROID_ABI}/libbzffmpegcmd.so ${Project_BINARY_DIR}/libbzffmpegcmd.so COPYONLY)
 
 #ffmpeg
 add_library(bzffmpeg-lib

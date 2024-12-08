@@ -1,8 +1,8 @@
 
 project.ext {
-    compileSdkVersion = 31
+    compileSdkVersion = 34
     minSdkVersion = 24
-    targetSdkVersion = 28
+    targetSdkVersion = 34
     guavaVersion = '27.1-android'
     appcompatVersion = '1.4.1'
     bzyuvVersion = '1.1.17'

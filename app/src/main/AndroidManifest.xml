@@ -3,13 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="bz.luoye.sample">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
     <application
         android:name=".BZApplication"
@@ -26,22 +35,7 @@
         <activity
             android:name=".activity.ViewDemoActivity"
             android:exported="false" />
-        <activity
-            android:name=".activity.ChooseSoundEffectActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.SoundTouchDemoActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activity.NewVideoMarkActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Fullscreen"
-            tools:ignore="LockedOrientationActivity" />
-        <activity
-            android:name=".activity.CameraMarkActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Fullscreen"
-            tools:ignore="LockedOrientationActivity" />
+
         <activity android:name=".activity.FullVideoScreenActivity" />
         <activity android:name=".activity.AdjustVideoSpeedActivity" />
         <activity android:name=".activity.BZNativeVideoViewActivity" />
@@ -60,7 +54,8 @@
         <activity android:name=".activity.Recorder4BitmapActivity" />
         <activity android:name=".activity.RecorderTestActivity" />
         <activity android:name=".activity.Recorder4Camera1Activity" />
-        <activity android:name=".activity.MainActivity">
+        <activity android:name=".activity.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

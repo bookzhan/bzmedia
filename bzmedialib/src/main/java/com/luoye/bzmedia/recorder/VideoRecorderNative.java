@@ -67,7 +67,7 @@ public class VideoRecorderNative extends VideoRecorderBase implements AudioCaptu
             videoRecordParams.setBitRate(bitRate);
         }
         nativeHandle = BZMedia.startRecord(videoRecordParams);
-        if (nativeHandle < 0) {
+        if (nativeHandle == 0) {
             mRecording = false;
             if (null != mOnRecorderErrorListener)
                 mOnRecorderErrorListener.onVideoError(ERROR_UNKNOWN, ERROR_UNKNOWN);

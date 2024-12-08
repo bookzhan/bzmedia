@@ -142,9 +142,9 @@ Java_com_luoye_bzmedia_BZMedia_initNative(JNIEnv *env, jclass clazz, jobject con
         av_log_set_callback(log_call_back);
     }
     //权限检测
-    if (!PermissionUtil::checkPermission(env, context)) {
-        return -1;
-    }
+//    if (!PermissionUtil::checkPermission(env, context)) {
+//        return -1;
+//    }
     if (nullptr == bzMediaClass) {
         bzMediaClass = (jclass) env->NewGlobalRef(clazz);
     }

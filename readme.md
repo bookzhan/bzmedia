@@ -55,9 +55,9 @@
 
 #### 相关链接:
 
-#### [FFmpeg 在Android下的编译](https://www.raoyunsoft.com/wordpress/index.php/2020/05/26/ffmpeg-build-android/)
+#### [FFmpeg 在Android下的编译](https://blog.raoyunsoft.com/index.php/2020/05/26/ffmpeg-build-android/)
 
-#### [Android FFmpeg命令行工具支持进度回调](https://www.raoyunsoft.com/wordpress/index.php/2020/06/29/bzcmdffmpeg/)
+#### [Android FFmpeg命令行工具支持进度回调](https://blog.raoyunsoft.com/index.php/2020/06/29/bzcmdffmpeg/)
 
-#### [Android YUV转换，支持Camera1，Camera2](https://www.raoyunsoft.com/wordpress/index.php/2020/05/25/androidlibyuv/)
+#### [Android YUV转换，支持Camera1，Camera2](https://blog.raoyunsoft.com/index.php/2020/05/25/androidlibyuv/)
 

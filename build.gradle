@@ -20,8 +20,8 @@ allprojects {
         maven {
             url "https://jitpack.io"
         }
-        maven { url "https://www.raoyunsoft.com/nexus/repository/maven-releases/" }
-        maven { url "https://www.raoyunsoft.com/nexus/repository/maven-snapshots/" }
+        maven { url "https://nexus.raoyunsoft.com/repository/maven-releases/" }
+        maven { url "https://nexus.raoyunsoft.com/repository/maven-snapshots/" }
     }
 
     tasks.withType(Javadoc) {

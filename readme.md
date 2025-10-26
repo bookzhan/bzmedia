@@ -37,7 +37,7 @@
        repositories {
            google()
            jcenter()
-            maven { url "https://www.raoyunsoft.com/nexus/repository/maven-releases/" }
+            maven { url "https://nexus.raoyunsoft.com/repository/maven-releases/" }
        }
    }
    ```

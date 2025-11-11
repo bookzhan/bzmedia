@@ -55,7 +55,10 @@
 
 #### 相关链接:
 
-- [FFmpeg 在Android下的编译](https://blog.raoyunsoft.com/post/6?category=Android)
-- [Android FFmpeg命令行工具支持进度回调](https://blog.raoyunsoft.com/post/2)
-- [Android YUV转换，支持Camera1，Camera2](https://blog.raoyunsoft.com/post/5)
+- [FFmpeg 在Android下的编译](https://blog.raoyunsoft.com/post/android-audio-video-development-ffmpeg-android-build)
+- [Android FFmpeg命令行工具支持进度回调](https://blog.raoyunsoft.com/post/android-ffmpeg-cli-tool-progress-callback)
+- [Android YUV转换，支持Camera1，Camera2](https://blog.raoyunsoft.com/post/android-yuv-cropping-camera1-camera2-support)
+- [开源一个Android 音视频库，包含了视频录制，编解码，以及编辑，和常见的OpenGL，FFmpeg操作](https://blog.raoyunsoft.com/post/android-audio-video-library-record-encode-edit)
+- [Dlib 在Android的编译](https://blog.raoyunsoft.com/post/dlib-android-build-guide)
+- [libyuv在Android下的编译](https://blog.raoyunsoft.com/post/libyuv-android-build-guide)
 
